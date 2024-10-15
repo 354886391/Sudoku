@@ -1,12 +1,12 @@
-import { UILayer, UIOption } from "../ui/UIManager";
-import { RESOption as RESOption } from "../resources/ResourceManager";
+import { UILayer, UIOption } from "../framework/ui/UIManager";
+import { RESOption as RESOption } from "../framework/resources/ResourceManager";
 
 /** UI配置 */
 export const UI_ROOT: { [key: string]: UIOption } = {
     // 选择玩家游戏角色
-    StartPanel: {
-        name: "StartPanel",
-        path: "prefab/StartPanel",
+    MainPanel: {
+        name: "MainPanel",
+        path: "prefab/MainPanel",
         bundle: "resources",
         hasMask: false,
         isCache: false,

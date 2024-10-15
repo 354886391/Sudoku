@@ -1,14 +1,14 @@
 import { _decorator, Component, PhysicsSystem, profiler, game } from 'cc';
-import { StorageManager } from './framework/manager/StorageManager';
-import { UI_ROOT } from './framework/data/MainConfig';
-import { UIManager } from './framework/ui/UIManager';
-import { StartPanel } from './StartPanel';
-import { Global } from './Global';
+import { StorageManager } from '../framework/manager/StorageManager';
+import { UI_ROOT } from './MainConfig';
+import { UIManager } from '../framework/ui/UIManager';
+import { MainPanel } from './MainPanel';
+import { Global } from '../Global';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('StartEntry')
-export class StartEntry extends Component {
+@ccclass
+export class MainEntry extends Component {
 
     protected onLoad(): void {
         this.setFrameRate();
@@ -28,7 +28,7 @@ export class StartEntry extends Component {
         }
         console.log("###frameRate", frameRate);
         game.frameRate = frameRate;
-        PhysicsSystem.instance.fixedTimeStep = 1 / frameRate;
+        // PhysicsSystem.instance.fixedTimeStep = 1 / frameRate;
     }
 
     setDebugStats(): void {
@@ -38,7 +38,7 @@ export class StartEntry extends Component {
 
     showStartView(){
         UIManager.instance.init(UI_ROOT);
-        UIManager.instance.open(StartPanel);
+        UIManager.instance.open(MainPanel);
         Global.LOGIN_TIME = Date.now();
     }
 }
