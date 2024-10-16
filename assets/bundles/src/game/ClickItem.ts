@@ -14,20 +14,24 @@ export class ClickItem extends Component {
     clickAni: Animation = null;
 
     id: number = 0;
-    row: number = 0;
-    col: number = 0;
+    value: number = 0;
 
-
-    public init(id: number): void {
+    public init(id: number, value: number): void {
         this.id = id;
-        this.setLabel(id);
+        this.value = value;
+        if (value > 0) {
+            this.setValue(`${value}`);
+        }else{
+            this.setValue("");
+        }
     }
 
-    private setLabel(id: number) {
-        this.itemLabel.string = `${id}`;
+    private setValue(str: string) {
+
+        this.itemLabel.string = str;
     }
 
-    private clearLabel(): void {
+    private clearValue(): void {
         this.itemLabel.string = "";
     }
 
@@ -37,7 +41,7 @@ export class ClickItem extends Component {
 
     public onClicked(): void {
         Log.d(`ClickItem ${this.id}`);
-        
+
         this.clickAni.play();
         Eventer.emit("", this.id);
     }

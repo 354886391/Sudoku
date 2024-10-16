@@ -5,7 +5,6 @@ import { UIManager } from "../framework/ui/UIManager";
 import { UIView } from "../framework/ui/UIView";
 import { Global } from "../Global";
 
-
 const { ccclass, property } = _decorator;
 
 /** 游戏开始界面 */
@@ -32,3 +31,5 @@ export class MainPanel extends UIView {
         }, 1);
     }
 }
+
+UIManager.instance.register(MainPanel);
