@@ -8,19 +8,42 @@ export class DrawView extends Component {
 
     @property(Graphics)
     draw: Graphics = null;
+    @property(Graphics)
+    draw2: Graphics = null;
 
-    
+    oneRectWidth: number = 345;
+    halfRectWidth: number = 345 / 2;
 
     protected start(): void {
-        this.draw.lineWidth = 1;
-        this.draw.moveTo(-523, 540);
-        this.draw.lineTo(523, 540);
-        this.draw.lineTo(-523, -501);
-        this.draw.lineTo(523, -501);
-        this.draw.lineTo(-523, 540);
-        // this.draw.rect(-523, 540, 1046, 1046);
+        //#region 绘制棋盘
+        let OLine = 5;
+        let HLine = 5 / 2;
+        let ORect = 345;
+        let HRect = 345 / 2;
+        let OHRect = ORect + HRect;
+        let OView = ORect * 3 + OLine * 2;
+
+        this.draw.lineWidth = OLine;
+        this.draw.rect(-OHRect - OLine, -OHRect - OLine, OView, OView);
+
+        this.draw.moveTo(-OHRect - OLine, HRect);
+        this.draw.lineTo(OHRect + OLine, HRect);
+
+        this.draw.moveTo(-OHRect, -HRect);
+        this.draw.lineTo(OHRect, -HRect);
+
+        this.draw.moveTo(-HRect, OHRect);
+        this.draw.lineTo(-HRect, -OHRect);
+
+        this.draw.moveTo(HRect, OHRect);
+        this.draw.lineTo(HRect, -OHRect);
+        this.draw.stroke();
+        //#endregion
+
+        this.draw2.lineWidth = 3;
+        this.draw2.moveTo(-345 - 57.5, 345 + 57.5);
     }
-    
+
 }
 
 
