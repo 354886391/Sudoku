@@ -24,10 +24,12 @@ export class DrawView extends Component {
         let space_H = space_O / 2;
         let view_O = rect_O * 3 + space_O * 2;
         let view_H = view_O / 2;
+        
+        let viewWidth = view_O + space_O;
 
         this.draw.lineWidth = line_O;
 
-        this.draw.rect(-(view_H + space_H), -(view_H + space_H), view_O + space_O, view_O + space_O);
+        this.draw.rect(-(viewWidth/2), -(viewWidth/2), viewWidth, viewWidth);
 
         this.draw.moveTo(-view_H, rect_H + line_H);
         this.draw.lineTo(view_H, rect_H + line_H);
