@@ -1,10 +1,10 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { GameState } from '../data/GameState';
-import { ClickItem } from './ClickItem';
+import { ClickBlock } from './ClickBlock';
 const { ccclass, property } = _decorator;
 
-@ccclass('ClickRect')
-export class ClickRect extends Component {
+@ccclass('ClickNonet')
+export class ClickNonet extends Component {
 
     @property(Prefab)
     itemPrefab: Prefab;
@@ -35,7 +35,7 @@ export class ClickRect extends Component {
      */
     createItem(id: number, value: number, parent: Node): void {
         let node = instantiate(this.itemPrefab);
-        let item = node.getComponent(ClickItem);
+        let item = node.getComponent(ClickBlock);
         node.setParent(parent);
         item.init(id, value);
         // 更新layout布局

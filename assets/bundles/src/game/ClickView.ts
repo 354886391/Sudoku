@@ -1,6 +1,6 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
-import { ClickRect } from './ClickRect';
 import { GameState } from '../data/GameState';
+import { ClickNonet } from './ClickNonet';
 const { ccclass, property } = _decorator;
 
 @ccclass('ClickView')
@@ -34,7 +34,7 @@ export class ClickView extends Component {
      */
     private createRect(rectId: number, parent: Node) {
         let node = instantiate(this.rectPrefab);
-        let rect = node.getComponent(ClickRect);
+        let rect = node.getComponent(ClickNonet);
         node.setParent(parent);
         rect.init(rectId);
         // 更新layout布局

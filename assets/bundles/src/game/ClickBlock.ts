@@ -2,8 +2,8 @@ import { _decorator, Animation, Component, Label, Node, Sprite } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 const { ccclass, property } = _decorator;
 
-@ccclass('ClickItem')
-export class ClickItem extends Component {
+@ccclass('ClickBlock')
+export class ClickBlock extends Component {
 
     @property(Sprite)
     itemBg: Sprite = null;
