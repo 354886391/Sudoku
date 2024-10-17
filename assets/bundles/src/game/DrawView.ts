@@ -12,42 +12,70 @@ export class DrawView extends Component {
     draw2: Graphics = null;
 
     protected start(): void {
+
+        let itemWidth = 112;
         //#region 绘制棋盘
-        let line_O = 6;             // one
-        let line_H = line_O / 2;    // half
+        let gapWidth = 4;
+        let lineWidth = 6;
+        let rectWidth = itemWidth * 3 + gapWidth;
+        let viewWidth = rectWidth * 3;
 
-        let rect_O = 336;
-        let rect_H = rect_O / 2;
-        let rect_OH = rect_O * 1.5;
-
-        let space_O = 6;
-        let space_H = space_O / 2;
-        let view_O = rect_O * 3 + space_O * 2;
-        let view_H = view_O / 2;
-        
-        let viewWidth = view_O + space_O;
-
-        this.draw.lineWidth = line_O;
-
-        this.draw.rect(-(viewWidth/2), -(viewWidth/2), viewWidth, viewWidth);
-
-        this.draw.moveTo(-view_H, rect_H + line_H);
-        this.draw.lineTo(view_H, rect_H + line_H);
-
-        this.draw.moveTo(-view_H, -rect_H - line_H);
-        this.draw.lineTo(view_H, -rect_H - line_H);
-
-        this.draw.moveTo(-rect_H - line_H, view_H);
-        this.draw.lineTo(-rect_H - line_H, -view_H);
-
-        this.draw.moveTo(rect_H + line_H, view_H);
-        this.draw.lineTo(rect_H + line_H, -view_H);
-
+        this.draw.lineWidth = lineWidth;
+        // 矩形边框
+        this.draw.rect(-viewWidth / 2, -viewWidth / 2, viewWidth, viewWidth);
+        // 横1
+        this.draw.moveTo(-viewWidth / 2, rectWidth / 2);
+        this.draw.lineTo(viewWidth / 2, rectWidth / 2);
+        // 横2
+        this.draw.moveTo(-viewWidth / 2, -rectWidth / 2);
+        this.draw.lineTo(viewWidth / 2, -rectWidth / 2);
+        // 竖1
+        this.draw.moveTo(-rectWidth / 2, viewWidth / 2);
+        this.draw.lineTo(-rectWidth / 2, -viewWidth / 2);
+        // 竖2
+        this.draw.moveTo(rectWidth / 2, viewWidth / 2);
+        this.draw.lineTo(rectWidth / 2, -viewWidth / 2);
         this.draw.stroke();
         //#endregion
 
-        this.draw2.lineWidth = 4;
-        this.draw2.moveTo(-345 - 57.5, 345 + 57.5);
+        //#region 绘制边框
+        let lineWidth2 = 4;
+        let pos1 = itemWidth + gapWidth / 2;
+        let pos2 = itemWidth + pos1;
+        this.draw2.lineWidth = lineWidth2;
+        // 横1
+        this.draw2.moveTo(-viewWidth / 2, rectWidth / 2 + pos1);
+        this.draw2.lineTo(viewWidth / 2, rectWidth / 2 + pos1);
+        this.draw2.moveTo(-viewWidth / 2, rectWidth / 2 + pos2);
+        this.draw2.lineTo(viewWidth / 2, rectWidth / 2 + pos2);
+        // 横2
+        this.draw2.moveTo(-viewWidth / 2, itemWidth / 2);
+        this.draw2.lineTo(viewWidth / 2, itemWidth / 2);
+        this.draw2.moveTo(-viewWidth / 2, -itemWidth / 2);
+        this.draw2.lineTo(viewWidth / 2, -itemWidth / 2);
+        // 横3
+        this.draw2.moveTo(-viewWidth / 2, -rectWidth / 2 - pos1);
+        this.draw2.lineTo(viewWidth / 2, -rectWidth / 2 - pos1);
+        this.draw2.moveTo(-viewWidth / 2, -rectWidth / 2 - pos2);
+        this.draw2.lineTo(viewWidth / 2, -rectWidth / 2 - pos2);
+        // 竖1
+        this.draw2.moveTo(-rectWidth / 2 - pos1, viewWidth / 2);
+        this.draw2.lineTo(-rectWidth / 2 - pos1, -viewWidth / 2);
+        this.draw2.moveTo(-rectWidth / 2 - pos2, viewWidth / 2);
+        this.draw2.lineTo(-rectWidth / 2 - pos2, -viewWidth / 2);
+        // 竖2
+        this.draw2.moveTo(itemWidth / 2, viewWidth / 2);
+        this.draw2.lineTo(itemWidth / 2, -viewWidth / 2);
+        this.draw2.moveTo(-itemWidth / 2, viewWidth / 2);
+        this.draw2.lineTo(-itemWidth / 2, -viewWidth / 2);
+        // 竖3
+        this.draw2.moveTo(rectWidth / 2 + pos1, viewWidth / 2);
+        this.draw2.lineTo(rectWidth / 2 + pos1, -viewWidth / 2);
+        this.draw2.moveTo(rectWidth / 2 + pos2, viewWidth / 2);
+        this.draw2.lineTo(rectWidth / 2 + pos2, -viewWidth / 2);
+        this.draw2.stroke();
+        //#endregion
+
     }
 
 }
