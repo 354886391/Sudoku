@@ -11,36 +11,40 @@ export class DrawView extends Component {
     @property(Graphics)
     draw2: Graphics = null;
 
-    oneRectWidth: number = 345;
-    halfRectWidth: number = 345 / 2;
-
     protected start(): void {
         //#region 绘制棋盘
-        let OLine = 5;
-        let HLine = 5 / 2;
-        let ORect = 345;
-        let HRect = 345 / 2;
-        let OHRect = ORect + HRect;
-        let OView = ORect * 3 + OLine * 2;
+        let line_O = 6;             // one
+        let line_H = line_O / 2;    // half
 
-        this.draw.lineWidth = OLine;
-        this.draw.rect(-OHRect - OLine, -OHRect - OLine, OView, OView);
+        let rect_O = 336;
+        let rect_H = rect_O / 2;
+        let rect_OH = rect_O * 1.5;
 
-        this.draw.moveTo(-OHRect - OLine, HRect);
-        this.draw.lineTo(OHRect + OLine, HRect);
+        let space_O = 6;
+        let space_H = space_O / 2;
+        let view_O = rect_O * 3 + space_O * 2;
+        let view_H = view_O / 2;
 
-        this.draw.moveTo(-OHRect, -HRect);
-        this.draw.lineTo(OHRect, -HRect);
+        this.draw.lineWidth = line_O;
 
-        this.draw.moveTo(-HRect, OHRect);
-        this.draw.lineTo(-HRect, -OHRect);
+        this.draw.rect(-(view_H + space_H), -(view_H + space_H), view_O + space_O, view_O + space_O);
 
-        this.draw.moveTo(HRect, OHRect);
-        this.draw.lineTo(HRect, -OHRect);
+        this.draw.moveTo(-view_H, rect_H + line_H);
+        this.draw.lineTo(view_H, rect_H + line_H);
+
+        this.draw.moveTo(-view_H, -rect_H - line_H);
+        this.draw.lineTo(view_H, -rect_H - line_H);
+
+        this.draw.moveTo(-rect_H - line_H, view_H);
+        this.draw.lineTo(-rect_H - line_H, -view_H);
+
+        this.draw.moveTo(rect_H + line_H, view_H);
+        this.draw.lineTo(rect_H + line_H, -view_H);
+
         this.draw.stroke();
         //#endregion
 
-        this.draw2.lineWidth = 3;
+        this.draw2.lineWidth = 4;
         this.draw2.moveTo(-345 - 57.5, 345 + 57.5);
     }
 
