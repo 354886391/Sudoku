@@ -140,7 +140,7 @@
     "__prefab": {
       "__id__": 7
     },
-    "itemPrefab": {
+    "blockPrefab": {
       "__uuid__": "2cba27ad-5b1f-4724-87a9-22835cad9172",
       "__expectedType__": "cc.Prefab"
     },

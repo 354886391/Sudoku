@@ -10,8 +10,8 @@ export class DrawView extends Component {
     draw2: Graphics = null;
 
     gapWidth: number = 4;
-    lineWidth: number = 6;
-    itemWidth: number = 112;
+    lineWidth: number = 8;
+    blockWidth: number = 112;
 
     protected onLoad(): void {
         this.drawBoard();
@@ -19,30 +19,30 @@ export class DrawView extends Component {
 
     private drawBoard(): void {
         //#region 绘制边框
-        let rectWidth = this.itemWidth * 3 + this.gapWidth;
-        let viewWidth = rectWidth * 3;
+        let nonetWidth = this.blockWidth * 3 + this.gapWidth;
+        let regionWidth = nonetWidth * 3;
         this.draw.lineWidth = this.lineWidth;
         // 框
-        this.draw.rect(-viewWidth / 2, -viewWidth / 2, viewWidth, viewWidth);
+        this.draw.rect(-regionWidth / 2, -regionWidth / 2, regionWidth, regionWidth);
         // 横
-        this.draw.rect(-viewWidth / 2, -rectWidth / 2, viewWidth, rectWidth);
+        this.draw.rect(-regionWidth / 2, -nonetWidth / 2, regionWidth, nonetWidth);
         // 竖
-        this.draw.rect(-rectWidth / 2, -viewWidth / 2, rectWidth, viewWidth);
+        this.draw.rect(-nonetWidth / 2, -regionWidth / 2, nonetWidth, regionWidth);
         this.draw.stroke();
         //#endregion
 
         //#region 绘制棋盘
-        let block1 = this.itemWidth + this.gapWidth / 2;
-        let block2 = this.itemWidth * 2 + this.gapWidth / 2;
+        let block1 = this.blockWidth + this.gapWidth / 2;
+        let block2 = this.blockWidth * 2 + this.gapWidth / 2;
         this.draw2.lineWidth = this.lineWidth - 2;
         // 横
-        this.draw2.rect(-viewWidth / 2, rectWidth / 2 + block1, viewWidth, this.itemWidth);
-        this.draw2.rect(-viewWidth / 2, -this.itemWidth / 2, viewWidth, this.itemWidth);
-        this.draw2.rect(-viewWidth / 2, -rectWidth / 2 - block2, viewWidth, this.itemWidth);
+        this.draw2.rect(-regionWidth / 2, nonetWidth / 2 + block1, regionWidth, this.blockWidth);
+        this.draw2.rect(-regionWidth / 2, -this.blockWidth / 2, regionWidth, this.blockWidth);
+        this.draw2.rect(-regionWidth / 2, -nonetWidth / 2 - block2, regionWidth, this.blockWidth);
         // 竖
-        this.draw2.rect(-rectWidth / 2 - block2, -viewWidth / 2, this.itemWidth, viewWidth);
-        this.draw2.rect(-this.itemWidth / 2, -viewWidth / 2, this.itemWidth, viewWidth);
-        this.draw2.rect(rectWidth / 2 + block1, -viewWidth / 2, this.itemWidth, viewWidth);
+        this.draw2.rect(-nonetWidth / 2 - block2, -regionWidth / 2, this.blockWidth, regionWidth);
+        this.draw2.rect(-this.blockWidth / 2, -regionWidth / 2, this.blockWidth, regionWidth);
+        this.draw2.rect(nonetWidth / 2 + block1, -regionWidth / 2, this.blockWidth, regionWidth);
         this.draw2.stroke();
         //#endregion
     }

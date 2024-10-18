@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 export class SelectView extends Component {
 
     @property(Prefab)
-    rectPrefab: Prefab = null;
+    nonetPrefab: Prefab = null;
 
     layout: Layout = null;
 

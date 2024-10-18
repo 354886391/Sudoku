@@ -3,6 +3,7 @@ import { UIOption, UILayer } from '../../../script/framework/ui/UIManager';
 import { RESOption } from '../../../script/framework/resources/ResourceManager';
 import { Global } from '../../../script/Global';
 
+
 /** UI配置 */
 export const UI_GAME: { [key: string]: UIOption } = {
     // 主界面
