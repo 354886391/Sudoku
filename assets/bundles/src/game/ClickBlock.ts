@@ -2,6 +2,7 @@ import { _decorator, Animation, Color, Component, Label, Node, Sprite } from 'cc
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvent } from '../data/GameEvent';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
+import { BlockColor } from '../data/GameConst';
 const { ccclass, property } = _decorator;
 
 @ccclass('ClickBlock')
@@ -37,24 +38,25 @@ export class ClickBlock extends Component {
         this.setValue(blockVal > 0 ? `${blockVal}` : "");
     }
 
-    private setValue(str: string) {
+    public setValue(str: string) {
         this.itemLabel.string = str;
     }
 
-    public setBlockColor(str: string): void{
-        this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
+    public clearValue(): void {
+        this.itemLabel.string = "";
     }
 
     public setValColor(str: string): void {
         this.itemLabel.color = new Color().fromHEX(str);
     }
 
-    private clearValue(): void {
-        this.itemLabel.string = "";
+    public setBlockColor(str: string): void {
+        this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
     }
 
-    private setFrame(id: number): void {
-
+    private calcRowCol(nIndex: number, bIndex: number): void {
+        this.row = Math.trunc(nIndex / 3) * 3 + Math.trunc(bIndex / 3);
+        this.col = nIndex % 3 * 3 + bIndex % 3;
     }
 
     public onClicked(): void {
@@ -62,9 +64,10 @@ export class ClickBlock extends Component {
         Eventer.emit(GameEvent.OnClickBlock, this);
     }
 
-    calcRowCol(nIndex: number, bIndex: number): void {
-        this.row = Math.trunc(nIndex / 3) * 3 + Math.trunc(bIndex / 3);
-        this.col = nIndex % 3 * 3 + bIndex % 3;
+    public reset(): void {
+        this.hasSelect = false;
+        this.setValColor(BlockColor.Black);
+        this.setBlockColor(BlockColor.White);
     }
 }
 

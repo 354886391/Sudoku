@@ -13,7 +13,7 @@ export class ClickView extends Component {
     @property(Prefab)
     nonetPrefab: Prefab = null;
 
-    curClick: ClickBlock = null;
+    lastClick: ClickBlock = null;
     nonetList: ClickNonet[] = [];
 
     layout: Layout = null;
@@ -53,16 +53,15 @@ export class ClickView extends Component {
         Log.d(`onBlockClicked id: ${click.blockId} row:${click.row} col:${click.col}`);
         let viewRow = click.row;
         let viewCol = click.col;
-        click.hasSelect = !click.hasSelect;
+        let isSelect = !click.hasSelect;
         for (let i = 0; i < this.nonetList.length; i++) {
             let nonet = this.nonetList[i];
             let blockList = nonet.blockList;
             for (let j = 0; j < blockList.length; j++) {
                 let block = blockList[j];
                 // 恢复所有格
-                block.setValColor(BlockColor.Black);
-                block.setBlockColor(BlockColor.White);
-                if (click == this.curClick && !click.hasSelect) {
+                block.reset();
+                if (!isSelect && click == this.lastClick) {
                     continue;
                 }
                 // 选中所处的行
@@ -75,7 +74,7 @@ export class ClickView extends Component {
                 }
             }
         }
-        if (click.hasSelect) {
+        if (isSelect) {
             let blockList = this.nonetList[click.nonetId - 1].blockList;
             // 选中所处的九宫格
             for (let i = 0; i < blockList.length; i++) {
@@ -84,12 +83,12 @@ export class ClickView extends Component {
             }
             click.setValColor(BlockColor.White);
             click.setBlockColor(BlockColor.Blue);
-        }
-        else {
+        } else {
             click.setValColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
         }
-        this.curClick = click;
+        click.hasSelect = isSelect;
+        this.lastClick = click;
     }
 }
 
