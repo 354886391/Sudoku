@@ -61,7 +61,7 @@ export class ClickView extends Component {
                 let block = blockList[j];
                 // highlight所有格
                 block.reset();
-                if (click == this.lastClick || !isSelect) {
+                if (click == this.lastClick && !isSelect) {
                     continue;
                 }
                 // dim所在的十字格
