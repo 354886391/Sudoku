@@ -59,36 +59,38 @@ export class ClickView extends Component {
             let blockList = nonet.blockList;
             for (let j = 0; j < blockList.length; j++) {
                 let block = blockList[j];
-                // 恢复所有格
+                // highlight所有格
                 block.reset();
-                if (!isSelect && click == this.lastClick) {
+                if (click == this.lastClick || !isSelect) {
                     continue;
                 }
-                // 选中所处的行
-                if (block.row == viewRow) {
-                    block.setBlockColor(BlockColor.Gray);
-                }
-                // 选中所处的列
-                if (block.col == viewCol) {
+                // dim所在的十字格
+                this.dimCrossColor(block, viewRow, viewCol);
+                // 选中所处的九宫格
+                if (click.nonetId == i + 1) {
                     block.setBlockColor(BlockColor.Gray);
                 }
             }
         }
         if (isSelect) {
-            let blockList = this.nonetList[click.nonetId - 1].blockList;
-            // 选中所处的九宫格
-            for (let i = 0; i < blockList.length; i++) {
-                let block = blockList[i];
-                block.setBlockColor(BlockColor.Gray);
-            }
             click.setValColor(BlockColor.White);
             click.setBlockColor(BlockColor.Blue);
         } else {
             click.setValColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
         }
+        // 记录状态
         click.hasSelect = isSelect;
         this.lastClick = click;
+    }
+
+    private dimCrossColor(block: ClickBlock, row: number, col: number): void {
+        if (block.row == row) {
+            block.setBlockColor(BlockColor.Gray);
+        }
+        if (block.col == col) {
+            block.setBlockColor(BlockColor.Gray);
+        }
     }
 }
 
