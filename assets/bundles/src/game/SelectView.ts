@@ -1,4 +1,7 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
+import { SelectBlock } from './SelectBlock';
+import { Eventer } from '../../../script/framework/tool/Eventer';
+import { GameEvent } from '../data/GameEvent';
 
 const { ccclass, property } = _decorator;
 
@@ -6,7 +9,9 @@ const { ccclass, property } = _decorator;
 export class SelectView extends Component {
 
     @property(Prefab)
-    nonetPrefab: Prefab = null;
+    blockPrefab: Prefab = null;
+
+    blockList: SelectBlock[] = [];
 
     layout: Layout = null;
 
@@ -15,9 +20,16 @@ export class SelectView extends Component {
     }
 
     public init(): void {
-        
+        for (let i = 0; i < 9; i++) {
+            let node = instantiate(this.blockPrefab);
+            let block = node.getComponent(SelectBlock);
+            node.setParent(this.node);
+            block.init(i + 1, i + 1);
+            this.blockList.push(block);
+            // 更新layout布局
+            this.layout.updateLayout();
+        }
     }
-
 }
 
 

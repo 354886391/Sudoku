@@ -1,8 +1,9 @@
-import { _decorator, Animation, Color, Component, Label, Node, Sprite } from 'cc';
+import { _decorator, Color, Component, Label, Sprite } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvent } from '../data/GameEvent';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../data/GameConst';
+import { BlockInfo } from '../data/GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('ClickBlock')
@@ -15,35 +16,45 @@ export class ClickBlock extends Component {
     @property(UIButton)
     blockBtn: UIButton = null;
 
-    @property(Animation)
-    clickAni: Animation = null;
-
-    blockId: number = 0;
-    nonetId: number = 0;
-    blockVal: number = 0;
-    row: number = 0;
-    col: number = 0;
-
-    hasSelect: boolean = false;
+    nonetId: number = 0;    // 九宫格Id
+    blockInfo: BlockInfo;   // 方格信息
 
     protected onLoad(): void {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(nonetId: number, blockId: number, blockVal: number): void {
+    public init(nonetId: number, blockId: number, result: number): void {
         this.nonetId = nonetId;
-        this.blockId = blockId;
-        this.blockVal = blockVal;
+        this.blockInfo = {
+            isSelect: false,
+            writable: true,
+            id: blockId,
+            row: 0,
+            col: 0,
+            value: result,
+            result: result,
+        }
+        this.setValue(result);
+        this.setResult(result);
         this.calcRowCol(nonetId - 1, blockId - 1);
-        this.setValue(blockVal > 0 ? `${blockVal}` : "");
     }
 
-    public setValue(str: string) {
-        this.itemLabel.string = str;
+    public setValue(value: number): void {
+        if (!this.blockInfo.writable) return;
+        this.blockInfo.value = value;
+        this.itemLabel.string = value > 0 ? `${value}` : ``;
+    }
+
+    public setResult(result: number) {
+        this.blockInfo.writable = result < 0;
+        this.blockInfo.result = result;
+        this.itemLabel.string = result > 0 ? `${result}` : ``;
     }
 
     public clearValue(): void {
-        this.itemLabel.string = "";
+        if (this.blockInfo.writable) {
+            this.itemLabel.string = ``;
+        }
     }
 
     public setValColor(str: string): void {
@@ -55,19 +66,55 @@ export class ClickBlock extends Component {
     }
 
     private calcRowCol(nIndex: number, bIndex: number): void {
-        this.row = Math.trunc(nIndex / 3) * 3 + Math.trunc(bIndex / 3);
-        this.col = nIndex % 3 * 3 + bIndex % 3;
+        this.blockInfo.row = Math.trunc(nIndex / 3) * 3 + Math.trunc(bIndex / 3);
+        this.blockInfo.col = nIndex % 3 * 3 + bIndex % 3;
     }
 
     public onClicked(): void {
-        // this.clickAni.play();
         Eventer.emit(GameEvent.OnClickBlock, this);
     }
 
     public reset(): void {
-        this.hasSelect = false;
+        this.blockInfo.isSelect = false;
         this.setValColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
+    }
+
+    ////////////
+    get blockId() {
+        return this.blockInfo.id;
+    }
+
+    get row() {
+        return this.blockInfo.row;
+    }
+
+    get col() {
+        return this.blockInfo.col;
+    }
+
+    get value() {
+        return this.blockInfo.value;
+    }
+
+    get result() {
+        return this.blockInfo.result;
+    }
+
+    get writable() {
+        return this.blockInfo.writable;
+    }
+
+    get isSelect() {
+        return this.blockInfo.isSelect;
+    }
+
+    set value(value: number) {
+        this.blockInfo.value = value;
+    }
+
+    set isSelect(value: boolean) {
+        this.blockInfo.isSelect = value;
     }
 }
 

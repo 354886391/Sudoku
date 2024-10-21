@@ -4,5 +4,7 @@ export enum GameEvent {
     UIClose = "UIClose",
 
     OnClickBlock = "OnClickBlock",
+    OnSelectBlock = "OnSelectBlock",
+    
 
 }

@@ -167,8 +167,8 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 155,
+      "r": 255,
+      "g": 255,
       "b": 255,
       "a": 255
     },
@@ -212,8 +212,8 @@
     "_transition": 1,
     "_normalColor": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 155,
+      "r": 255,
+      "g": 255,
       "b": 255,
       "a": 255
     },
@@ -497,8 +497,8 @@
     "_color": {
       "__type__": "cc.Color",
       "r": 0,
-      "g": 0,
-      "b": 0,
+      "g": 155,
+      "b": 255,
       "a": 255
     },
     "_string": "1",
@@ -589,7 +589,7 @@
     "fileId": "a5oXEWR2pMRamGmfGpIupW"
   },
   {
-    "__type__": "6f24aW1AE9E94uGlGn+jBzb",
+    "__type__": "4b6f5plIq5G8pEQ/IrAYYgw",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -609,12 +609,11 @@
     "blockBtn": {
       "__id__": 7
     },
-    "clickAni": null,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "b0PR9/attPob0cLiCeJjox"
+    "fileId": "17jqLD5EtNyLzu6A4ZK98O"
   },
   {
     "__type__": "cc.PrefabInfo",

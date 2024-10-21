@@ -1,4 +1,4 @@
-import { MapData } from "./GameData";
+import { MapInfo } from "./GameData";
 
 export class Frame {
     /** 当前玩家Id */
@@ -15,7 +15,7 @@ export class Frame {
 
 export class GameState {
 
-    static gameData: MapData = {
+    static gameData: MapInfo = {
         id: 1,
         map: {
             1: [-1, 2, 3, 4, -5, 6, 7, 8, -9], 2: [1, -2, 3, 4, -5, 6, 7, -8, 9], 3: [1, 2, -3, 4, -5, 6, -7, 8, 9],
