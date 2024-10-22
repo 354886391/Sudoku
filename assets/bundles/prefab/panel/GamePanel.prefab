@@ -606,7 +606,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "SelectCom",
+    "_name": "ClickRegion",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -631,7 +631,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -520,
+      "y": 160,
       "z": 0
     },
     "_lrot": {
@@ -671,8 +671,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1008,
-      "height": 112
+      "width": 1016,
+      "height": 1016
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -683,7 +683,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "f9D1ERfexESYKKl2RxZoh2"
+    "fileId": "91ZnACGNpGY6sscxRMk/mr"
   },
   {
     "__type__": "cc.Layout",
@@ -709,8 +709,8 @@
     "_paddingRight": 0,
     "_paddingTop": 0,
     "_paddingBottom": 0,
-    "_spacingX": 0,
-    "_spacingY": 0,
+    "_spacingX": 4,
+    "_spacingY": 4,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
@@ -721,10 +721,10 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "9e3FsmhMRLcab06h2vWtwZ"
+    "fileId": "bdfFONbpJCtrCxhUDSnzd4"
   },
   {
-    "__type__": "aac22Yc8cBPNL6vg3VpeSJ/",
+    "__type__": "07319MM++NK6KilvL8UdvEp",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -735,15 +735,15 @@
     "__prefab": {
       "__id__": 32
     },
-    "blockPrefab": {
-      "__uuid__": "8fbe353d-0f73-4012-bb2a-7592b10e4bdc",
+    "nonetPrefab": {
+      "__uuid__": "7afe2432-11ff-4463-823f-cc288d344c8f",
       "__expectedType__": "cc.Prefab"
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "3fRSsX8OJBA7c8mWybDXV6"
+    "fileId": "aatBhR8/ROj6X76tnNYTfj"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -753,14 +753,14 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "76xfyQSGxNcpNOGoSnX1JT",
+    "fileId": "9cDFb70ClOr5eNzHT+CdnB",
     "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
     "__type__": "cc.Node",
-    "_name": "ClickRegion",
+    "_name": "SelectRegion",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -785,7 +785,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 160,
+      "y": -520,
       "z": 0
     },
     "_lrot": {
@@ -825,8 +825,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1016,
-      "height": 1016
+      "width": 1008,
+      "height": 112
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -837,7 +837,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "91ZnACGNpGY6sscxRMk/mr"
+    "fileId": "f9D1ERfexESYKKl2RxZoh2"
   },
   {
     "__type__": "cc.Layout",
@@ -863,8 +863,8 @@
     "_paddingRight": 0,
     "_paddingTop": 0,
     "_paddingBottom": 0,
-    "_spacingX": 4,
-    "_spacingY": 4,
+    "_spacingX": 0,
+    "_spacingY": 0,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
@@ -875,10 +875,10 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "bdfFONbpJCtrCxhUDSnzd4"
+    "fileId": "9e3FsmhMRLcab06h2vWtwZ"
   },
   {
-    "__type__": "07319MM++NK6KilvL8UdvEp",
+    "__type__": "1c7d97Nx4tM/4On+wvJ6n8A",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -889,18 +889,15 @@
     "__prefab": {
       "__id__": 40
     },
-    "nonetPrefab": {
-      "__uuid__": "7afe2432-11ff-4463-823f-cc288d344c8f",
+    "blockPrefab": {
+      "__uuid__": "8fbe353d-0f73-4012-bb2a-7592b10e4bdc",
       "__expectedType__": "cc.Prefab"
-    },
-    "selectCom": {
-      "__id__": 31
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "aatBhR8/ROj6X76tnNYTfj"
+    "fileId": "3b3lw3TH1NHI4Eh+TRPfqS"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -910,7 +907,7 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "9cDFb70ClOr5eNzHT+CdnB",
+    "fileId": "76xfyQSGxNcpNOGoSnX1JT",
     "instance": null,
     "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
@@ -956,6 +953,9 @@
       "__id__": 45
     },
     "clickRegion": {
+      "__id__": 31
+    },
+    "selectRegion": {
       "__id__": 39
     },
     "_id": ""

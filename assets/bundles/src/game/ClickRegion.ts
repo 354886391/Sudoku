@@ -5,7 +5,7 @@ import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvent } from '../data/GameEvent';
 import { ClickBlock } from './ClickBlock';
 import { BlockColor } from '../data/GameConst';
-import { SelectCom } from './com/SelectCom';
+import { SelectRegion } from './SelectRegion';
 import { SelectBlock } from './SelectBlock';
 const { ccclass, property } = _decorator;
 
@@ -14,8 +14,6 @@ export class ClickRegion extends Component {
 
     @property(Prefab)
     nonetPrefab: Prefab = null;
-    @property(SelectCom)
-    selectCom: SelectCom = null;
 
     regionId: number = 0;
     lastClick: ClickBlock = null;   // 上次点击的格子
@@ -31,7 +29,6 @@ export class ClickRegion extends Component {
 
     public init(regionId: number): void {
         this.generate(regionId);
-        this.selectCom.init();
     }
 
     //生成View
