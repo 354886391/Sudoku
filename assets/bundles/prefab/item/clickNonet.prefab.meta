@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "8fbe353d-0f73-4012-bb2a-7592b10e4bdc",
+  "uuid": "7afe2432-11ff-4463-823f-cc288d344c8f",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "selectBlock0"
+    "syncNodeName": "clickNonet"
   }
 }

@@ -1,16 +1,23 @@
-
+/** 方块信息 */
 export interface BlockInfo {
-    isSelect: boolean;
-    writable: boolean;
     id: number;
     row: number;
     col: number;
     value: number;
     result: number;
+    isSelect: boolean;
+    writable: boolean;
 }
 
-export interface MapInfo {
+/** 九宫格信息 */
+export interface NonetInfo {
+    id: number;
+    blocks: BlockInfo[];
+}
+
+/** 地图信息 */
+export interface RegionInfo {
     id: number;
     /** 所有id从1开始 */
-    map: { [nonetId: number]: number[] };
+    region: { [nonetId: number]: number[] };
 }

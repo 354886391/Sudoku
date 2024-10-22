@@ -1,12 +1,12 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
-import { SelectBlock } from './SelectBlock';
-import { Eventer } from '../../../script/framework/tool/Eventer';
-import { GameEvent } from '../data/GameEvent';
+import { SelectBlock } from '../SelectBlock';
+import { Eventer } from '../../../../script/framework/tool/Eventer';
+import { GameEvent } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('SelectView')
-export class SelectView extends Component {
+@ccclass('SelectCom')
+export class SelectCom extends Component {
 
     @property(Prefab)
     blockPrefab: Prefab = null;

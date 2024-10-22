@@ -26,13 +26,13 @@ export class ClickBlock extends Component {
     public init(nonetId: number, blockId: number, result: number): void {
         this.nonetId = nonetId;
         this.blockInfo = {
-            isSelect: false,
-            writable: true,
             id: blockId,
             row: 0,
             col: 0,
             value: result,
             result: result,
+            isSelect: false,
+            writable: true,
         }
         this.setValue(result);
         this.setResult(result);
@@ -80,7 +80,7 @@ export class ClickBlock extends Component {
         this.setBlockColor(BlockColor.White);
     }
 
-    ////////////
+    //getter / setter
     get blockId() {
         return this.blockInfo.id;
     }

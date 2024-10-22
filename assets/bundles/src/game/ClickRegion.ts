@@ -5,20 +5,21 @@ import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvent } from '../data/GameEvent';
 import { ClickBlock } from './ClickBlock';
 import { BlockColor } from '../data/GameConst';
-import { SelectView } from './SelectView';
+import { SelectCom } from './com/SelectCom';
 import { SelectBlock } from './SelectBlock';
 const { ccclass, property } = _decorator;
 
-@ccclass('ClickView')
-export class ClickView extends Component {
+@ccclass('ClickRegion')
+export class ClickRegion extends Component {
 
     @property(Prefab)
     nonetPrefab: Prefab = null;
-    @property(SelectView)
-    selectView: SelectView = null;
+    @property(SelectCom)
+    selectCom: SelectCom = null;
 
-    lastClick: ClickBlock = null;
-    nonetList: ClickNonet[] = [];
+    regionId: number = 0;
+    lastClick: ClickBlock = null;   // 上次点击的格子
+    nonetList: ClickNonet[] = [];   // 九宫格列表
 
     layout: Layout = null;
 
@@ -28,16 +29,17 @@ export class ClickView extends Component {
         Eventer.on(GameEvent.OnSelectBlock, this.onSelectBlock, this);
     }
 
-    public init(): void {
-        this.generate();
-        this.selectView.init();
+    public init(regionId: number): void {
+        this.generate(regionId);
+        this.selectCom.init();
     }
 
     //生成View
-    private generate(): void {
-        let map = GameState.gameData.map;
-        for (const key in map) {
-            if (map.hasOwnProperty(key)) {
+    private generate(regionId: number): void {
+        this.regionId = regionId;
+        let region = GameState.gameData.region;
+        for (const key in region) {
+            if (region.hasOwnProperty(key)) {
                 let nonetId = Number(key);
                 this.createNonet(nonetId, this.node);
             }
@@ -61,6 +63,7 @@ export class ClickView extends Component {
         for (let i = 0; i < this.nonetList.length; i++) {
             let nonetId = i + 1;
             let blockList = this.getBlockList(nonetId);
+            let blocksInfo = this.nonetList[i].blocksInfo;
             for (let j = 0; j < blockList.length; j++) {
                 let block = blockList[j];
                 // 重置所有格
@@ -96,7 +99,7 @@ export class ClickView extends Component {
                     let block = blockList[j];
                     this.highlightValueColor(this.lastClick, block);
                 }
-            }      
+            }
         }
     }
 
@@ -125,8 +128,12 @@ export class ClickView extends Component {
         }
     }
 
-    getBlockList(nonetId: number): ClickBlock[] {
+    private getBlockList(nonetId: number): ClickBlock[] {
         return this.nonetList[nonetId - 1].blockList;
+    }
+
+    private sameBlock(a: ClickBlock, b: ClickBlock) {
+        return a != null && b != null && a.blockId == b.blockId && a.row == b.row && a.col == b.col;
     }
 }
 
