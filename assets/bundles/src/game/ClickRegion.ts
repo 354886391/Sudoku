@@ -5,7 +5,6 @@ import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvent } from '../data/GameEvent';
 import { ClickBlock } from './ClickBlock';
 import { BlockColor } from '../data/GameConst';
-import { SelectRegion } from './SelectRegion';
 import { SelectBlock } from './SelectBlock';
 const { ccclass, property } = _decorator;
 
