@@ -167,9 +167,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 235,
-      "g": 235,
-      "b": 235,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
@@ -508,7 +508,7 @@
       "r": 0,
       "g": 0,
       "b": 0,
-      "a": 255
+      "a": 100
     },
     "_lineJoin": 2,
     "_lineCap": 0,
@@ -671,8 +671,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1016,
-      "height": 1016
+      "width": 1014,
+      "height": 1014
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -709,8 +709,8 @@
     "_paddingRight": 0,
     "_paddingTop": 0,
     "_paddingBottom": 0,
-    "_spacingX": 4,
-    "_spacingY": 4,
+    "_spacingX": 3,
+    "_spacingY": 3,
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
