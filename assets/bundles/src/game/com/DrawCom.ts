@@ -9,8 +9,8 @@ export class DrawCom extends Component {
     @property(Graphics)
     draw2: Graphics = null;
 
-    gapWidth: number = 4;
-    lineWidth: number = 8;
+    gapWidth: number = 3;
+    lineWidth: number = 6;
     blockWidth: number = 112;
 
     protected onLoad(): void {
