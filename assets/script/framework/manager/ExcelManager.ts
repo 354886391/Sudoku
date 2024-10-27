@@ -31,7 +31,7 @@ export default class ExcelManager extends Component {
 
     inputBox: HTMLInputElement = null;
 
-    onSelectFileClick() {
+    onImportFileClick() {
         if (this.inputBox) {
             console.info("click start");
             this.inputBox.click();
