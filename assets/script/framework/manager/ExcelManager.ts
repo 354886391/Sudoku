@@ -4,76 +4,61 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class ExcelManager extends Component {
 
-    @property
     inputBoxId = "_file_box_input_";
-    @property
     containerId = "_file_box_container_";
+    inputBoxElement: HTMLInputElement = null;
 
-
-    //配置项
-    /** 导出表格名字 */
+    /** file name */
     excelFileName: string = "file_name"
-    /** 导出表格 sheet 名字 */
+    /** sheet name */
     excelSheetName: string = "my_sheet"
+    excelHeadingList: any[] = []
+    excelContentList: any[] = []
 
-    pathExlKeep: any[] = []
-    pathExlList: any[] = []
+    start() {
+        this.initInputBox();
+    }
 
     /** 初始化，第一次无表格时创建一个默认的
      *  id	    key	    value
      *  number	string	string
      *  索引	键名	 键值
      */
-    createNewInfo() {
-        this.pathExlKeep[0] = { id: "number", key: "string", value: "string" };
-        this.pathExlKeep[1] = { id: "索引", key: "键名", value: "键值" };
-    }
-
-    inputBox: HTMLInputElement = null;
-
-    onImportFileClick() {
-        if (this.inputBox) {
-            console.info("click start");
-            this.inputBox.click();
-            console.info("click done")
-        }
-    }
-
-    onExportFileClick() {
-        this.exportToExcel()
-    }
-
-    start() {
-        this.initInputBox();
-    }
-
-    createFileTitle() {
-        this.pathExlKeep[0] = { id: "number", key: "string", value: "string" };
-        this.pathExlKeep[1] = { id: "索引", key: "键名", value: "键值" };
+    createHeading() {
+        this.excelHeadingList[0] = { id: "number", key: "string", value: "string" };
+        this.excelHeadingList[1] = { id: "索引", key: "键名", value: "键值" };
     }
 
     readLocalStorage() {
-        this.pathExlList = [
+        this.excelContentList = [
             { id: 1, key: "hallo,", value: "world!" },
             { id: 2, key: "hallo,", value: "world!" },
             { id: 3, key: "hallo,", value: "world!" },
         ];
     }
 
+    onImportFileClick() {
+        this.inputBoxElement.click();
+    }
+
+    onExportFileClick() {
+        this.exportToExcel()
+    }
+
     handleFile() {
-        this.createFileTitle();
+        this.createHeading();
         this.readLocalStorage();
         // 升序
-        this.pathExlList.sort((a, b) => {
+        this.excelContentList.sort((a, b) => {
             return a.id - b.id
         })
-        for (let i = 0; i < this.pathExlList.length; i++) {
-            this.pathExlList[i].id = i + 1;
+        for (let i = 0; i < this.excelContentList.length; i++) {
+            this.excelContentList[i].id = i + 1;
         }
         // 插入表头        
-        this.pathExlList.unshift(this.pathExlKeep[0]);
-        this.pathExlList.unshift(this.pathExlKeep[1]);
-        return JSON.parse(JSON.stringify(this.pathExlList))
+        this.excelContentList.unshift(this.excelHeadingList[0]);
+        this.excelContentList.unshift(this.excelHeadingList[1]);
+        return JSON.parse(JSON.stringify(this.excelContentList))
     }
 
     /** 导入 */
@@ -85,7 +70,7 @@ export default class ExcelManager extends Component {
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
             const json = XLSX.utils.sheet_to_json(worksheet);
-            this.pathExlKeep = [json[0], json[1]]
+            this.excelHeadingList = [json[0], json[1]]
         };
         reader.readAsArrayBuffer(file);
     }
@@ -142,7 +127,7 @@ export default class ExcelManager extends Component {
     }
 
     getInputBox(inputBoxId: string, containerId: string) {
-        if (!this.inputBox) {
+        if (!this.inputBoxElement) {
             let inputBox = document.getElementById(inputBoxId) as HTMLInputElement;
             if (!inputBox) {
                 let container = document.getElementById(containerId);
@@ -156,8 +141,8 @@ export default class ExcelManager extends Component {
                 inputBox.type = "file";
                 container.appendChild(inputBox);
             }
-            this.inputBox = inputBox;
+            this.inputBoxElement = inputBox;
         }
-        return this.inputBox;
+        return this.inputBoxElement;
     }
 }
