@@ -76,19 +76,58 @@ export class Sudoku extends Singleton<Sudoku>() {
 
     }
 
-    _get_all_units() {
+    _get_all_units(rows: string[], cols: string[]): string[][] {
+        /* Return a list of all units (rows, cols, boxes) */
+        let units: string[][] = [];
 
+        // Rows
+        for (let ri = 0; ri < rows.length; ri++) {
+            units.push(this._cross(rows[ri], cols.join('')));
+        }
+
+        // Columns
+        for (let ci = 0; ci < cols.length; ci++) {
+            units.push(this._cross(rows.join(''), cols[ci]));
+        }
+
+        // Boxes
+        const row_squares = ["ABC", "DEF", "GHI"];
+        const col_squares = ["123", "456", "789"];
+        for (let rsi = 0; rsi < row_squares.length; rsi++) {
+            for (let csi = 0; csi < col_squares.length; csi++) {
+                units.push(this._cross(row_squares[rsi], col_squares[csi]));
+            }
+        }
+
+        return units;
     }
 
-    board_string_to_grid() {
-
+    board_string_to_grid(board_string: string): string[][] {
+        /* Convert a board string to a two-dimensional array */
+        let rows: string[][] = [];
+        let cur_row: string[] = [];
+        for (let i = 0; i < board_string.length; i++) {
+            cur_row.push(board_string[i]);
+            if (i % 9 === 8) {
+                rows.push(cur_row);
+                cur_row = [];
+            }
+        }
+        return rows;
     }
 
-    board_grid_to_string() {
-
+    board_grid_to_string(board_grid: string[][]): string {
+        /* Convert a board grid to a string */
+        var board_string = "";
+        for (var r = 0; r < 9; ++r) {
+            for (var c = 0; c < 9; ++c) {
+                board_string += board_grid[r][c];
+            }
+        }
+        return board_string;
     }
 
-    print_board(board) {
+    print_board(board: any[]) {
         /* Print a sudoku `board` to the console. */
         // Assure a valid board
         const report = this.validate_board(board);
@@ -108,7 +147,7 @@ export class Sudoku extends Singleton<Sudoku>() {
             if (i % 3 === 2) {
                 display_string += V_BOX_PADDING;
             }
-            // End of a line, insert horiz. padding
+            // End of a line, insert horizontal. padding
             if (i % 9 === 8) {
                 display_string += H_PADDING;
             }
@@ -120,7 +159,7 @@ export class Sudoku extends Singleton<Sudoku>() {
         console.log(display_string);
     }
 
-    validate_board(board) {
+    validate_board(board: any[]) {
         // Check for empty board
         if (!board) {
             return "Empty board";
@@ -150,15 +189,15 @@ export class Sudoku extends Singleton<Sudoku>() {
         return result;
     }
 
-    _in(v: any, seq: any[]) {
+    _in(v: any, seq: any[]): any {
         return seq.indexOf(v) !== -1;
     }
 
-    _first_true(seq: any[]) {
+    _first_true(seq: any[]): any {
         return seq.find(value => value == true);
     }
 
-    _shuffle(seq: any[]) {
+    _shuffle(seq: any[]): any[] {
         for (let i = seq.length - 1; i > 0; i--) {
             // 生成一个从 0 到 i 的随机索引
             const j = this._rand_range(i + 1);
@@ -174,18 +213,18 @@ export class Sudoku extends Singleton<Sudoku>() {
      * @param {*} min 
      * @returns 
      */
-    _rand_range(max: number, min: number = 0) {
+    _rand_range(max: number, min: number = 0): number {
         if (max === undefined) {
             throw new Error("Range undefined");
         }
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    _strip_dups(seq: any[]) {
+    _strip_dups(seq: any[]): any[] {
         return Array.from(new Set(seq));
     }
 
-    _force_range(nor: number, max: number, min: number = 0) {
+    _force_range(nor: number, max: number, min: number = 0): number {
         nor = nor ?? 0
         if (nor < min) {
             return min;
