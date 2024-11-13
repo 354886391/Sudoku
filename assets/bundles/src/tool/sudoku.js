@@ -805,3 +805,8 @@
 
 // Pass whatever the root object is, lsike 'window' in browsers
 })(this);
+
+let board = sudoku.generate("medium");
+sudoku.print_board(board);
+board = sudoku.solve(board);
+sudoku.print_board(board);

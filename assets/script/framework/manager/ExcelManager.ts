@@ -9,9 +9,9 @@ export default class ExcelManager extends Component {
     inputBoxElement: HTMLInputElement = null;
 
     /** file name */
-    excelFileName: string = "file_name"
+    excelFileName: string = "sudoku_board"
     /** sheet name */
-    excelSheetName: string = "my_sheet"
+    excelSheetName: string = "sheet_1"
     excelHeadingList: any[] = []
     excelContentList: any[] = []
 
@@ -25,15 +25,13 @@ export default class ExcelManager extends Component {
      *  索引	键名	 键值
      */
     createHeading() {
-        this.excelHeadingList[0] = { id: "number", key: "string", value: "string" };
-        this.excelHeadingList[1] = { id: "索引", key: "键名", value: "键值" };
+        this.excelHeadingList[0] = { id: "number", level: "string", board: "string" };
+        this.excelHeadingList[1] = { id: "标识", level: "等级", board: "牌面" };
     }
 
     readLocalStorage() {
         this.excelContentList = [
-            { id: 1, key: "hallo,", value: "world!" },
-            { id: 2, key: "hallo,", value: "world!" },
-            { id: 3, key: "hallo,", value: "world!" },
+            { id: 1, level: "1", board: "[4,5,6,9,1,7,8,3,2,9,7,3,-8,2,5,-4,-1,-6,8,2,1,6,4,3,9,5,7,2,8,9,4,7,1,5,6,3,1,6,7,5,3,9,-2,-4,-8,5,-3,4,2,8,6,1,7,9,-6,1,-5,-3,9,-8,-7,-2,-4,-7,9,-2,-1,6,-4,-3,-8,-5,-3,4,-8,-7,5,-2,-6,9,-1]" },
         ];
     }
 
