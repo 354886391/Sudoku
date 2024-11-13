@@ -2,9 +2,9 @@
 
 export class Sudoku {
 
-    DIGITS = "123456789";    // Allowed this.DIGITS
-    ROWS = "ABCDEFGHI";         // Row lables
-    COLS = this.DIGITS;       // Column lables
+    DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9];    // Allowed this.DIGITS
+    ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9];         // Row lables
+    COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9];       // Column lables
     SQUARES = null;             // Square IDs
 
     UNITS = null;               // All units (row, column, or box)
@@ -26,9 +26,8 @@ export class Sudoku {
     };
 
     // Blank character and board representation
-    BLANK_CHAR = '.';
-    BLANK_BOARD = "...................................................." +
-        ".............................";
+    BLANK_CHAR = 0;
+    BLANK_BOARD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     // Init
     // -------------------------------------------------------------------------
@@ -45,33 +44,33 @@ export class Sudoku {
     // Generate
     // -------------------------------------------------------------------------
     generate(difficulty, unique?) {
-       /* 生成特定难度的数独谜题，例如：
-
-            // 生成一个“简单”的数独谜题
-            this.generate("easy");
-
-        难度如下，表示给定的方格数量：
-
-                "easy":         61
-                "medium":       52
-                "hard":         43
-                "very-hard":    34
-                "insane":       25
-                "inhuman":      17
-
-        你也可以输入自定义的给定方格数量，例如：
-
-            // 生成一个有 60 个给定方格的数独谜题
-            this.generate(60)
-
-        `difficulty` 必须是一个介于 17 和 81 之间的数字。如果超出这个范围，`difficulty` 将被设置为最近的边界值，
-        例如，0 -> 17，100 -> 81。
-
-        默认情况下，谜题是唯一的，除非将 `unique` 设置为 false。
-        （注意：谜题唯一性尚未实现，因此不能保证有唯一解）
-
-        TODO: 实现谜题唯一性
-        */
+        /* 生成特定难度的数独谜题，例如：
+ 
+             // 生成一个“简单”的数独谜题
+             this.generate("easy");
+ 
+         难度如下，表示给定的方格数量：
+ 
+                 "easy":         61
+                 "medium":       52
+                 "hard":         43
+                 "very-hard":    34
+                 "insane":       25
+                 "inhuman":      17
+ 
+         你也可以输入自定义的给定方格数量，例如：
+ 
+             // 生成一个有 60 个给定方格的数独谜题
+             this.generate(60)
+ 
+         `difficulty` 必须是一个介于 17 和 81 之间的数字。如果超出这个范围，`difficulty` 将被设置为最近的边界值，
+         例如，0 -> 17，100 -> 81。
+ 
+         默认情况下，谜题是唯一的，除非将 `unique` 设置为 false。
+         （注意：谜题唯一性尚未实现，因此不能保证有唯一解）
+ 
+         TODO: 实现谜题唯一性
+         */
 
         // 如果 `difficulty` 是字符串或未定义，将其转换为数字或默认为 "easy"
         if (typeof difficulty === "string" || typeof difficulty === "undefined") {
@@ -592,7 +591,7 @@ export class Sudoku {
     // -------------------------------------------------------------------------
 
     print_board(board) {
-          /* Print a sudoku `board` to the console. */
+        /* Print a sudoku `board` to the console. */
         // Assure a valid board
         const report = this.validate_board(board);
         if (report !== true) {

@@ -12,7 +12,7 @@
 
     sudoku.DIGITS = "123456789";    // Allowed sudoku.DIGITS
     var ROWS = "ABCDEFGHI";         // Row lables
-    var COLS = sudoku.DIGITS;       // Column lables
+    var COLS = "123456789";         // Column lables
     var SQUARES = null;             // Square IDs
 
     var UNITS = null;               // All units (row, column, or box)
