@@ -15,8 +15,8 @@ export class GamePanel extends UIView {
     selectRegion: SelectRegion = null;
 
     start() {
-        // this.clickRegion.init(1);
-        // this.selectRegion.init();
+        this.clickRegion.init(1);
+        this.selectRegion.init();
     }
 }
 UIManager.instance.register(GamePanel);

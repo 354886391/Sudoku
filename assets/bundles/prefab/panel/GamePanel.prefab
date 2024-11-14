@@ -216,7 +216,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "DrawCom",
+    "_name": "DrawView",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -612,7 +612,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ClickRegion",
+    "_name": "BoardView",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -733,7 +733,6 @@
     "__type__": "07319MM++NK6KilvL8UdvEp",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {},
     "node": {
       "__id__": 26
     },
@@ -766,7 +765,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "SelectRegion",
+    "_name": "SelectView",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -896,7 +895,7 @@
       "__id__": 40
     },
     "blockPrefab": {
-      "__uuid__": "8fbe353d-0f73-4012-bb2a-7592b10e4bdc",
+      "__uuid__": "2cba27ad-5b1f-4724-87a9-22835cad9172",
       "__expectedType__": "cc.Prefab"
     },
     "_id": ""
@@ -1336,7 +1335,6 @@
     "__type__": "cf3e8tOsRBCsYZN75XZzesy",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },

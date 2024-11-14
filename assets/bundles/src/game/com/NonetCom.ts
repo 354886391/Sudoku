@@ -29,7 +29,7 @@ export class ClickNonet extends Component {
 
     /** 生成九宫格 (所有id从1开始; 所有index从0开始) */
     private generate(nonetId: number): void {
-        let nonetList = GameState.gameData.region[nonetId];
+        let nonetList = GameState.boardInfo.board[nonetId];
         for (let i = 0; i < nonetList.length; i++) {
             const blockId = i + 1;
             const blockVal = nonetList[i];

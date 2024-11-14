@@ -14,7 +14,7 @@ export class ClickRegion extends Component {
     @property(Prefab)
     nonetPrefab: Prefab = null;
 
-    regionId: number = 0;
+    boardId: number = 0;
     lastClick: ClickBlock = null;   // 上次点击的格子
     nonetList: ClickNonet[] = [];   // 九宫格列表
 
@@ -26,16 +26,16 @@ export class ClickRegion extends Component {
         Eventer.on(GameEvent.OnSelectBlock, this.onSelectBlock, this);
     }
 
-    public init(regionId: number): void {
-        this.generate(regionId);
+    public init(boardId: number): void {
+        this.generate(boardId);
     }
 
     //生成View
-    private generate(regionId: number): void {
-        this.regionId = regionId;
-        let region = GameState.gameData.region;
-        for (const key in region) {
-            if (region.hasOwnProperty(key)) {
+    private generate(boardId: number): void {
+        this.boardId = boardId;
+        let board = GameState.boardInfo.board;
+        for (const key in board) {
+            if (board.hasOwnProperty(key)) {
                 let nonetId = Number(key);
                 this.createNonet(nonetId, this.node);
             }
