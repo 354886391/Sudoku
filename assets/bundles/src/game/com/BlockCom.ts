@@ -27,11 +27,11 @@ export class BlockCom extends Component {
     public init(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
         this.blockInfo = blockInfo;
-        this.setBlock(blockInfo.value, blockInfo.type, true);
+        this.setBlock(blockInfo.type, blockInfo.value, true);
         this.node.name = `${this.nonetId}-${blockInfo.id}`;
     }
 
-    public setBlock(value: string, type: number, isInit: boolean = false): void {
+    public setBlock(type: number, value: number, isInit: boolean = false): void {
         if (isInit || type != 0) {
             this.blockInfo.value = value;
             this.blockLbl.string = `${value}`;
@@ -71,7 +71,7 @@ export class BlockCom extends Component {
         return this.blockInfo.id;
     }
 
-     /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
+    /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
     get type() {
         return this.blockInfo.type;
     }
@@ -88,7 +88,7 @@ export class BlockCom extends Component {
         return this.blockInfo.value;
     }
 
-    set value(value: string) {
+    set value(value: number) {
         this.blockInfo.value = value;
     }
 

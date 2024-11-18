@@ -17,7 +17,7 @@ export interface BlockInfo {
     col: number;
     /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
     type: number;
-    value: string;
+    value: number;
     isSelect: boolean;
 }
 
@@ -47,7 +47,7 @@ export interface BoardInfo {
     /** 等级 */
     level: number;
     /** 牌面 */
-    board: string[][];
+    board: number[][];
     /** 预设 */
-    candidates: string[][];
+    candidates: number[][];
 }

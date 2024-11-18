@@ -32,7 +32,7 @@ export class NonetCom extends Component {
         for (let row = rowIndex; row < rowIndex + 3; row++) {
             for (let col = colIndex; col < colIndex + 3; col++) {
                 let value = board[row][col];
-                let type = value == "." ? 0 : 1;
+                let type = value == 0 ? 0 : 1;
                 let blockInfo: BlockInfo = {
                     id: col + 1,
                     row: row,

@@ -22,7 +22,7 @@ export class OptionView extends Component {
             let node = instantiate(this.blockPrefab);
             let block = node.getComponent(OptionCom);
             node.setParent(this.node);
-            block.init(i + 1, String(i + 1));
+            block.init(i + 1, i + 1);
             this.blockList.push(block);
             // 更新layout布局
             this.layout.updateLayout();

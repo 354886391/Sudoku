@@ -83,7 +83,7 @@ export class BoardView extends Component {
     public onSelectBlock(select: OptionCom) {
         console.log("ClickView::onSelectBlock", select.blockId);
         if (this.lastClick.isSelect) {
-            this.lastClick.setBlock(select.blockVal, 1);
+            this.lastClick.setBlock(0, select.blockVal);
             for (let i = 0; i < this.nonetList.length; i++) {
                 let nonetId = i + 1;
                 let blockList = this.getBlockList(nonetId);
@@ -114,7 +114,7 @@ export class BoardView extends Component {
 
     /** highlight相同Val的格子 */
     private highlightValueColor(click: BlockCom, block: BlockCom): void {
-        if (click.value != "." && click.value == block.value) {
+        if (click.value != 0 && click.value == block.value) {
             block.setValueColor(BlockColor.White);
             block.setBlockColor(BlockColor.Blue);
         }

@@ -16,7 +16,7 @@ export class OptionCom extends Component {
     blockBtn: UIButton = null;
 
     blockId: number = 0;
-    blockVal: string = "";
+    blockVal: number = 0;
     row: number = 0;
     col: number = 0;
 
@@ -27,13 +27,13 @@ export class OptionCom extends Component {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(blockId: number, blockVal: string): void {
+    public init(blockId: number, blockVal: number): void {
         this.blockId = blockId;
         this.blockVal = blockVal;
         this.setValue(blockVal);
     }
 
-    public setValue(blockVal: string) {
+    public setValue(blockVal: number) {
         if (this.canModify) {
             this.itemLabel.string = `${blockVal}`;
         }
