@@ -1,8 +1,8 @@
 import { _decorator, Component, Graphics, instantiate, Layout, Node, Prefab } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('DrawCom')
-export class DrawCom extends Component {
+@ccclass
+export class DrawView extends Component {
 
     @property(Graphics)
     draw: Graphics = null;

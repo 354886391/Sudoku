@@ -1,18 +1,19 @@
 import { _decorator, Color, Component, Label, Sprite } from 'cc';
-import { Eventer } from '../../../script/framework/tool/Eventer';
-import { GameEvent } from '../data/GameEvent';
-import { UIButton } from '../../../script/framework/ui/group/UIButton';
-import { BlockColor } from '../data/GameConst';
-import { BlockInfo } from '../data/GameData';
+import { Eventer } from '../../../../script/framework/tool/Eventer';
+import { UIButton } from '../../../../script/framework/ui/group/UIButton';
+import { BlockColor } from '../../data/GameConst';
+import { BlockInfo } from '../../data/GameData';
+import { GameEvent } from '../../data/GameEvent';
+
 const { ccclass, property } = _decorator;
 
-@ccclass('ClickBlock')
-export class ClickBlock extends Component {
+@ccclass
+export class BlockCom extends Component {
 
     @property(Sprite)
-    itemBg: Sprite = null;
+    blockBg: Sprite = null;
     @property(Label)
-    itemLabel: Label = null;
+    blockLbl: Label = null;
     @property(UIButton)
     blockBtn: UIButton = null;
 
@@ -23,46 +24,31 @@ export class ClickBlock extends Component {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(nonetId: number, blockId: number, result: number): void {
+    public init(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
-        this.blockInfo = {
-            id: blockId,
-            row: 0,
-            col: 0,
-            value: result,
-            result: result,
-            isSelect: false,
-            writable: true,
-        }
-        this.setValue(result);
-        this.setResult(result);
-        this.calcRowCol(nonetId - 1, blockId - 1);
+        this.blockInfo = blockInfo;
+        this.setBlock(blockInfo.value, blockInfo.type, true);
+        this.node.name = `${this.nonetId}-${blockInfo.id}`;
     }
 
-    public setValue(value: number): void {
-        if (!this.blockInfo.writable) return;
-        this.blockInfo.value = value;
-        this.itemLabel.string = value > 0 ? `${value}` : ``;
-    }
-
-    public setResult(result: number) {
-        this.blockInfo.writable = result < 0;
-        this.blockInfo.result = result;
-        this.itemLabel.string = result > 0 ? `${result}` : ``;
-    }
-
-    public clearValue(): void {
-        if (this.blockInfo.writable) {
-            this.itemLabel.string = ``;
+    public setBlock(value: string, type: number, isInit: boolean = false): void {
+        if (isInit || type != 0) {
+            this.blockInfo.value = value;
+            this.blockLbl.string = `${value}`;
         }
     }
 
-    public setValColor(str: string): void {
-        this.itemLabel.color = new Color().fromHEX(str);
+    public clearBlock(): void {
+        if (this.blockInfo.type != 1) {
+            this.blockLbl.string = ``;
+        }
     }
 
     public setBlockColor(str: string): void {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
+    }
+    public setValueColor(str: string): void {
+        this.blockLbl.color = new Color().fromHEX(str);
     }
 
     private calcRowCol(nIndex: number, bIndex: number): void {
@@ -76,13 +62,18 @@ export class ClickBlock extends Component {
 
     public reset(): void {
         this.blockInfo.isSelect = false;
-        this.setValColor(BlockColor.Black);
+        this.setValueColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
     }
 
     //getter / setter
     get blockId() {
         return this.blockInfo.id;
+    }
+
+     /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
+    get type() {
+        return this.blockInfo.type;
     }
 
     get row() {
@@ -97,25 +88,19 @@ export class ClickBlock extends Component {
         return this.blockInfo.value;
     }
 
-    get result() {
-        return this.blockInfo.result;
-    }
-
-    get writable() {
-        return this.blockInfo.writable;
+    set value(value: string) {
+        this.blockInfo.value = value;
     }
 
     get isSelect() {
         return this.blockInfo.isSelect;
     }
 
-    set value(value: number) {
-        this.blockInfo.value = value;
-    }
-
     set isSelect(value: boolean) {
         this.blockInfo.isSelect = value;
     }
+
+
 }
 
 

@@ -1,12 +1,24 @@
+
+export enum StBlock {
+    /** 静态 */
+    Static,
+    /** 空白 */
+    Blank = 0,
+    /** 候选 */
+    Candidate,
+    /** 错误 */
+    Error,
+}
+
 /** 方块信息 */
 export interface BlockInfo {
     id: number;
     row: number;
     col: number;
-    value: number;
-    result: number;
+    /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
+    type: number;
+    value: string;
     isSelect: boolean;
-    writable: boolean;
 }
 
 /** 九宫格信息 */
@@ -36,4 +48,6 @@ export interface BoardInfo {
     level: number;
     /** 牌面 */
     board: string[][];
+    /** 预设 */
+    candidates: string[][];
 }
