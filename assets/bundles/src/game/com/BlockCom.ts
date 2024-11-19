@@ -2,7 +2,7 @@ import { _decorator, Color, Component, Label, Sprite } from 'cc';
 import { Eventer } from '../../../../script/framework/tool/Eventer';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
-import { BlockInfo } from '../../data/GameData';
+import { BlockInfo, BlockType } from '../../data/GameData';
 import { GameEvent } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
@@ -27,12 +27,15 @@ export class BlockCom extends Component {
     public init(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
         this.blockInfo = blockInfo;
-        this.setBlock(blockInfo.type, blockInfo.value, true);
+        this.setBlock(blockInfo.type, blockInfo.value);
         this.node.name = `${this.nonetId}-${blockInfo.id}`;
     }
 
-    public setBlock(type: number, value: number, isInit: boolean = false): void {
-        if (isInit || type != 0) {
+    public setBlock(type: BlockType, value: number): void {
+        if(type == BlockType.Blank){
+            this.blockInfo.value = 0;
+            this.blockLbl.string = ``;
+        }else{
             this.blockInfo.value = value;
             this.blockLbl.string = `${value}`;
         }

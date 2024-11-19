@@ -1,5 +1,5 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
-import { BlockInfo, NonetInfo } from '../../data/GameData';
+import { BlockInfo, BlockType, NonetInfo } from '../../data/GameData';
 import { GameState } from '../../data/GameState';
 import { BlockCom } from './BlockCom';
 
@@ -11,8 +11,8 @@ export class NonetCom extends Component {
     @property(Prefab)
     blockPrefab: Prefab;
 
+    nonetId: number = 0;
     blockList: BlockCom[] = [];   // 块列表
-
     layout: Layout = null;
 
     protected onLoad(): void {
@@ -25,20 +25,19 @@ export class NonetCom extends Component {
 
     /** 生成九宫格 (所有id从1开始; 所有index从0开始) */
     private generate(nonetId: number): void {
+        this.nonetId = nonetId;
         let board = GameState.boardInfo.board;
         let nonIndex = nonetId - 1;
         let colIndex = nonIndex % 3 * 3;
         let rowIndex = Math.trunc(nonIndex / 3) * 3;
         for (let row = rowIndex; row < rowIndex + 3; row++) {
             for (let col = colIndex; col < colIndex + 3; col++) {
-                let value = board[row][col];
-                let type = value == 0 ? 0 : 1;
                 let blockInfo: BlockInfo = {
                     id: col + 1,
                     row: row,
                     col: col,
-                    type: type,
-                    value: value,
+                    type: board[row][col] < 0 ? BlockType.Blank : BlockType.Static,
+                    value: board[row][col],
                     isSelect: false,
                 }
                 this.createBlock(nonetId, blockInfo, this.node);
@@ -55,7 +54,6 @@ export class NonetCom extends Component {
         node.setParent(parent);
         item.init(nonetId, blockInfo);
         this.blockList.push(item);
-        // this.nonetInfo.blocks.push(item.blockInfo);
     }
 }
 

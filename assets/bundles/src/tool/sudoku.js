@@ -807,6 +807,7 @@
 })(this);
 
 let board = sudoku.generate("medium");
+board = "4.25..389....4.265..523.147..1652.7.6..1945322543876915....3.1....4..9.....8....3";
 sudoku.print_board(board);
 board = sudoku.solve(board);
 sudoku.print_board(board);

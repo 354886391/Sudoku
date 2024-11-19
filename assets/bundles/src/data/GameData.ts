@@ -1,9 +1,9 @@
 
-export enum StBlock {
-    /** 静态 */
-    Static,
+export enum BlockType {
     /** 空白 */
     Blank = 0,
+    /** 静态 */
+    Static,
     /** 候选 */
     Candidate,
     /** 错误 */
@@ -15,8 +15,7 @@ export interface BlockInfo {
     id: number;
     row: number;
     col: number;
-    /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
-    type: number;
+    type: BlockType;
     value: number;
     isSelect: boolean;
 }
@@ -49,5 +48,5 @@ export interface BoardInfo {
     /** 牌面 */
     board: number[][];
     /** 预设 */
-    candidates: number[][];
+    candidates?: number[][];
 }
