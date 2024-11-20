@@ -1,15 +1,15 @@
 // @ts-nocheck
-const DIGITS = "123456789";    // Allowed DIGITS
-const ROWS = "ABCDEFGHI";             // Row labels
-const COLS = "123456789";             // Column labels
-let SQUARES = null;                   // Square IDs
+const DIGITS = "123456789";         // Allowed DIGITS
+const ROWS = "ABCDEFGHI";           // Row labels
+const COLS = "123456789";           // Column labels
+let SQUARES = null;                 // Square IDs
 
-let UNITS = null;                     // All units (row, column, or box)
-let SQUARE_UNITS_MAP = null;          // Squares -> units map
-let SQUARE_PEERS_MAP = null;          // Squares -> peers map
+let UNITS = null;                   // All units (row, column, or box)
+let SQUARE_UNITS_MAP = null;        // Squares -> units map
+let SQUARE_PEERS_MAP = null;        // Squares -> peers map
 
-const MIN_GIVENS = 17;                // Minimum number of givens 
-const NR_SQUARES = 81;                // Number of squares
+const MIN_GIVENS = 17;              // Minimum number of givens 
+const NR_SQUARES = 81;              // Number of squares
 
 
 // Define difficulties by how many squares are given to the player in a new puzzle.
@@ -105,7 +105,7 @@ export class Sudoku {
             // If an assignment of a random chioce causes a contradictoin, give
             // up and try again
             var rand_candidate_idx =
-            this._rand_range(candidates[square].length);
+                this._rand_range(candidates[square].length);
             var rand_candidate = candidates[square][rand_candidate_idx];
             if (!this._assign(candidates, square, rand_candidate)) {
                 break;
@@ -390,7 +390,7 @@ export class Sudoku {
             var other_val = other_vals[ovi];
 
             var candidates_next =
-            this._eliminate(candidates, square, other_val);
+                this._eliminate(candidates, square, other_val);
 
             if (!candidates_next) {
                 //console.log("Contradiction found by _eliminate.");
@@ -428,7 +428,7 @@ export class Sudoku {
                 var peer = SQUARE_PEERS_MAP[square][pi];
 
                 var candidates_new =
-                this._eliminate(candidates, peer, target_val);
+                    this._eliminate(candidates, peer, target_val);
 
                 if (!candidates_new) {
                     return false;
@@ -461,7 +461,7 @@ export class Sudoku {
                 // Otherwise the value can only be in one place. Assign it there.
             } else if (val_places.length === 1) {
                 var candidates_new =
-                this._assign(candidates, val_places[0], val);
+                    this._assign(candidates, val_places[0], val);
 
                 if (!candidates_new) {
                     return false;
