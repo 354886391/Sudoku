@@ -21,8 +21,8 @@ export class StateMachine {
             if (this.locked || this._stateId == key) return;   // 锁定或者状态相同禁止切换
             this.state2?.onLeave?.call(this.listener);
             this._stateId = key;
-            this.state2?.onEnter?.call(this.listener);
             console.warn("current state:", this._stateId);
+            this.state2?.onEnter?.call(this.listener);
         }
     }
 

@@ -111,15 +111,26 @@ export class BoardView extends Component {
         }
     }
 
-    /** highlight与option相同value的格子 */
-    public hightingBlockColorBy(value: number) {
+    /** highlight与click相同value的[所有]格子 */
+    public highlightBlockColor_all(value: number) {
         console.log("ClickView::onSelectBlock", value);
         for (let i = 0; i < this.nonetList.length; i++) {
             let nonetId = i + 1;
             let blockList = this.getBlockList(nonetId);
             for (let j = 0; j < blockList.length; j++) {
-                let block = blockList[j];
+                let block = blockList[j];               
                 this.highlightBlockColor(value, block);
+            }
+        }
+    }
+
+    /** 重置所有格 */
+    public reset(){
+        for (let i = 0; i < this.nonetList.length; i++) {
+            let nonetId = i + 1;
+            let blockList = this.getBlockList(nonetId);
+            for (let j = 0; j < blockList.length; j++) {
+                blockList[j].reset();
             }
         }
     }
