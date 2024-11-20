@@ -17,10 +17,10 @@ export class GameEntry extends Entry {
 
     onLoad(): void {
         Log.w("GameEntry--> onEnter: ", this.bundle);
-        this.showLoadView();
+        this.showGamePanel();
     }
 
-    showLoadView(){
+    showGamePanel(){
         UIManager.instance.init(UI_GAME);
         UIManager.instance.open(GamePanel);
     }

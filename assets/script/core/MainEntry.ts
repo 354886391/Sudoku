@@ -13,7 +13,7 @@ export class MainEntry extends Component {
     protected onLoad(): void {
         this.setFrameRate();
         this.setDebugStats();
-        this.showStartView();
+        this.showMainPanel();
     }
 
     setFrameRate(): void {
@@ -36,7 +36,7 @@ export class MainEntry extends Component {
         isDebugOpen === true ? profiler.showStats() : profiler.hideStats();
     }
 
-    showStartView(){
+    showMainPanel(){
         UIManager.instance.init(UI_ROOT);
         UIManager.instance.open(MainPanel);
         Global.LOGIN_TIME = Date.now();

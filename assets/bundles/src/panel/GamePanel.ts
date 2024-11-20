@@ -3,6 +3,7 @@ import { UIView } from '../../../script/framework/ui/UIView';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { OptionView } from '../game/OptionView';
 import { BoardView } from '../game/BoardView';
+import { Sudoku } from '../tool/Sudoku';
 
 const { ccclass, property } = _decorator;
 
@@ -16,7 +17,12 @@ export class GamePanel extends UIView {
 
     start() {
         this.clickRegion.init(1);
-        this.selectRegion.init();
+        // this.selectRegion.init();
+
+        let sudoku = new Sudoku();
+        sudoku.initialize();
+        let board = sudoku.generate("veryHard", true);
+        sudoku.print_board(board);
     }
 }
 UIManager.instance.register(GamePanel);
