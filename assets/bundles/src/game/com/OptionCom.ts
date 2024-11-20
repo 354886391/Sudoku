@@ -7,44 +7,42 @@ const { ccclass, property } = _decorator;
 
 @ccclass
 export class OptionCom extends Component {
-
-    @property(Sprite)
-    itemBg: Sprite = null;
+    
     @property(Label)
-    itemLabel: Label = null;
+    blockLbl: Label = null;
     @property(UIButton)
     blockBtn: UIButton = null;
 
-    blockId: number = 0;
-    blockVal: number = 0;
+    id: number = 0;
+    value: number = 0;
     row: number = 0;
     col: number = 0;
 
     hasSelect: boolean = false; // 是否选中
-    canModify: boolean = true;  // 是否可修改
+    writable: boolean = true;  // 是否可修改
 
     protected onLoad(): void {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(blockId: number, blockVal: number): void {
-        this.blockId = blockId;
-        this.blockVal = blockVal;
-        this.setValue(blockVal);
+    public init(id: number, value: number): void {
+        this.id = id;
+        this.value = value;
+        this.setValue(value);
     }
 
     public setValue(blockVal: number) {
-        if (this.canModify) {
-            this.itemLabel.string = `${blockVal}`;
+        if (this.writable) {
+            this.blockLbl.string = `${blockVal}`;
         }
-    }
-
-    public setValColor(str: string): void {
-        this.itemLabel.color = new Color().fromHEX(str);
     }
 
     public setBlockColor(str: string): void {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
+    }
+
+    public setValueColor(str: string): void {
+        this.blockLbl.color = new Color().fromHEX(str);
     }
 
     public onClicked(): void {
@@ -53,7 +51,7 @@ export class OptionCom extends Component {
 
     public reset(): void {
         this.hasSelect = false;
-        this.setValColor(BlockColor.Black);
+        this.setValueColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
     }
 }

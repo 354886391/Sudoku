@@ -13,11 +13,7 @@ export class DrawView extends Component {
     lineWidth: number = 6;
     blockWidth: number = 112;
 
-    protected onLoad(): void {
-        this.drawBoard();
-    }
-
-    private drawBoard(): void {
+    public init(): void {
         //#region 绘制边框
         let nonetWidth = this.blockWidth * 3 + this.gapWidth;
         let regionWidth = nonetWidth * 3;

@@ -1,5 +1,6 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { OptionCom } from './com/OptionCom';
+import { BlockColor } from '../data/GameConst';
 
 const { ccclass, property } = _decorator;
 
@@ -26,6 +27,18 @@ export class OptionView extends Component {
             this.blockList.push(block);
             // 更新layout布局
             this.layout.updateLayout();
+        }
+    }
+
+    public highlightOptionColor(option: OptionCom): void {
+        if(option.hasSelect){
+            option.hasSelect = false;
+            option.setBlockColor(BlockColor.White);
+            option.setValueColor(BlockColor.Black);
+        }else{
+            option.hasSelect = true;
+            option.setBlockColor(BlockColor.White);
+            option.setValueColor(BlockColor.Black);
         }
     }
 }

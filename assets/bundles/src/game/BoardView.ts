@@ -22,35 +22,41 @@ export class BoardView extends Component {
 
     protected onLoad(): void {
         this.layout = this.getComponent(Layout);
-        Eventer.on(GameEvent.OnClickBlock, this.onClickBlock, this);
-        Eventer.on(GameEvent.OnSelectBlock, this.onSelectBlock, this);
     }
 
-    public init(boardId: number): void {
-        this.generate(boardId);
+    public init(boardId: number, board: number[][]): void {
+        this.setBoard(boardId, board);
     }
 
-    //生成View
-    private generate(boardId: number): void {
+    public setBoard(boardId: number, board: number[][]) {
         this.boardId = boardId;
         for (let i = 0; i < 9; i++) {
-            this.createNonet(i + 1, this.node);
+            let nonetId = i + 1;
+            if (this.nonetList[i]) {
+                this.setNonet(i, nonetId, board);
+            } else {
+                this.createNonet(nonetId, board, this.node);
+            }
         }
         // 更新layout布局
-        this.layout.updateLayout();
+        // this.layout.updateLayout();
+    }
+
+    private setNonet(index: number, nonetId: number, board: number[][]) {
+        this.nonetList[index].setNonet(nonetId, board);
     }
 
     /** 创建九宫格*/
-    private createNonet(nonetId: number, parent: Node) {
+    private createNonet(nonetId: number, board: number[][], parent: Node) {
         let node = instantiate(this.nonetPrefab);
         let nonet = node.getComponent(NonetCom);
         node.setParent(parent);
-        nonet.init(nonetId);
+        nonet.init(nonetId, board);
         this.nonetList.push(nonet);
-
     }
 
-    private onClickBlock(click: BlockCom) {
+    /** 点击block高亮 */
+    public highlightClickColor(click: BlockCom) {
         Log.d(`ClickView::onClickBlock, id: ${click.blockId} row:${click.row} col:${click.col}`);
         let isSelect = !click.isSelect;
         for (let i = 0; i < this.nonetList.length; i++) {
@@ -65,7 +71,7 @@ export class BoardView extends Component {
                 }
                 this.dimCrossColor(click, block);
                 this.dimNonetColor(click, block);
-                this.highlightValueColor(click, block);
+                this.highlightBlockColor(click.value, block);
             }
         }
         if (isSelect) {
@@ -78,21 +84,6 @@ export class BoardView extends Component {
         // 记录状态
         click.isSelect = isSelect;
         this.lastClick = click;
-    }
-
-    public onSelectBlock(select: OptionCom) {
-        console.log("ClickView::onSelectBlock", select.blockId);
-        if (this.lastClick.isSelect) {
-            this.lastClick.setBlock(0, select.blockVal);
-            for (let i = 0; i < this.nonetList.length; i++) {
-                let nonetId = i + 1;
-                let blockList = this.getBlockList(nonetId);
-                for (let j = 0; j < blockList.length; j++) {
-                    let block = blockList[j];
-                    this.highlightValueColor(this.lastClick, block);
-                }
-            }
-        }
     }
 
     /** dim所在的十字格 */
@@ -112,20 +103,29 @@ export class BoardView extends Component {
         }
     }
 
-    /** highlight相同Val的格子 */
-    private highlightValueColor(click: BlockCom, block: BlockCom): void {
-        if (click.value != 0 && click.value == block.value) {
+    /** highlight与click相同value的格子 */
+    private highlightBlockColor(value: number, block: BlockCom): void {
+        if (value != 0 && value == block.value) {
             block.setValueColor(BlockColor.White);
             block.setBlockColor(BlockColor.Blue);
         }
     }
 
-    private getBlockList(nonetId: number): BlockCom[] {
-        return this.nonetList[nonetId - 1].blockList;
+    /** highlight与option相同value的格子 */
+    public hightingBlockColorBy(value: number) {
+        console.log("ClickView::onSelectBlock", value);
+        for (let i = 0; i < this.nonetList.length; i++) {
+            let nonetId = i + 1;
+            let blockList = this.getBlockList(nonetId);
+            for (let j = 0; j < blockList.length; j++) {
+                let block = blockList[j];
+                this.highlightBlockColor(value, block);
+            }
+        }
     }
 
-    private sameBlock(a: BlockCom, b: BlockCom) {
-        return a != null && b != null && a.blockId == b.blockId && a.row == b.row && a.col == b.col;
+    private getBlockList(nonetId: number): BlockCom[] {
+        return this.nonetList[nonetId - 1].blockList;
     }
 }
 

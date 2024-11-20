@@ -27,21 +27,27 @@ export class BlockCom extends Component {
     public init(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
         this.blockInfo = blockInfo;
-        this.setBlock(blockInfo.type, blockInfo.value);
+        this.setValue(blockInfo.type, blockInfo.value);
         this.node.name = `${this.nonetId}-${blockInfo.id}`;
     }
 
-    public setBlock(type: BlockType, value: number): void {
-        if(type == BlockType.Blank){
+    public setBlock(nonetId: number, blockInfo: BlockInfo): void {
+        this.nonetId = nonetId;
+        this.blockInfo = blockInfo;
+        this.setValue(blockInfo.type, blockInfo.value);
+    }
+
+    public setValue(type: BlockType, value: number): void {
+        if (type == BlockType.Blank) {
             this.blockInfo.value = 0;
             this.blockLbl.string = ``;
-        }else{
+        } else {
             this.blockInfo.value = value;
             this.blockLbl.string = `${value}`;
         }
     }
 
-    public clearBlock(): void {
+    public clearValue(): void {
         if (this.blockInfo.type != 1) {
             this.blockLbl.string = ``;
         }

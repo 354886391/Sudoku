@@ -19,14 +19,14 @@ export class NonetCom extends Component {
         this.layout = this.getComponent(Layout);
     }
 
-    public init(nonetId: number): void {
-        this.generate(nonetId);
+    public init(nonetId: number, board: number[][]): void {
+        this.setNonet(nonetId, board);
     }
 
     /** 生成九宫格 (所有id从1开始; 所有index从0开始) */
-    private generate(nonetId: number): void {
+    public setNonet(nonetId: number, board: number[][]): void {
+        let index = 0;
         this.nonetId = nonetId;
-        let board = GameState.boardInfo.board;
         let nonIndex = nonetId - 1;
         let colIndex = nonIndex % 3 * 3;
         let rowIndex = Math.trunc(nonIndex / 3) * 3;
@@ -40,11 +40,20 @@ export class NonetCom extends Component {
                     value: board[row][col],
                     isSelect: false,
                 }
-                this.createBlock(nonetId, blockInfo, this.node);
+                if (this.blockList[index]) {
+                    this.setBlock(index, nonetId, blockInfo);
+                } else {
+                    this.createBlock(nonetId, blockInfo, this.node);
+                }
+                index++;
             }
         }
         // 更新layout布局
-        this.layout.updateLayout();
+        // this.layout.updateLayout();
+    }
+
+    private setBlock(index: number, nonetId: number, blockInfo: BlockInfo): void {
+        this.blockList[index].setBlock(nonetId, blockInfo);
     }
 
     /** 创建块 (所有id从1开始; 所有index从0开始) */
