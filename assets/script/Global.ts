@@ -15,4 +15,15 @@ export class Global {
     public static LOGIN_TIME = 0;
 
     public static MAX_PLAYER = 2;//玩家最多人数
+
+    public static GAME_INIT_FRAME = 60; //游戏开发基础帧率
+
+    public static DISMISS = 'dismiss';
+    public static START_GAME = 'startGame';
+    public static START_GAME_TIME = 'start_game_time';
+
+    public static ownRound: boolean;
+    public static ownId: string;
+    public static ownSteps: number;
+    public static ownDices: number[];
 }
