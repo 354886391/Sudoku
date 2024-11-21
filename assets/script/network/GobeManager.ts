@@ -586,7 +586,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     }
 
     /** 判断是否初始化 */
-    public isInited() {
+    public isInitd() {
         // 初始化成功后才有玩家Id
         return !!this.playerId;
     }
