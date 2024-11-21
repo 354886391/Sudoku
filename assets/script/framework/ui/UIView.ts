@@ -10,7 +10,7 @@ const { ccclass, property, menu } = _decorator;
 @menu("ui/common/UIView")
 export class UIView extends Component {
 
-    /** 1. 有缓存则只执行一次(在子类的onLoad之前调用, 只处理数据) */
+    /** 1. 有缓存则只执行一次(在onLoad之前调用, 只处理数据) */
     public init(...args: any[]): void { }
 
     /** 2. 当附加到一个激活的节点上或者其节点第一次激活时候调用 */

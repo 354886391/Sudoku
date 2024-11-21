@@ -11,6 +11,7 @@ import { GameEvent } from '../data/GameEvent';
 import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
+import { StartPanel } from './StartPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -63,15 +64,17 @@ export class GamePanel extends UIView {
     }
 
     onIdle() {
-        // 点击开始
-        this.scheduleOnce(() => {
+        // 开始
+        UIManager.instance.open(StartPanel, () => {
             this.machine.state = StReady;
-        }, 0);
+        });
     }
 
     onReady() {
         // 初始化牌面
-        this.boardView.init(1, GameState.boardInfo.board);
+        let board = GameState.boardInfo.board;
+        this.boardView.init(1, board);
+        this.machine.state = StPlaying;
     }
 
     onPlaying() {
@@ -91,8 +94,10 @@ export class GamePanel extends UIView {
     }
 
     onOptionClick(option: OptionCom) {
+        this.boardView.reset();
+        this.optionView.reset();
+        this.boardView.highlightBlockColor_all(option.value);
         this.optionView.highlightOptionColor(option);
-        this.boardView.hightingBlockColorBy(option.value);
     }
 
 }

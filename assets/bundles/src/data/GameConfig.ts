@@ -16,6 +16,15 @@ export const UI_GAME: { [key: string]: UIOption } = {
         isPreload: true,
         layerIndex: UILayer.default,
     },
+    StartPanel: {
+        name: "StartPanel",
+        path: "prefab/panel/StartPanel",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.default,
+    },
 
 }
 

@@ -10,7 +10,7 @@ export class OptionView extends Component {
     @property(Prefab)
     blockPrefab: Prefab = null;
 
-    blockList: OptionCom[] = [];
+    optionList: OptionCom[] = [];
 
     layout: Layout = null;
 
@@ -24,21 +24,29 @@ export class OptionView extends Component {
             let block = node.getComponent(OptionCom);
             node.setParent(this.node);
             block.init(i + 1, i + 1);
-            this.blockList.push(block);
+            this.optionList.push(block);
             // 更新layout布局
             this.layout.updateLayout();
         }
     }
 
-    public highlightOptionColor(option: OptionCom): void {
-        if(option.hasSelect){
-            option.hasSelect = false;
-            option.setBlockColor(BlockColor.White);
-            option.setValueColor(BlockColor.Black);
-        }else{
-            option.hasSelect = true;
-            option.setBlockColor(BlockColor.White);
-            option.setValueColor(BlockColor.Black);
+    /** highlight点击的option格子 */
+    public highlightOptionColor(click: OptionCom): void {
+        if (click.hasSelect) {
+            click.hasSelect = false;
+            click.setValueColor(BlockColor.Black);
+            click.setBlockColor(BlockColor.White);
+
+        } else {
+            click.hasSelect = true;
+            click.setValueColor(BlockColor.Gold);
+            click.setBlockColor(BlockColor.Blue);
+        }
+    }
+
+    public reset(): void {
+        for (let i = 0; i < this.optionList.length; i++) {
+            this.optionList[i].reset();
         }
     }
 }
