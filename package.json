@@ -3,8 +3,5 @@
   "uuid": "384cc6e0-c659-45d5-a112-87fe3529b553",
   "creator": {
     "version": "3.8.4"
-  },
-  "dependencies": {
-    "xlsx": "^0.18.5"
   }
 }
