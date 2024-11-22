@@ -14,8 +14,8 @@ export class Global {
 
     public static LOGIN_TIME = 0;
 
-    public static MAX_PLAYER = 2;//玩家最多人数
-
+    public static MAX_PLAYER = 2;       //玩家最多人数
+    public static MATCH_PARAMS = {};    //匹配参数 
     public static GAME_INIT_FRAME = 60; //游戏开发基础帧率
 
     public static DISMISS = 'dismiss';
@@ -26,4 +26,8 @@ export class Global {
     public static ownId: string;
     public static ownSteps: number;
     public static ownDices: number[];
+
+    public static CLIENT_ID: string = '1247079560185433024'; // 需要手动修改
+    public static CLIENT_SECRET: string = 'C7731F7C3530A0B355550A8339841584B4172B75F536BADEFA7ED7C3F72BF67E'; // 需要手动修改
+    public static APP_ID: string = '172249065902717087'; // 需要手动修改
 }
