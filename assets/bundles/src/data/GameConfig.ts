@@ -1,8 +1,6 @@
 import { _decorator, JsonAsset, Prefab } from 'cc';
 import { UIOption, UILayer } from '../../../script/framework/ui/UIManager';
 import { RESOption } from '../../../script/framework/resources/ResourceManager';
-import { Global } from '../../../script/Global';
-
 
 /** UI配置 */
 export const UI_GAME: { [key: string]: UIOption } = {
@@ -16,16 +14,51 @@ export const UI_GAME: { [key: string]: UIOption } = {
         isPreload: true,
         layerIndex: UILayer.default,
     },
-    StartPanel: {
-        name: "StartPanel",
-        path: "prefab/panel/StartPanel",
+    SelectPanel: {
+        name: "SelectPanel",
+        path: "prefab/panel/SelectPanel",
         bundle: "bundles",
         hasMask: false,
         isCache: false,
         isPreload: true,
-        layerIndex: UILayer.default,
+        layerIndex: UILayer.popup,
     },
-
+    ReadyPanel: {
+        name: "ReadyPanel",
+        path: "prefab/panel/ReadyPanel",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.popup,
+    },
+    HintDialog: {
+        name: "HintDialog",
+        path: "prefab/panel/dialog/HintDialog",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.popup,
+    },
+    HintNotice: {
+        name: "HintNotice",
+        path: "prefab/panel/notice/HintNotice",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.notice,
+    },
+    LoadNotice: {
+        name: "LoadNotice",
+        path: "prefab/panel/notice/LoadNotice",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.notice,
+    },
 }
 
 /** 资源配表 */

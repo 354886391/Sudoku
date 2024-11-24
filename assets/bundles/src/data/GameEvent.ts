@@ -1,4 +1,4 @@
-export enum GameEvent {
+export enum GameEvents {
     // UI
     UIOpen = "UIOpen",
     UIClose = "UIClose",

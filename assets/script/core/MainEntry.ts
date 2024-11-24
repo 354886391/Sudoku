@@ -1,5 +1,5 @@
 import { _decorator, Component, PhysicsSystem, profiler, game } from 'cc';
-import { StorageManager } from '../framework/manager/StorageManager';
+import { StorageManager } from '../framework/storage/StorageManager';
 import { UI_ROOT } from './MainConfig';
 import { UIManager } from '../framework/ui/UIManager';
 import { MainPanel } from './MainPanel';

@@ -3,7 +3,7 @@ import { Eventer } from '../../../../script/framework/tool/Eventer';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
 import { BlockInfo, BlockType } from '../../data/GameData';
-import { GameEvent } from '../../data/GameEvent';
+import { GameEvents } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
 
@@ -66,7 +66,7 @@ export class BlockCom extends Component {
     }
 
     public onClicked(): void {
-        Eventer.emit(GameEvent.OnClickBlock, this);
+        Eventer.emit(GameEvents.OnClickBlock, this);
     }
 
     public reset(): void {

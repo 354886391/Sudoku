@@ -1,6 +1,6 @@
 import { _decorator, Animation, Color, Component, Label, Node, Sprite } from 'cc';
 import { Eventer } from '../../../../script/framework/tool/Eventer';
-import { GameEvent } from '../../data/GameEvent';
+import { GameEvents } from '../../data/GameEvent';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
 const { ccclass, property } = _decorator;
@@ -46,7 +46,7 @@ export class OptionCom extends Component {
     }
 
     public onClicked(): void {
-        Eventer.emit(GameEvent.OnSelectBlock, this);
+        Eventer.emit(GameEvents.OnSelectBlock, this);
     }
 
     public reset(): void {

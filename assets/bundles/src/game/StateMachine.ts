@@ -1,13 +1,15 @@
-interface IState {
-    onEnter: Function;
-    onUpdate: Function;
-    onLeave: Function;
-    listener: any;
+export enum EState {
+    Init = 0,
+    Idle,
+    Ready,
+    Playing,
+    Showing,
+    Finish,
 }
 
 export class StateMachine {
     public locked: boolean = false;
-    private _stateId: number = -1;
+    public _stateId: number = -1;
     private _stateDic: { [key: number]: IState } = {};
 
     /** 当前状态Id */
@@ -15,13 +17,18 @@ export class StateMachine {
         return this._stateId;
     }
 
+    /** 当前状态 */
+    public get state2() {
+        return this._stateDic[this._stateId];
+    }
+
     /** 切换状态. (不能在同一帧多次切换状态) */
-    public set state(key: number) {
+    public set state(key: EState) {
         if (this.contains(key)) {
             if (this.locked || this._stateId == key) return;   // 锁定或者状态相同禁止切换
             this.state2?.onLeave?.call(this.listener);
             this._stateId = key;
-            console.warn("current state:", this._stateId);
+            console.warn("current state:", EState[key]);
             this.state2?.onEnter?.call(this.listener);
         }
     }
@@ -30,9 +37,9 @@ export class StateMachine {
     public get listener(): any {
         return this.state2.listener;
     }
-    
+
     /** 添加状态 */
-    public setCallbacks(key: number, action: { enter?: Function, update?: Function, exit?: Function }, listener: any): void {
+    public setCallbacks(key: EState, action: { enter?: Function, update?: Function, exit?: Function }, listener: any): void {
         let state: IState = {
             onEnter: action.enter,
             onUpdate: action.update,
@@ -55,8 +62,12 @@ export class StateMachine {
         this._stateId = -1;
         this._stateDic = {};
     }
-    
-    private get state2() {
-        return this._stateDic[this._stateId];
-    }
 }
+
+interface IState {
+    onEnter: Function;
+    onUpdate: Function;
+    onLeave: Function;
+    listener: any;
+}
+
