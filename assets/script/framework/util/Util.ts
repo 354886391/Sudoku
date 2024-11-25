@@ -1,5 +1,7 @@
-import { _decorator, Color, Component, Node, Renderer, sp, Sprite, tween, UIRenderer, v3, Vec3 } from "cc";
+import { _decorator, Color, Component, JsonAsset, Node, randomRange, Renderer, sp, Sprite, tween, UIRenderer, v3, Vec3 } from "cc";
 import { Timer } from "./Timer";
+import { ResourceManager } from "../resources/ResourceManager";
+import { RES_GAME } from "../../../bundles/src/data/GameConfig";
 const { ccclass, property } = _decorator;
 
 @ccclass("Util")
@@ -987,6 +989,49 @@ export class Util {
     public static getRandomDirector() {
         let v = Math.random();
         return v > 0.5 ? 1 : -1
+    }
+
+
+    /**
+     * 生成随机名字
+     *
+     * @static
+     * @returns
+     * @memberof Util
+     */
+    public static createRandomName() {
+        let name = "";
+        for (let j = 0; j < Math.round(Math.random() * 3) + 1; j++) {
+            name += String.fromCharCode(Math.round(Math.random() * 26) + 97);
+            name += String.fromCharCode(Math.round(Math.random() * 20901) + 19968);
+
+            //打乱name
+            if (Math.random() > 0.5) {
+                name = name.split("").reverse().join("");
+            }
+        }
+        return name;
+    }
+
+    /**
+     * 随机名字
+     * 
+     * @param staticId 
+     */
+    public static async randomName(staticId: number) {
+        let names = ResourceManager.instance.getBy<JsonAsset>(RES_GAME.names);
+        let boyNames = names.json.boyNames;
+        let girlNames = names.json.girlNames;
+        let firstNames = names.json.firstNames;
+        let lastName: string = '';
+        if (staticId == 0) {
+            lastName = boyNames[Math.floor(randomRange(0, 1) * boyNames.length)];
+        } else {
+            lastName = girlNames[Math.floor(randomRange(0, 1) * girlNames.length)];
+        }
+        let firstName = firstNames[Math.floor(randomRange(0, 1) * firstNames.length)];
+        let playerName = firstName + lastName;
+        return playerName;
     }
 
     /**

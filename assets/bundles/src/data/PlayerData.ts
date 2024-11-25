@@ -7,6 +7,7 @@ interface PlayerInfo {
     pid?: string;
     name?: string;
     avatar?: string;
+    staticId?: number;
 }
 
 interface HistoryInfo {
@@ -22,6 +23,7 @@ export class PlayerData extends Singleton<PlayerData>() {
     localTime: number = 0;
     serverTime: number = 0;
 
+    isInit: boolean = false;
     isNewbie: boolean = false;
 
     userId: string = "";
@@ -53,11 +55,17 @@ export class PlayerData extends Singleton<PlayerData>() {
      * 创建角色数据
      * @param loginData 
      */
-    public createPlayer(loginData?: any) {
+    public createPlayer(loginData?: PlayerInfo) {
         this.playerInfo = {};
         if (loginData) {
-            for (let key in loginData) {
-                this.playerInfo[key] = loginData[key];
+            // for (let key in loginData) {
+            //     this.playerInfo[key] = loginData[key];
+            // }
+            this.playerInfo = {
+                pid: loginData.pid,
+                name: loginData.name,
+                avatar: loginData.avatar,
+                staticId: loginData.staticId
             }
         }
         this.savePlayerInfoToLocalCache();

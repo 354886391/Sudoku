@@ -4,6 +4,8 @@ import { Eventer } from "../framework/tool/Eventer";
 import { Singleton } from "../framework/util/Singleton";
 import { GobeEvents } from "./GobeEvents";
 import { Global } from "../Global";
+import { PlayerData } from "../../bundles/src/data/PlayerData";
+import { Util } from "../framework/util/Util";
 
 export enum PLAYER_TYPE {
     READY = 0,
@@ -73,8 +75,8 @@ export class GobeManager extends Singleton<GobeManager>() {
     // 原生平台证书url
     private _cacertNativeUrl: string = "";
 
-    public get room(){
-        if(this._wifiType == WIFI_TYPE.STAND_ALONE){
+    public get room() {
+        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
             return this._roomAlone;
         }
         return this._room;
@@ -289,7 +291,7 @@ export class GobeManager extends Singleton<GobeManager>() {
             customRoomProperties: JSON.stringify({ "type": ROOM_TYPE.NONE, "time": 0 }) // todo: 房间信息
         }, {
             customPlayerStatus: 0,              // 选填，自定义玩家状态。
-            customPlayerProperties: "boy",      // todo: 选填，自定义玩家属性，最大支持2048个字符。
+            customPlayerProperties: PlayerData.instance.playerInfo.name,      // todo: 选填，自定义玩家属性，最大支持2048个字符。
         }).then(room => {
             this._room = room;
             this._player = room.player;
@@ -320,11 +322,13 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._roomAlone.players = [];
         this._roomAlone.players.push({
             playerId: this.playerId,
-            customPlayerProperties: "boy",  // todo: 自定义AI玩家属性
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 自定义AI玩家属性
         });
-        this._roomAlone.players.push({
-            playerId: "ai00000",
-            customPlayerProperties: "girl",
+        Util.randomName(1).then((name) => {
+            this._roomAlone.players.push({
+                playerId: "ai00000",
+                customPlayerProperties: name,
+            });
         });
         this._roomAlone.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.READY, "time": 0 });
         this._time = 0;
@@ -346,7 +350,7 @@ export class GobeManager extends Singleton<GobeManager>() {
             customRoomProperties: JSON.stringify({ "type": ROOM_TYPE.READY, "time": 0 })
         }, {
             customPlayerStatus: 0,
-            customPlayerProperties: "boy",  // todo:
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo:
         }).then((room: Room) => {
             console.log("matchRoom success");
             this._room = room;
@@ -400,7 +404,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         console.log("joinRoom--> 加入房间");
         this._client.joinRoom(roomId, {
             customPlayerStatus: 0,
-            customPlayerProperties: "boy",  // todo: 玩家属性
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
         }).then(room => {
             // 加入房间中
             this._room = room;

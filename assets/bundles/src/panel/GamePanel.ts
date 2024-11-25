@@ -68,9 +68,9 @@ export class GamePanel extends UIView {
 
     onIdle() {
         // 开始
-        UIManager.instance.open(SelectPanel, () => {
-            this.machine.state = EState.Ready;
-        });
+        // UIManager.instance.open(SelectPanel, () => {
+        //     this.machine.state = EState.Ready;
+        // });
     }
 
     onReady() {

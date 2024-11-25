@@ -25,10 +25,6 @@ export class ReadyPanel extends UIView {
     playerWaitList: Node[] = [];
     @property([Node])
     playerHeadList: Node[] = [];
-    @property([Label])
-    playerNameList: Label[] = [];
-    @property([Sprite])
-    playerAvatarList: Sprite[] = [];
 
     isShowVs: boolean = false;
     isFightOpen: boolean = false;

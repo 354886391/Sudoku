@@ -12,9 +12,6 @@ const { ccclass, property } = _decorator;
 @ccclass
 export class GameManager extends Component {
 
-    protected start(): void {
-        
-    }
 
     protected onEnable(): void {
         Eventer.on(GobeEvents.ON_GAME_READY, this.onGameReady, this);
@@ -30,14 +27,17 @@ export class GameManager extends Component {
         Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
-    loginGame(){
+    protected start(): void {
+        this.loginGame();
+    }
+    loginGame() {
         // 登录
         let playerId = PlayerData.instance.playerInfo.pid;
-        GobeManager.instance.initSDK(playerId, (successInit: boolean)=>{
+        GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
             if (successInit) {
-               // 登录成功
-               UIManager.instance.open(SelectPanel);
-            }else{
+                // 登录成功
+                UIManager.instance.open(SelectPanel);
+            } else {
                 // 登录失败
                 UIManager.instance.open(HintDialog, "登录失败");
             }
