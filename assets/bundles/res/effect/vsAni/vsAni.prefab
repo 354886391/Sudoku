@@ -3,6 +3,7 @@
     "__type__": "cc.Prefab",
     "_name": "vsAni",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_native": "",
     "data": {
       "__id__": 1
@@ -87,6 +88,7 @@
     "__type__": "cc.Node",
     "_name": "SharpCircleKeep",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -139,6 +141,7 @@
     "__type__": "cc.ParticleSystem",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -809,6 +812,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -836,6 +840,7 @@
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -866,6 +871,7 @@
     "__type__": "cc.Node",
     "_name": "SharpCircle",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -918,6 +924,7 @@
     "__type__": "cc.ParticleSystem",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 62
     },
@@ -1612,6 +1619,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 62
     },
@@ -1639,6 +1647,7 @@
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 62
     },
@@ -1669,6 +1678,7 @@
     "__type__": "cc.Node",
     "_name": "VSlighting01",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -1721,6 +1731,7 @@
     "__type__": "cc.ParticleSystem",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 124
     },
@@ -2367,6 +2378,7 @@
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 124
     },
@@ -2384,6 +2396,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 124
     },
@@ -2424,6 +2437,7 @@
     "__type__": "cc.Node",
     "_name": "VSlighting02",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -2476,6 +2490,7 @@
     "__type__": "cc.ParticleSystem",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 185
     },
@@ -3122,6 +3137,7 @@
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 185
     },
@@ -3139,6 +3155,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 185
     },
@@ -3179,6 +3196,7 @@
     "__type__": "cc.Node",
     "_name": "Plane002",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -3215,7 +3233,7 @@
       "__type__": "cc.Vec3",
       "x": 460,
       "y": 460,
-      "z": 460
+      "z": 1
     },
     "_mobility": 0,
     "_layer": 1073741824,
@@ -3231,6 +3249,7 @@
     "__type__": "cc.MeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 246
     },
@@ -3257,6 +3276,9 @@
     "_shadowBias": 0,
     "_shadowNormalBias": 0,
     "_reflectionProbeId": -1,
+    "_reflectionProbeBlendId": -1,
+    "_reflectionProbeBlendWeight": 0,
+    "_enabledGlobalStandardSkinObject": false,
     "_enableMorph": true,
     "_id": ""
   },
@@ -3282,13 +3304,13 @@
     "_useLightProbe": false,
     "_bakeToLightProbe": true,
     "_reflectionProbeType": 0,
-    "_bakeToReflectionProbe": true,
-    "_probeCubemap": null
+    "_bakeToReflectionProbe": true
   },
   {
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 246
     },
@@ -3306,6 +3328,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 246
     },
@@ -3346,6 +3369,7 @@
     "__type__": "cc.Node",
     "_name": "Plane003",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -3382,7 +3406,7 @@
       "__type__": "cc.Vec3",
       "x": 460,
       "y": 460,
-      "z": 460
+      "z": 1
     },
     "_mobility": 0,
     "_layer": 1073741824,
@@ -3398,6 +3422,7 @@
     "__type__": "cc.MeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 255
     },
@@ -3424,6 +3449,9 @@
     "_shadowBias": 0,
     "_shadowNormalBias": 0,
     "_reflectionProbeId": -1,
+    "_reflectionProbeBlendId": -1,
+    "_reflectionProbeBlendWeight": 0,
+    "_enabledGlobalStandardSkinObject": false,
     "_enableMorph": true,
     "_id": ""
   },
@@ -3449,13 +3477,13 @@
     "_useLightProbe": false,
     "_bakeToLightProbe": true,
     "_reflectionProbeType": 0,
-    "_bakeToReflectionProbe": true,
-    "_probeCubemap": null
+    "_bakeToReflectionProbe": true
   },
   {
     "__type__": "cc.UIMeshRenderer",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 255
     },
@@ -3473,6 +3501,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 255
     },
@@ -3513,6 +3542,7 @@
     "__type__": "cc.Node",
     "_name": "readyS01",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -3562,6 +3592,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 264
     },
@@ -3589,6 +3620,7 @@
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 264
     },
@@ -3646,6 +3678,7 @@
     "__type__": "cc.Node",
     "_name": "readyV01",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -3695,6 +3728,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 270
     },
@@ -3722,6 +3756,7 @@
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 270
     },
@@ -3779,6 +3814,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },

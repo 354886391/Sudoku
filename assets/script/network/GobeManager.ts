@@ -60,9 +60,9 @@ export class GobeManager extends Singleton<GobeManager>() {
     public playerId: string = null;
     public lastRoomId: string = null;         // 上次登录房间Id
     public roomType: ROOM_TYPE = ROOM_TYPE.NONE;
-    public roomAloneInfo: RoomAloneInfo = null;
     // 房间
     private _room: GOBE.Room = null;
+    private _roomAlone: RoomAloneInfo = null;
     // 玩家自己
     private _player: GOBE.Player = null;
     private _client: GOBE.Client = null;
@@ -73,15 +73,21 @@ export class GobeManager extends Singleton<GobeManager>() {
     // 原生平台证书url
     private _cacertNativeUrl: string = "";
 
+    public get room(){
+        if(this._wifiType == WIFI_TYPE.STAND_ALONE){
+            return this._roomAlone;
+        }
+        return this._room;
+    }
+
     /** 房间内的玩家列表 */
     public get roomPlayers(): PlayerInfo[] {
         if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
-            this.roomAloneInfo.players;
+            this._roomAlone.players;
         }
         if (this._room) {
             return this._room.players;
-        }
-        else {
+        } else {
             return [];
         }
     }
@@ -308,19 +314,19 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.STAND_ALONE;
         console.log("createRoomAI--> 创建房间");
-        this.roomAloneInfo = new RoomAloneInfo();
-        this.roomAloneInfo.ownerId = this.playerId;
-        this.roomAloneInfo.roomCode = "0001" + Math.floor(Math.random() * 100);
-        this.roomAloneInfo.players = [];
-        this.roomAloneInfo.players.push({
+        this._roomAlone = new RoomAloneInfo();
+        this._roomAlone.ownerId = this.playerId;
+        this._roomAlone.roomCode = "0001" + Math.floor(Math.random() * 100);
+        this._roomAlone.players = [];
+        this._roomAlone.players.push({
             playerId: this.playerId,
             customPlayerProperties: "boy",  // todo: 自定义AI玩家属性
         });
-        this.roomAloneInfo.players.push({
+        this._roomAlone.players.push({
             playerId: "ai00000",
             customPlayerProperties: "girl",
         });
-        this.roomAloneInfo.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.READY, "time": 0 });
+        this._roomAlone.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.READY, "time": 0 });
         this._time = 0;
         this._isStartFrameSync = true;
         this.roomType = ROOM_TYPE.READY;
@@ -433,7 +439,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 console.log("离开房间 失败", error)
             });
         } else {
-            this.roomAloneInfo = null!;
+            this._roomAlone = null!;
             callback && callback();
         }
     }
@@ -608,7 +614,7 @@ export class GobeManager extends Singleton<GobeManager>() {
             Eventer.emit(GobeEvents.ON_GAME_START);
         } else {
             if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
-                this.roomAloneInfo.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.START, "time": new Date().getTime() });    // todo:
+                this._roomAlone.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.START, "time": new Date().getTime() });    // todo:
                 this.roomType = ROOM_TYPE.START;
                 this._time = new Date().getTime();
                 Eventer.emit(GobeEvents.ON_GAME_START);
@@ -623,7 +629,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     public finishGame() {
         if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
             this._isStartFrameSync = false;
-            this.roomAloneInfo.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.END, "time": this._time });
+            this._roomAlone.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.END, "time": this._time });
             Eventer.emit(GobeEvents.ON_GAME_END);
         } else {
             // // 房主是自己或(房主不在房间且自己不是房主)

@@ -43,8 +43,7 @@ export class SelectPanel extends UIView {
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.createRoomAI(() => {
             // ready GO
-            UIManager.instance.open(ReadyPanel);
-            UIManager.instance.close(LoadNotice);
+            this.showReadyGo();
         }, () => {
             UIManager.instance.open(HintDialog, "房间创建失败");
         });
@@ -56,9 +55,7 @@ export class SelectPanel extends UIView {
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.createRoom(() => {
             // ready GO
-            UIManager.instance.open(ReadyPanel);
-            UIManager.instance.close(LoadNotice);
-            this.onCloseClick();
+            this.showReadyGo();
         }, () => {
             UIManager.instance.open(HintDialog, "房间创建失败");
         });
@@ -69,9 +66,7 @@ export class SelectPanel extends UIView {
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.matchRoom(() => {
             // ready GO
-            UIManager.instance.open(ReadyPanel);
-            UIManager.instance.close(LoadNotice);
-            this.onCloseClick();
+            this.showReadyGo();
         }, () => {
             UIManager.instance.open(HintDialog, "房间匹配失败");
         });
@@ -81,13 +76,17 @@ export class SelectPanel extends UIView {
         Log.d("SelectPanel--> onJoinRoomClick");
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.joinRoom("", () => {
-            // ready GO
-            UIManager.instance.open(ReadyPanel);
-            UIManager.instance.close(LoadNotice);
-            this.onCloseClick();
+            this.showReadyGo();
         }, () => {
             UIManager.instance.open(HintDialog, "房间加入失败");
         });
+    }
+
+    showReadyGo() {
+        // ready GO
+        UIManager.instance.open(ReadyPanel);
+        UIManager.instance.close(LoadNotice);
+        this.onCloseClick();
     }
 
     public onCloseClick(): void {

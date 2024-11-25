@@ -3,17 +3,17 @@ import { StorageManager } from '../../../script/framework/storage/StorageManager
 import { LOCAL_CACHE } from "./GameConst";
 
 
-export interface PlayerInfo {
+interface PlayerInfo {
     pid?: string;
     name?: string;
     avatar?: string;
 }
 
-export interface HistoryInfo {
+interface HistoryInfo {
     pid?: string;
 }
 
-export interface SettingInfo {
+interface SettingInfo {
     pid?: string;
 }
 
@@ -21,7 +21,7 @@ export class PlayerData extends Singleton<PlayerData>() {
 
     localTime: number = 0;
     serverTime: number = 0;
-    
+
     isNewbie: boolean = false;
 
     userId: string = "";
@@ -30,7 +30,6 @@ export class PlayerData extends Singleton<PlayerData>() {
     playerInfo: PlayerInfo = null;
     historyInfo: HistoryInfo = null;
     settingInfo: SettingInfo = null;
-
 
     /**
     * 生成随机账户
