@@ -12,6 +12,9 @@ import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { SelectPanel } from './SelectPanel';
+import { GobeManager } from '../../../script/network/GobeManager';
+import { ReadyGoPanel } from './ReadyGoPanel';
+import { GobeEvents } from '../../../script/network/GobeEvents';
 
 const { ccclass, property } = _decorator;
 
@@ -43,11 +46,17 @@ export class GamePanel extends UIView {
 
         Eventer.on(GameEvents.OnClickBlock, this.onBlockClick, this);
         Eventer.on(GameEvents.OnSelectBlock, this.onOptionClick, this);
+        Eventer.on(GameEvents.Show_ReadyGo, this.showReadyGo.bind(this));
+
+        Eventer.on(GobeEvents.ON_GAME_READY, null, this);
+        Eventer.on(GobeEvents.ON_GAME_START, null, this);
+        Eventer.on(GobeEvents.ON_GAME_END, null, this);
+        Eventer.on(GobeEvents.ON_GAME_321, null, this);
 
         this.machine.state = EState.Init;
 
-       let log =  window.console.log.bind(window.console, '%c【调试】', 'color: white; background-color: #007BFF; font-weight: bold; font-size: 14px;');
-       log("游戏开始", 1, 2, 3, 4, 5);
+        let log = window.console.log.bind(window.console, '%c【调试】', 'color: white; background-color: #007BFF; font-weight: bold; font-size: 14px;');
+        log("游戏开始", 1, 2, 3, 4, 5);
     }
 
     onInit() {
@@ -93,5 +102,23 @@ export class GamePanel extends UIView {
         this.boardView.highlightBlockColor_all(option.value);
         this.optionView.highlightOptionColor(option);
     }
+
+    showReadyGo() {
+        // ready GO
+        UIManager.instance.open(ReadyGoPanel, [() => {
+            GobeManager.instance.startGame();
+        }]);
+    }
+
+    _isGameing: boolean = false;
+    _startGameTime: number = 0;
+    
+    /**
+    * 开始帧同步操作
+    */
+    private _onStartGame() {
+
+    }
+
 }
 UIManager.instance.register(GamePanel);

@@ -19,6 +19,9 @@ export class ReadyGoPanel extends UIView {
 
     protected start(): void {
         this.countDownAnim.play();
+        this.countDownAnim.once(Animation.EventType.FINISHED, () => {
+            this.callback && this.callback();
+        });
     }
 
     public onCloseClick(): void {

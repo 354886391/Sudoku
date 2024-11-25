@@ -6,6 +6,8 @@ import { Global } from "../../../script/Global";
 import { Eventer } from "../../../script/framework/tool/Eventer";
 import { GobeEvents } from "../../../script/network/GobeEvents";
 import { HintNotice } from "./notice/HintNotice";
+import { ReadyGoPanel } from "./ReadyGoPanel";
+import { GameEvents } from "../data/GameEvent";
 
 const { ccclass, property } = _decorator;
 
@@ -98,8 +100,8 @@ export class ReadyPanel extends UIView {
             this.vsAnim.node.active = true;
             this.vsAnim.play();
             this.vsAnim.once(Animation.EventType.FINISHED, () => {
-                this.callback && this.callback();
                 UIManager.instance.close(ReadyPanel);
+                Eventer.emit(GameEvents.Show_ReadyGo);
             });
         }
     }

@@ -6,6 +6,9 @@ import { GobeManager } from "../../../script/network/GobeManager";
 import { ReadyPanel } from "./ReadyPanel";
 import { HintDialog } from "./dialog/HintDialog";
 import { LoadNotice } from "./notice/LoadNotice";
+import { ReadyGoPanel } from "./ReadyGoPanel";
+import { Eventer } from "../../../script/framework/tool/Eventer";
+import { GameEvents } from "../data/GameEvent";
 
 const { ccclass, property } = _decorator;
 
@@ -16,11 +19,10 @@ export class SelectPanel extends UIView {
     createRoomAIBtn: UIButton = null;
     @property(UIButton)
     createRoomBtn: UIButton = null;
-
     @property(UIButton)
     matchRoomBtn: UIButton = null;
-    @property(UIButton)
-    joinRoomBtn: UIButton = null;
+    // @property(UIButton)
+    // joinRoomBtn: UIButton = null;
     @property(UIButton)
     closeBtn: UIButton = null;
 
@@ -30,10 +32,10 @@ export class SelectPanel extends UIView {
         Log.w("SelectPanel init");
         this.callback = callback;
 
-        this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);
-        this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);
-        this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);
-        this.joinRoomBtn.touchEndedFun = this.onJoinRoomClick.bind(this);
+        this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);   // 人机
+        this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);       // 创建
+        this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);         // 匹配
+        // this.joinRoomBtn.touchEndedFun = this.onJoinRoomClick.bind(this);
         this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
     }
 
@@ -42,8 +44,8 @@ export class SelectPanel extends UIView {
         Log.d("SelectPanel--> onCreateRoomAIClick");
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.createRoomAI(() => {
-            // ready GO
-            this.showReadyGo();
+            // ready
+            this.showReady();
         }, () => {
             UIManager.instance.open(HintDialog, "房间创建失败");
         });
@@ -54,40 +56,43 @@ export class SelectPanel extends UIView {
         Log.d("SelectPanel--> onCreateRoomClick");
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.createRoom(() => {
-            // ready GO
-            this.showReadyGo();
+            // ready
+            this.showReady();
         }, () => {
             UIManager.instance.open(HintDialog, "房间创建失败");
         });
     }
 
+    /** 匹配房间 */
     public onMatchRoomClick(): void {
         Log.d("SelectPanel--> onMatchRoomClick");
         UIManager.instance.open(LoadNotice);
         GobeManager.instance.matchRoom(() => {
-            // ready GO
-            this.showReadyGo();
+            // ready
+            this.showReady();
         }, () => {
             UIManager.instance.open(HintDialog, "房间匹配失败");
         });
     }
 
-    public onJoinRoomClick(): void {
-        Log.d("SelectPanel--> onJoinRoomClick");
-        UIManager.instance.open(LoadNotice);
-        GobeManager.instance.joinRoom("", () => {
-            this.showReadyGo();
-        }, () => {
-            UIManager.instance.open(HintDialog, "房间加入失败");
-        });
-    }
+    // public onJoinRoomClick(): void {
+    //     Log.d("SelectPanel--> onJoinRoomClick");
+    //     UIManager.instance.open(LoadNotice);
+    //     GobeManager.instance.joinRoom("", () => {
+    //         // ready
+    //         this.showReady();
+    //     }, () => {
+    //         UIManager.instance.open(HintDialog, "房间加入失败");
+    //     });
+    // }
 
-    showReadyGo() {
-        // ready GO
+    showReady() {
+        // ready
         UIManager.instance.open(ReadyPanel);
         UIManager.instance.close(LoadNotice);
         this.onCloseClick();
     }
+
 
     public onCloseClick(): void {
         this.callback && this.callback();
