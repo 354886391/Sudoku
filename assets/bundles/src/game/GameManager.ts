@@ -6,12 +6,18 @@ import { PlayerData } from '../data/PlayerData';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { SelectPanel } from '../panel/SelectPanel';
 import { HintDialog } from '../panel/dialog/HintDialog';
+import { ReadyGoPanel } from '../panel/ReadyGoPanel';
+import { GameEvents } from '../data/GameEvent';
+import { PlayerInfo } from '../../../script/libs/GOBE';
+import { Channel, GameState, Player } from '../data/GameState';
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export class GameManager extends Component {
 
+
+    gameState: GameState = null;
 
     protected onEnable(): void {
         Eventer.on(GobeEvents.ON_GAME_READY, this.onGameReady, this);
@@ -29,6 +35,7 @@ export class GameManager extends Component {
 
     protected start(): void {
         this.loginGame();
+        Eventer.on(GameEvents.Show_ReadyGo, this.showReadyGo.bind(this));
     }
     loginGame() {
         // 登录
@@ -44,12 +51,46 @@ export class GameManager extends Component {
         });
     }
 
-    init() {
+    showReadyGo() {
+        // ready GO
+        UIManager.instance.open(ReadyGoPanel, () => {
+            GobeManager.instance.startGame();
+        });
+    }
 
+    /**
+    * 收到房间信息
+    */
+    private onGetRoomInfo() {
+        let playerList: PlayerInfo[] = GobeManager.instance.roomPlayers;
+        let players: Array<Player> = this.gameState.players;
+        playerList.forEach((value: PlayerInfo, index: number) => {
+            var pIndex: number = 0;
+            if (!GobeManager.instance.checkIsRoomOwner(value.playerId)) {
+                pIndex = 1;
+            }
+            let player: Player = players[pIndex];
+            if (!player.channel) player.channel = {} as Channel;
+            player.channel.openId = value.playerId;
+            player.channel.name = value.customPlayerProperties as string;
+            player.channel.state = value.customPlayerStatus as number;
+            player.channel.delayTime = 0;
+        });
+
+        Eventer.emit(GobeEvents.ON_GAME_READY);
     }
 
     onGameReady() {
-
+        let gameState: GameState = this.gameState;
+        let players: Array<Player> = gameState.players;
+        players.forEach((value: Player, index: number) => {
+            if (value.channel) {
+                let playerPath = "player/girl";
+                if (GobeManager.instance.checkIsRoomOwner(value.channel.openId)) {
+                    playerPath = "player/boy";
+                }
+            }
+        });
     }
 
     onGame321() {
@@ -63,6 +104,7 @@ export class GameManager extends Component {
     onGameEnd() {
 
     }
+
 
 }
 

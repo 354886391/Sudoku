@@ -6,7 +6,6 @@ import { Global } from "../../../script/Global";
 import { Eventer } from "../../../script/framework/tool/Eventer";
 import { GobeEvents } from "../../../script/network/GobeEvents";
 import { HintNotice } from "./notice/HintNotice";
-import { ReadyGoPanel } from "./ReadyGoPanel";
 import { GameEvents } from "../data/GameEvent";
 
 const { ccclass, property } = _decorator;

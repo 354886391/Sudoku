@@ -6,9 +6,6 @@ import { GobeManager } from "../../../script/network/GobeManager";
 import { ReadyPanel } from "./ReadyPanel";
 import { HintDialog } from "./dialog/HintDialog";
 import { LoadNotice } from "./notice/LoadNotice";
-import { ReadyGoPanel } from "./ReadyGoPanel";
-import { Eventer } from "../../../script/framework/tool/Eventer";
-import { GameEvents } from "../data/GameEvent";
 
 const { ccclass, property } = _decorator;
 
