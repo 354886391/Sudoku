@@ -48,10 +48,10 @@ export class GamePanel extends UIView {
         Eventer.on(GameEvents.OnSelectBlock, this.onOptionClick, this);
         Eventer.on(GameEvents.Show_ReadyGo, this.showReadyGo.bind(this));
 
-        Eventer.on(GobeEvents.ON_GAME_READY, null, this);
-        Eventer.on(GobeEvents.ON_GAME_START, null, this);
-        Eventer.on(GobeEvents.ON_GAME_END, null, this);
-        Eventer.on(GobeEvents.ON_GAME_321, null, this);
+        // Eventer.on(GobeEvents.ON_GAME_READY, null, this);
+        // Eventer.on(GobeEvents.ON_GAME_START, null, this);
+        // Eventer.on(GobeEvents.ON_GAME_END, null, this);
+        // Eventer.on(GobeEvents.ON_GAME_321, null, this);
 
         this.machine.state = EState.Init;
 
@@ -105,9 +105,9 @@ export class GamePanel extends UIView {
 
     showReadyGo() {
         // ready GO
-        UIManager.instance.open(ReadyGoPanel, [() => {
+        UIManager.instance.open(ReadyGoPanel, () => {
             GobeManager.instance.startGame();
-        }]);
+        });
     }
 
     _isGameing: boolean = false;

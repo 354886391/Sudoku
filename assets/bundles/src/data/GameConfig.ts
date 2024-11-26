@@ -24,6 +24,15 @@ export const UI_GAME: { [key: string]: UIOption } = {
         isPreload: true,
         layerIndex: UILayer.popup,
     },
+    ReadyGoPanel: {
+        name: "ReadyGoPanel",
+        path: "prefab/panel/ReadyGoPanel",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.popup,
+    },
     ReadyPanel: {
         name: "ReadyPanel",
         path: "prefab/panel/ReadyPanel",

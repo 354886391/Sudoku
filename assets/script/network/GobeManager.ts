@@ -85,7 +85,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     /** 房间内的玩家列表 */
     public get roomPlayers(): PlayerInfo[] {
         if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
-            this._roomAlone.players;
+            return this._roomAlone.players;
         }
         if (this._room) {
             return this._room.players;
