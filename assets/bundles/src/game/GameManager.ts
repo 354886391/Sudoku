@@ -10,6 +10,7 @@ import { ReadyGoPanel } from '../panel/ReadyGoPanel';
 import { GameEvents } from '../data/GameEvent';
 import { PlayerInfo } from '../../../script/libs/GOBE';
 import { Channel, GameState, Player } from '../data/GameState';
+import { Global } from '../../../script/Global';
 
 const { ccclass, property } = _decorator;
 
@@ -17,7 +18,14 @@ const { ccclass, property } = _decorator;
 export class GameManager extends Component {
 
 
-    gameState: GameState = null;
+    _isGaming: boolean = false;
+    _frameIndex: number = 0;
+    _startGameTime: number = 0;
+
+    protected start(): void {
+        this.loginGame();
+        Eventer.on(GameEvents.Show_ReadyGo, this.showReadyGo.bind(this));
+    }
 
     protected onEnable(): void {
         Eventer.on(GobeEvents.ON_GAME_READY, this.onGameReady, this);
@@ -33,10 +41,6 @@ export class GameManager extends Component {
         Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
-    protected start(): void {
-        this.loginGame();
-        Eventer.on(GameEvents.Show_ReadyGo, this.showReadyGo.bind(this));
-    }
     loginGame() {
         // 登录
         let playerId = PlayerData.instance.playerInfo.pid;
@@ -54,23 +58,41 @@ export class GameManager extends Component {
     showReadyGo() {
         // ready GO
         UIManager.instance.open(ReadyGoPanel, () => {
+            this.initGameState();
+            this.onGetRoomInfo();
             GobeManager.instance.startGame();
         });
     }
 
-    /**
-    * 收到房间信息
-    */
+    initPlayer() {
+        let players: Player[] = [];
+        for (let i: number = 0; i < Global.MAX_PLAYER; i++) {
+            let player: Player = {
+                id: i,
+                score: 0,
+                isLead: false,
+                channel: {} as Channel,
+            };
+            players.push(player);
+        }
+        return players;
+    }
+
+    /** 设置第0帧数据 */
+    public initGameState() {
+        GameState.id = 0;
+        GameState.players = this.initPlayer();
+        GameState.frameTime = Date.now();
+        this._frameIndex = 0;
+    }
+
+    /** 收到房间信息 */
     private onGetRoomInfo() {
-        let playerList: PlayerInfo[] = GobeManager.instance.roomPlayers;
-        let players: Array<Player> = this.gameState.players;
+        let playerList = GobeManager.instance.roomPlayers;
+        let gamePlayers = GameState.players;
         playerList.forEach((value: PlayerInfo, index: number) => {
-            var pIndex: number = 0;
-            if (!GobeManager.instance.checkIsRoomOwner(value.playerId)) {
-                pIndex = 1;
-            }
-            let player: Player = players[pIndex];
-            if (!player.channel) player.channel = {} as Channel;
+            let pIndex = GobeManager.instance.checkIsRoomOwner(value.playerId) ? 0 : 1;
+            let player: Player = gamePlayers[pIndex];
             player.channel.openId = value.playerId;
             player.channel.name = value.customPlayerProperties as string;
             player.channel.state = value.customPlayerStatus as number;
@@ -80,9 +102,17 @@ export class GameManager extends Component {
         Eventer.emit(GobeEvents.ON_GAME_READY);
     }
 
+    /**
+    * 开始帧同步操作
+    */
+    private _onStartGame() {
+        
+    }
+
     onGameReady() {
-        let gameState: GameState = this.gameState;
-        let players: Array<Player> = gameState.players;
+        Log.d("onGameReady");
+        Global.log("开始游戏");
+        let players = GameState.players;
         players.forEach((value: Player, index: number) => {
             if (value.channel) {
                 let playerPath = "player/girl";
@@ -94,17 +124,19 @@ export class GameManager extends Component {
     }
 
     onGame321() {
-
+        Log.d("onGame321");
     }
 
     onGameStart() {
-
+        Log.d("onGameStart");
+        this._isGaming = true;
+        this._startGameTime = GobeManager.instance.time;
+        let players: Array<Player> = GameState.players;
     }
 
     onGameEnd() {
-
+        Log.d("onGameEnd");
     }
-
 
 }
 

@@ -40,6 +40,7 @@ window.Log.w = (...data: any[]) => {
     console.warn(`${getDate()}: `, ...data);
     // addDebugMessage(data);
 };
+
 window.Log.dObject = (color: string, title: string, data: any) => {
     let arr: any[] = [`${color}${title}-->\n`];
     for (const key in data) {

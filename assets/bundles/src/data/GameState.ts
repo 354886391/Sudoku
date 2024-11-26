@@ -15,13 +15,12 @@ export class Frame {
 
 export interface Player { //道具信息
     id: number,         //道具信息
-    playId: number,
     score: number,          //玩家积分
     isLead: boolean,//是否分数领先
     channel: Channel,       //玩家渠道信息
 }
 
-export interface Channel{    
+export interface Channel {
     openId: string,         //玩家渠道id
     name: string,           //玩家昵称
     headUrl: string,        //玩家头像
@@ -31,11 +30,10 @@ export interface Channel{
 
 export class GameState {
 
-    id: number;             //逻辑帧标示符
-    time: number;//剩余时间
-    frameTime: number;//当前帧的时间
-    players: Array<Player>;//玩家信息
-    createCoinTime: number; //创建金币的时间
+    static id: number;              //逻辑帧标示符
+    static time: number;            //剩余时间
+    static frameTime: number;       //当前帧的时间
+    static players: Player[] = [];  //玩家信息
 
     /**
      * 4.25..389

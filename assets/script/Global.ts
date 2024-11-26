@@ -30,4 +30,7 @@ export class Global {
     public static CLIENT_ID: string = '1247079560185433024'; // 需要手动修改
     public static CLIENT_SECRET: string = 'C7731F7C3530A0B355550A8339841584B4172B75F536BADEFA7ED7C3F72BF67E'; // 需要手动修改
     public static APP_ID: string = '172249065902717087'; // 需要手动修改
+
+    static log = window.console.log.bind(window.console, '%c【调试】', 'color: white; background-color: #007BFF; font-weight: bold; font-size: 14px;');
+
 }

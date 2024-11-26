@@ -70,6 +70,8 @@ export class SelectPanel extends UIView {
         }, () => {
             UIManager.instance.open(HintDialog, "房间匹配失败");
         });
+
+        Log
     }
 
     // public onJoinRoomClick(): void {
