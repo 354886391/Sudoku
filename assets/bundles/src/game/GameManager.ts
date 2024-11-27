@@ -11,6 +11,7 @@ import { GameEvents } from '../data/GameEvent';
 import { PlayerInfo } from '../../../script/libs/GOBE';
 import { Channel, GameState, Player } from '../data/GameState';
 import { Global } from '../../../script/Global';
+import { ColorLog } from '../../../script/framework/util/ColorLog';
 
 const { ccclass, property } = _decorator;
 
@@ -43,6 +44,7 @@ export class GameManager extends Component {
 
     loginGame() {
         // 登录
+        ColorLog.log("loginGame");
         let playerId = PlayerData.instance.playerInfo.pid;
         GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
             if (successInit) {
@@ -78,7 +80,7 @@ export class GameManager extends Component {
         return players;
     }
 
-    /** 设置第0帧数据 */
+    /** 设置初始信息 */
     public initGameState() {
         GameState.id = 0;
         GameState.players = this.initPlayer();
@@ -98,7 +100,6 @@ export class GameManager extends Component {
             player.channel.state = value.customPlayerStatus as number;
             player.channel.delayTime = 0;
         });
-
         Eventer.emit(GobeEvents.ON_GAME_READY);
     }
 
@@ -111,7 +112,6 @@ export class GameManager extends Component {
 
     onGameReady() {
         Log.d("onGameReady");
-        Global.log("开始游戏");
         let players = GameState.players;
         players.forEach((value: Player, index: number) => {
             if (value.channel) {
@@ -136,6 +136,10 @@ export class GameManager extends Component {
 
     onGameEnd() {
         Log.d("onGameEnd");
+        if (this._isGaming) {
+            this._isGaming = false;
+            GobeManager.instance.finishGame();
+        }
     }
 
 }

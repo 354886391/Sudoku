@@ -11,6 +11,8 @@ import { GameEvents } from '../data/GameEvent';
 import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
+import { GobeManager } from '../../../script/network/GobeManager';
+import { HintNotice } from './notice/HintNotice';
 
 const { ccclass, property } = _decorator;
 
@@ -98,9 +100,14 @@ export class GamePanel extends UIView {
         this.optionView.highlightOptionColor(option);
     }
 
-    _isGameing: boolean = false;
+    onCloseClick() {
+        
+       
+    }
+
+    _isGaming: boolean = false;
     _startGameTime: number = 0;
-    
+
     /**
     * 开始帧同步操作
     */
