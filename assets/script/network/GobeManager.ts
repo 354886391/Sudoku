@@ -461,6 +461,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     private enabledEventRoom() {
         this._isStartGame = false;
         this._isOtherStartGame = false;
+        // 加入房间
         this._room.onJoin(player => {
             // 加入房间成功, 做相关游戏逻辑处理
             console.log(`onJoin--> 加入成功 room.ownerId: ${this._room.ownerId}", player.playerId: "${player.playerId}`);
