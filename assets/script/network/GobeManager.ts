@@ -1,4 +1,4 @@
-import { Asset, Color, EmptyDevice, resources, sys } from "cc";
+import { Asset,  EmptyDevice, resources, sys } from "cc";
 import { FrameInfo, PlayerInfo, Room } from "../libs/GOBE";
 import { Eventer } from "../framework/tool/Eventer";
 import { Singleton } from "../framework/util/Singleton";
@@ -6,7 +6,6 @@ import { GobeEvents } from "./GobeEvents";
 import { Global } from "../Global";
 import { PlayerData } from "../../bundles/src/data/PlayerData";
 import { Util } from "../framework/util/Util";
-import { ColorLog } from "../framework/util/ColorLog";
 
 export enum PLAYER_TYPE {
     READY = 0,
@@ -204,7 +203,7 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 初始化GOBE */
     private initGobe(token: string, callback: Function) {
-        ColorLog.log("initSDK: ", Global.CLIENT_ID);
+        console.log("initSDK: ", Global.CLIENT_ID);
         // 初始化 client
         if (sys.Platform.ANDROID == sys.platform) {
             if (this._cacertNativeUrl == "") {
@@ -240,11 +239,11 @@ export class GobeManager extends Singleton<GobeManager>() {
                 callback && callback(true);
                 // 如果有上次登录的房间
                 if (this.lastRoomId) {
-                    ColorLog.log("initGobe-->  onInitResult: 加载上次登录房间 roomId: ", this.lastRoomId);
+                    console.log("initGobe-->  onInitResult: 加载上次登录房间 roomId: ", this.lastRoomId);
                     // 加入房间
                     this.joinRoom(this.lastRoomId, () => {
                         let info = JSON.parse(this._room.customRoomProperties);
-                        ColorLog.log("initGobe-->  joinRoom: 加载上次登录房间 customRoomProperties: ", info);
+                        console.log("initGobe-->  joinRoom: 加载上次登录房间 customRoomProperties: ", info);
                         // 游戏未开始或游戏已结束, 退出房间
                         if (info["type"] == ROOM_TYPE.READY || info["type"] == ROOM_TYPE.END) {
                             this.leaveRoom();
@@ -409,7 +408,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._currFrame = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.WIFI;
-        ColorLog.log("joinRoom--> 加入房间");
+        console.log("joinRoom--> 加入房间");
         this._client.joinRoom(roomId, {
             customPlayerStatus: 0,
             customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
@@ -433,7 +432,7 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 离开房间 */
     public leaveRoom(callback?: Function, errorCallback?: Function) {
-        ColorLog.log("leaveRoom--> 离开房间");
+        console.log("leaveRoom--> 离开房间");
         if (this._isReadyDis) {
             this._isReadyDis = false;
             if (this._room)

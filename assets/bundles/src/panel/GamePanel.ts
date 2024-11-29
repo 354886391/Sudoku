@@ -49,11 +49,7 @@ export class GamePanel extends UIView {
         // Eventer.on(GobeEvents.ON_GAME_START, null, this);
         // Eventer.on(GobeEvents.ON_GAME_END, null, this);
         // Eventer.on(GobeEvents.ON_GAME_321, null, this);
-
         this.machine.state = EState.Init;
-
-        let log = window.console.log.bind(window.console, '%c【调试】', 'color: white; background-color: #007BFF; font-weight: bold; font-size: 14px;');
-        log("游戏开始", 1, 2, 3, 4, 5);
     }
 
     onInit() {

@@ -1,33 +1,7 @@
 /** 日志封装 */
 import { Singleton } from "./Singleton";
 window.Log = console as any;
-window.Log.Color = {
-    Reset: "\x1b[0m",
-    Bright: "\x1b[1m",
-    Dim: "\x1b[2m",
-    Underscore: "\x1b[4m",
-    Blink: "\x1b[5m",
-    Reverse: "\x1b[7m",
-    Hidden: "\x1b[8m",
 
-    FgBlack: "\x1b[30m",
-    FgRed: "\x1b[31m",
-    FgGreen: "\x1b[32m",
-    FgYellow: "\x1b[33m",
-    FgBlue: "\x1b[34m",
-    FgMagenta: "\x1b[35m",
-    FgCyan: "\x1b[36m",
-    FgWhite: "\x1b[37m",
-
-    BgBlack: "\x1b[40m",
-    BgRed: "\x1b[41m",
-    BgGreen: "\x1b[42m",
-    BgYellow: "\x1b[43m",
-    BgBlue: "\x1b[44m",
-    BgMagenta: "\x1b[45m",
-    BgCyan: "\x1b[46m",
-    BgWhite: "\x1b[47m",
-};
 window.Log.e = (...data: any[]) => {
     console.error(`${getDate()}: `, ...data);
     // addDebugMessage(data);
@@ -39,25 +13,6 @@ window.Log.d = (...data: any[]) => {
 window.Log.w = (...data: any[]) => {
     console.warn(`${getDate()}: `, ...data);
     // addDebugMessage(data);
-};
-
-window.Log.dObject = (color: string, title: string, data: any) => {
-    let arr: any[] = [`${color}${title}-->\n`];
-    for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
-            arr.push(`\x1b[0m${key}: ${color}${data[key]} `);
-        }
-    }
-    console.log(`${getDate()}: %s `, arr.join(""));
-    // addDebugMessage(...data);
-};
-window.Log.dColor = (color: string, data: any) => {
-    console.log(`${getDate()}: %s ${data}`, color);
-    // addDebugMessage(...data);
-};
-window.Log.dTable = (data?: any, columns?: string[]) => {
-    console.table(data, columns);
-    // addDebugMessage(...data);
 };
 window.Log.dump = () => { };
 

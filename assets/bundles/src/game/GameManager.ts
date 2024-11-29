@@ -1,17 +1,16 @@
 import { _decorator, Component, Node } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
+import { UIManager } from '../../../script/framework/ui/UIManager';
+import { Global } from '../../../script/Global';
+import { PlayerInfo } from '../../../script/libs/GOBE';
 import { GobeEvents } from '../../../script/network/GobeEvents';
 import { GobeManager } from '../../../script/network/GobeManager';
+import { GameEvents } from '../data/GameEvent';
+import { Player, Channel, GameState } from '../data/GameState';
 import { PlayerData } from '../data/PlayerData';
-import { UIManager } from '../../../script/framework/ui/UIManager';
-import { SelectPanel } from '../panel/SelectPanel';
 import { HintDialog } from '../panel/dialog/HintDialog';
 import { ReadyGoPanel } from '../panel/ReadyGoPanel';
-import { GameEvents } from '../data/GameEvent';
-import { PlayerInfo } from '../../../script/libs/GOBE';
-import { Channel, GameState, Player } from '../data/GameState';
-import { Global } from '../../../script/Global';
-import { ColorLog } from '../../../script/framework/util/ColorLog';
+import { SelectPanel } from '../panel/SelectPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -44,7 +43,11 @@ export class GameManager extends Component {
 
     loginGame() {
         // 登录
-        ColorLog.log("loginGame");
+        LogEX.level = 1;
+        LogEX.log("loginGame debug: ", PlayerData.instance.playerInfo);
+        LogEX.info("loginGame debug: ", PlayerData.instance.playerInfo);
+        LogEX.warn("loginGame warn: ", PlayerData.instance.playerInfo);
+        LogEX.error("loginGame error: ", PlayerData.instance.playerInfo);
         let playerId = PlayerData.instance.playerInfo.pid;
         GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
             if (successInit) {
@@ -107,7 +110,7 @@ export class GameManager extends Component {
     * 开始帧同步操作
     */
     private _onStartGame() {
-        
+
     }
 
     onGameReady() {

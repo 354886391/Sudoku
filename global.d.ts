@@ -1,49 +1,10 @@
 interface Logger {
-    Color: {
-        Reset: string,
-        Bright: string,
-        Dim: string,
-        Underscore: string,
-        Blink: string,
-        Reverse: string,
-        Hidden: string,
-
-        FgBlack: string,
-        FgRed: string,
-        FgGreen: string,
-        FgYellow: string,
-        FgBlue: string,
-        FgMagenta: string,
-        FgCyan: string,
-        FgWhite: string,
-
-        BgBlack: string,
-        BgRed: string,
-        BgGreen: string,
-        BgYellow: string,
-        BgBlue: string,
-        BgMagenta: string,
-        BgCyan: string,
-        BgWhite: string,
-    };
-    /** 错误日志 */
-    e(...data: any[]): void;
     /** debug日志 */
     d(...data: any[]): void;
     /** 警告输出 */
     w(...data: any[]): void;
-
-    dObject(color: string, title: string, data: any): void;
-    /**
-     * @param color 打印颜色
-     * @param data 打印内容
-     */
-    dColor(color: string, data: any): void;
-    /**
-     * @param data Array 或 Object	必需，填充到表格中的数据。
-     * @param columns Array 可选，一个数组，表格标题栏的名称。
-     */
-    dTable(data?: any, columns?: string[]): void;
+    /** 错误日志 */
+    e(...data: any[]): void;
     /**
     * @param object dump的对象
     * @param label 标签
@@ -51,7 +12,17 @@ interface Logger {
     dump(object: Object, label?: string): void;
 }
 
+interface ILogger {
+    level: number;
+
+    log(...data: any[]): void;
+    info(...data: any[]): void;
+    warn(...data: any[]): void;
+    error(...data: any[]): void;
+}
+
 declare var Log: Logger;
+declare var LogEX: ILogger;
 declare type Entry = import("./assets/script/framework/entry/Entry").Entry;
 declare interface BaseEntry<T extends Entry> extends BundleClass<T> { }
 declare interface BundleClass<T> { new(): T; bundle: string; }
