@@ -6,7 +6,7 @@ interface Config {
 
 type LEV = "log" | "info" | "warn" | "error";
 
-class LogImpl {
+class LogImpl implements ILogger {
 
     /** 日志等级 */
     level: number = 1;
@@ -57,7 +57,7 @@ class LogImpl {
         return new Date().toLocaleString();
     }
 
-    public logFunc(lev: LEV) {
+    private logFunc(lev: LEV) {
         const config = this.config[lev];
         return window.console[lev].bind(window.console, `%c[${config.sign}] ${this.date}`, config.style);
     }
