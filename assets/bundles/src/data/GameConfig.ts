@@ -42,6 +42,15 @@ export const UI_GAME: { [key: string]: UIOption } = {
         isPreload: true,
         layerIndex: UILayer.popup,
     },
+    RewardPanel: {
+        name: "RewardPanel",
+        path: "prefab/panel/RewardPanel",
+        bundle: "bundles",
+        hasMask: false,
+        isCache: false,
+        isPreload: true,
+        layerIndex: UILayer.popup,
+    },
     HintDialog: {
         name: "HintDialog",
         path: "prefab/panel/dialog/HintDialog",
@@ -49,7 +58,7 @@ export const UI_GAME: { [key: string]: UIOption } = {
         hasMask: false,
         isCache: false,
         isPreload: true,
-        layerIndex: UILayer.popup,
+        layerIndex: UILayer.notice,
     },
     HintNotice: {
         name: "HintNotice",

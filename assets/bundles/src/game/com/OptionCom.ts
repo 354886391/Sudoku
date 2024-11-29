@@ -46,7 +46,7 @@ export class OptionCom extends Component {
     }
 
     public onClicked(): void {
-        Eventer.emit(GameEvents.OnSelectBlock, this);
+        Eventer.emit(GameEvents.ON_BLOCK_SELECT, this);
     }
 
     public reset(): void {

@@ -1,13 +1,12 @@
 export enum GameEvents {
     // UI
-    UIOpen = "UIOpen",
-    UIClose = "UIClose",
+    ON_UI_OPEN = "OnUIOpen",
+    ON_UI_CLOSE = "OnUIClose",
 
-    OnClickBlock = "OnClickBlock",
-    OnSelectBlock = "OnSelectBlock",
-    
-    Show_Game = "Show_Game",
-    Show_Select = "Show_Select",
-    Show_Ready = "Show_ReadyPlayer",
-    Show_ReadyGo = "Show_ReadyGo",
+    // block
+    ON_BLOCK_CLICK = "OnBlockClick",
+    ON_BLOCK_SELECT = "OnBlockSelect",
+
+    // show
+    ON_SHOW_READYGO = "onShowReadyGo",
 }

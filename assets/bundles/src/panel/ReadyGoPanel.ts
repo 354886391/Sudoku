@@ -23,11 +23,6 @@ export class ReadyGoPanel extends UIView {
             this.callback && this.callback();
         });
     }
-
-    public onCloseClick(): void {
-        this.callback && this.callback();
-        UIManager.instance.close(ReadyGoPanel);
-    }
 }
 
 UIManager.instance.register(ReadyGoPanel);

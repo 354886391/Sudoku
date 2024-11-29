@@ -20,20 +20,14 @@ export class SelectPanel extends UIView {
     matchRoomBtn: UIButton = null;
     // @property(UIButton)
     // joinRoomBtn: UIButton = null;
-    @property(UIButton)
-    closeBtn: UIButton = null;
 
-    callback: Function = null;
-
-    public init(callback: Function): void {
+    public init(): void {
         Log.w("SelectPanel init");
-        this.callback = callback;
-
+        
         this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);   // 人机
         this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);       // 创建
         this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);         // 匹配
         // this.joinRoomBtn.touchEndedFun = this.onJoinRoomClick.bind(this);
-        this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
     }
 
     /** 创建人机房间 */
@@ -89,12 +83,6 @@ export class SelectPanel extends UIView {
         // ready
         UIManager.instance.open(ReadyPanel);
         UIManager.instance.close(LoadNotice);
-        this.onCloseClick();
-    }
-
-
-    public onCloseClick(): void {
-        this.callback && this.callback();
         UIManager.instance.close(SelectPanel);
     }
 }

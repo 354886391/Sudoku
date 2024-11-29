@@ -98,6 +98,11 @@ export class GobeManager extends Singleton<GobeManager>() {
         return this._isJoinDis;
     }
 
+    /** 服务器与客户端时间间隔 */
+    public get serverTimeDis(): number {
+        return this._serverTimeDis;
+    }
+
     public get time(): number {
         if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
             return new Date().getTime();
@@ -105,8 +110,14 @@ export class GobeManager extends Singleton<GobeManager>() {
         return this._time;
     }
 
+
+
     public get currFrame(): number {
         return this._currFrame;
+    }
+
+    public get wifiType(){
+        return this._wifiType;
     }
 
     /** 接收的帧数据字典

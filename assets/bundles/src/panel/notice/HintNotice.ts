@@ -1,4 +1,4 @@
-import { _decorator, Node, Component, Animation  } from "cc";
+import { _decorator, Node, Component, Animation, Label, animation } from "cc";
 import { UIManager } from "../../../../script/framework/ui/UIManager";
 import { UIView } from "../../../../script/framework/ui/UIView";
 
@@ -7,15 +7,27 @@ const { ccclass, property } = _decorator;
 @ccclass
 export class HintNotice extends UIView {
 
-    callback: Function = null;
+    @property(Animation)
+    public hintAnim: Animation = null;
+    @property(Label)
+    public content: Label = null;
 
-    public init(callback: Function): void {
+    text: string = "";
+
+    public init(text: string): void {
         Log.w("HintNotice init");
-        this.callback = callback;
+        this.text = text;
+    }
+
+    protected start(): void {
+        this.content.string = this.text;
+        this.hintAnim.play();
+        this.hintAnim.once(Animation.EventType.FINISHED, () => {
+            this.onCloseClick();
+        });
     }
 
     public onCloseClick(): void {
-        this.callback && this.callback();
         UIManager.instance.close(HintNotice);
     }
 }

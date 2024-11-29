@@ -12,7 +12,7 @@ import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { GobeManager } from '../../../script/network/GobeManager';
-import { HintNotice } from './notice/HintNotice';
+import { HintDialog } from './dialog/HintDialog';
 
 const { ccclass, property } = _decorator;
 
@@ -42,8 +42,8 @@ export class GamePanel extends UIView {
         this.machine.setCallbacks(EState.Showing, { enter: this.onShowing }, this);
         this.machine.setCallbacks(EState.Finish, { enter: this.onFinish }, this);
 
-        Eventer.on(GameEvents.OnClickBlock, this.onBlockClick, this);
-        Eventer.on(GameEvents.OnSelectBlock, this.onOptionClick, this);
+        Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
+        Eventer.on(GameEvents.ON_BLOCK_SELECT, this.onOptionClick, this);
 
         // Eventer.on(GobeEvents.ON_GAME_READY, null, this);
         // Eventer.on(GobeEvents.ON_GAME_START, null, this);
@@ -97,19 +97,8 @@ export class GamePanel extends UIView {
     }
 
     onCloseClick() {
-        
-       
+        GobeManager.instance.finishGame();
+        UIManager.instance.open(HintDialog, "游戏结束");
     }
-
-    _isGaming: boolean = false;
-    _startGameTime: number = 0;
-
-    /**
-    * 开始帧同步操作
-    */
-    private _onStartGame() {
-
-    }
-
 }
 UIManager.instance.register(GamePanel);

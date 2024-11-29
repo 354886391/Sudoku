@@ -7,6 +7,8 @@ import { Eventer } from "../../../script/framework/tool/Eventer";
 import { GobeEvents } from "../../../script/network/GobeEvents";
 import { HintNotice } from "./notice/HintNotice";
 import { GameEvents } from "../data/GameEvent";
+import { UIButton } from "../../../script/framework/ui/group/UIButton";
+import { SelectPanel } from "./SelectPanel";
 
 const { ccclass, property } = _decorator;
 
@@ -19,6 +21,8 @@ export class ReadyPanel extends UIView {
     vsAnim: Animation = null;
     @property(Label)
     txtNum: Label = null;
+    @property(UIButton)
+    closeBtn: UIButton = null;
 
     @property([Node])
     playerWaitList: Node[] = [];
@@ -41,7 +45,7 @@ export class ReadyPanel extends UIView {
     protected start(): void {
         this.vsAnim.node.active = false;
         this.readyAnim.node.active = false;
-
+        this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
         Eventer.on(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom, this);
         this.txtNum.string = "房间号：" + GobeManager.instance.room.roomCode;
         let count: number = this.playerHeadList.length;
@@ -96,7 +100,7 @@ export class ReadyPanel extends UIView {
             this.vsAnim.play();
             this.vsAnim.once(Animation.EventType.FINISHED, () => {
                 UIManager.instance.close(ReadyPanel);
-                Eventer.emit(GameEvents.Show_ReadyGo);
+                Eventer.emit(GameEvents.ON_SHOW_READYGO);
             });
         }
     }
@@ -104,6 +108,7 @@ export class ReadyPanel extends UIView {
     public onCloseClick(): void {
         GobeManager.instance.leaveRoom(() => {
             UIManager.instance.open(HintNotice, "退出房间");
+            UIManager.instance.open(SelectPanel);
         }, () => {
             UIManager.instance.open(HintNotice, "退出房间失败");
         });

@@ -66,7 +66,7 @@ export class BlockCom extends Component {
     }
 
     public onClicked(): void {
-        Eventer.emit(GameEvents.OnClickBlock, this);
+        Eventer.emit(GameEvents.ON_BLOCK_CLICK, this);
     }
 
     public reset(): void {
