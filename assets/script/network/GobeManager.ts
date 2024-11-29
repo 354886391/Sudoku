@@ -222,18 +222,18 @@ export class GobeManager extends Singleton<GobeManager>() {
                 return;
             }
             console.log("initGobe on ANDROID", token);
-            this._client = new GOBE.Client({
+            this._client = new window.GOBE.Client({
                 appId: Global.APP_ID,                  // 应用ID
                 openId: this.openId,                        // 玩家ID，区别不同用户
                 clientId: Global.CLIENT_ID,            // 客户端ID
                 clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
                 accessToken: token,                         // AGC接入凭证(推荐)
-                platform: GOBE.PlatformType.ANDROID,
+                platform: window.GOBE.PlatformType.ANDROID,
                 cerPath: this._cacertNativeUrl
             });
         } else {
             console.log("initGobe on OTHERS", token);
-            this._client = new GOBE.Client({
+            this._client = new window.GOBE.Client({
                 appId: Global.APP_ID,                  // 应用ID
                 openId: this.openId,                        // 玩家ID，区别不同用户
                 clientId: Global.CLIENT_ID,            // 客户端ID
