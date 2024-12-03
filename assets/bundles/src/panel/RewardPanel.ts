@@ -12,8 +12,8 @@ const { ccclass, property } = _decorator;
 @ccclass
 export class RewardPanel extends UIView {
 
-    @property(Animation)
-    rewardAnim: Animation = null;
+    // @property(Animation)
+    // rewardAnim: Animation = null;
 
     callback: Function = null;
 
@@ -23,11 +23,11 @@ export class RewardPanel extends UIView {
     }
 
     protected start(): void {
-        this.rewardAnim.play();
+        // this.rewardAnim.play();
         GobeManager.instance.leaveRoom();
     }
 
-    public onLevelClick(): void {
+    public onLeaveClick(): void {
         GobeManager.instance.leaveGame();
         UIManager.instance.close(RewardPanel);
     }

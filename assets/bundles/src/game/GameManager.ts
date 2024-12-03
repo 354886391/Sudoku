@@ -2,25 +2,28 @@ import { _decorator, Component, Node } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { Global } from '../../../script/Global';
-import { PlayerInfo } from '../../../script/libs/GOBE';
+import { FrameInfo, PlayerInfo } from '../../../script/libs/GOBE';
 import { GobeEvents } from '../../../script/network/GobeEvents';
 import { GobeManager, ROOM_TYPE } from '../../../script/network/GobeManager';
 import { GameEvents } from '../data/GameEvent';
-import { Player, Channel, GameState } from '../data/GameState';
 import { PlayerData } from '../data/PlayerData';
 import { HintDialog } from '../panel/dialog/HintDialog';
 import { ReadyGoPanel } from '../panel/ReadyGoPanel';
 import { SelectPanel } from '../panel/SelectPanel';
 import { RewardPanel } from '../panel/RewardPanel';
+import { Sudoku } from '../tool/Sudoku';
+import { Channel, Frame, Player } from '../data/GameData';
+import { GameState } from '../data/GameState';
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export class GameManager extends Component {
 
-    _isGaming: boolean = false;
     _frameIndex: number = 0;
     _startGameTime: number = 0;
+
+    sudoku: Sudoku = new Sudoku();
 
     get roomPlayers() {
         return GobeManager.instance.roomPlayers;
@@ -51,10 +54,7 @@ export class GameManager extends Component {
     loginGame() {
         // 登录
         LogEX.level = 1;
-        LogEX.log("loginGame debug: ", PlayerData.instance.playerInfo);
-        LogEX.info("loginGame debug: ", PlayerData.instance.playerInfo);
-        LogEX.warn("loginGame warn: ", PlayerData.instance.playerInfo);
-        LogEX.error("loginGame error: ", PlayerData.instance.playerInfo);
+        LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
         let playerId = PlayerData.instance.playerInfo.pid;
         GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
             if (successInit) {
@@ -67,11 +67,17 @@ export class GameManager extends Component {
         });
     }
 
-    showReadyGo() {
+    /** 设置初始信息 */
+    private initGameState() {
+        GameState.isGaming = false;
+        GameState.frameId = 0;
+        GameState.players = this.initPlayer();
+        GameState.frameTime = Date.now();
 
+        this._frameIndex = 0;
     }
 
-    initPlayer() {
+    private initPlayer() {
         let players: Player[] = [];
         for (let i: number = 0; i < Global.MAX_PLAYER; i++) {
             let player: Player = {
@@ -83,14 +89,6 @@ export class GameManager extends Component {
             players.push(player);
         }
         return players;
-    }
-
-    /** 设置初始信息 */
-    public initGameState() {
-        GameState.id = 0;
-        GameState.players = this.initPlayer();
-        GameState.frameTime = Date.now();
-        this._frameIndex = 0;
     }
 
     /** 收到房间信息 */
@@ -108,6 +106,9 @@ export class GameManager extends Component {
 
     onGameReady() {
         Log.d("onGameReady");
+        // 生成牌面
+
+
         this.statePlayers.forEach((value: Player, index: number) => {
             if (value.channel) {
                 let playerPath = "player/girl";
@@ -125,21 +126,24 @@ export class GameManager extends Component {
         UIManager.instance.open(ReadyGoPanel, () => {
             this.initGameState();
             this.onGetRoomInfo();
+            UIManager.instance.close(ReadyGoPanel);
             GobeManager.instance.startGame();
         });
     }
 
+    /** 检测是否断线重连 */
     public checkIsReCovery() {
         if (GobeManager.instance.isJoinDis) {
-            // this._handleAction(() => {
-            //     this.playerLogic.updateStateRecovery();
-            // });
+            LogEX.warn("checkIsReCovery-->  isJoinDis: ", GobeManager.instance.isJoinDis);
+            this.handleAction(() => {
+                this.updateRecoveryState();
+            });
         }
     }
 
     onGameStart() {
         Log.d("onGameStart");
-        this._isGaming = true;
+        GameState.isGaming = true;
         this._startGameTime = GobeManager.instance.time;
     }
 
@@ -155,20 +159,80 @@ export class GameManager extends Component {
     }
 
     protected lateUpdate(dt: number): void {
-        if (GobeManager.instance.room && GobeManager.instance.roomType != ROOM_TYPE.START || !this._isGaming) {
+        if (GobeManager.instance.room && GobeManager.instance.roomType != ROOM_TYPE.START || !GameState.isGaming) {
             return;
         }
         this.handleAction();
 
         let frameTime: number = GobeManager.instance.time + GobeManager.instance.serverTimeDis;
-        GameState.time = Math.floor(Global.GAME_TIME - (frameTime - this._startGameTime) / 1000);
-        if (GameState.time <= 0) {
-            this._isGaming = false;
+        GameState.remainTime = Math.floor(Global.GAME_TIME - (frameTime - this._startGameTime) / 1000);
+        if (GameState.remainTime <= 0) {
+            GameState.isGaming = false;
             GobeManager.instance.finishGame();
         }
+        this.updateOwnState(dt);
+        this.updateOtherState(dt);
+
+        this.checkPlayerReward();
     }
 
-    handleAction() {
+    /** 处理玩家操作 */
+    handleAction(callback?: Function) {
+        if (this._frameIndex > GobeManager.instance.currFrame) {
+            return;
+        }
+        let frames: FrameInfo[] = [];
+        if (GobeManager.instance.recvMap.has(this._frameIndex)) {
+            frames = GobeManager.instance.recvMap.get(this._frameIndex);
+            this._frameIndex++;
+        } else {
+            this._frameIndex++;
+        }
+        // 遍历frames
+        for (let i = 0; i < frames.length; i++) {
+            let frameInfo = frames[i];
+            let playerId = frameInfo.playerId;
+            let result = GameState.players.filter((player: Player) => {
+                return player.channel && player.channel.openId === playerId;
+            });
+            if (!result.length) return;
+            let frame = JSON.parse(frameInfo.data[0]) as Frame;
+            if (frame) {
+                if (frame.blockId) {
+                    Eventer.emit(GameEvents.ON_BLOCK_FRAME, frame.blockId);
+                }
+                if (frame.optionId) {
+                    Eventer.emit(GameEvents.ON_OPTION_FRAME, frame.optionId);
+                }
+                if (frame.board) {
+                    Eventer.emit(GameEvents.ON_BOARD_FRAME, frame.board);
+                }
+                if (frame.steps) {
+                    Eventer.emit(GameEvents.ON_STEPS_FRAME, frame.steps);
+                }
+            }
+        }
+        if (callback) {
+            callback();
+        }
+        this.handleAction(callback);
+    }
+
+    updateRecoveryState() {
+
+    }
+
+    /** 更新自身或者AI状态 */
+    updateOwnState(dt: number) {
+
+    }
+
+    /** 更新其他玩家状态 */
+    updateOtherState(dt: number) {
+
+    }
+
+    checkPlayerReward(){
 
     }
 

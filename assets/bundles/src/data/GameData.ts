@@ -1,13 +1,15 @@
 
 export enum BlockType {
     /** 空白 */
-    Blank = 0,
-    /** 静态 */
-    Static,
+    Void = 0,
+    /** 锁定 */
+    Lock,
+    /** 正确 */
+    Right,
+    /** 错误 */
+    Fault,
     /** 候选 */
     Candidate,
-    /** 错误 */
-    Error,
 }
 
 /** 方块信息 */
@@ -15,30 +17,11 @@ export interface BlockInfo {
     id: number;
     row: number;
     col: number;
+    value: string;
     type: BlockType;
-    value: number;
     isSelect: boolean;
 }
 
-/** 九宫格信息 */
-export interface NonetInfo {
-    id: number;
-    blocks: BlockInfo[];
-}
-
-/**
- *[
- *   ["4",       "-167",    "2",      "5",    "-167",   "-16",   "3",     "8",    "9"  ],
- *   ["-13789",  "-13789",  "-3789",  "-79",  "4",      "-189",  "2",     "6",    "5"  ],
- *   ["-89",     "-689",    "5",      "2",    "3",      "-689",  "1",     "4",    "7"  ],
- *   ["-389",    "-389",    "1",      "6",    "5",      "2",     "-48",   "7",    "48" ],
- *   ["6",       "-78",     "-78",    "1",    "9",      "4",     "5",     "3",    "2"  ],
- *   ["2",       "5",       "4",      "3",    "8",      "7",     "6",     "9",    "1"  ],
- *   ["5",       "-246789", "-6789",  "-79",  "-267",   "3",     "-478",  "1",    "-468"],
- *   ["-1378",   "-123678", "-3678",  "4",    "-1267",  "-156",  "9",     "-25",  "-68" ],
- *   ["-179",    "-124679", "-679",   "8",    "-1267",  "-1569", "-47",   "-25",  "3"  ]
- *]
- */
 /** 地图信息 */
 export interface BoardInfo {
     /** 标识 */
@@ -46,7 +29,29 @@ export interface BoardInfo {
     /** 等级 */
     level: number;
     /** 牌面 */
-    board: number[][];
-    /** 预设 */
-    candidates?: number[][];
+    board: string;
+}
+
+export interface Channel {
+    openId: string,         //玩家渠道id
+    name: string,           //玩家昵称
+    headUrl: string,        //玩家头像
+    state: number,          //玩家状态
+    delayTime: number       //延迟时间
+}
+
+export interface Player {
+    id: number,
+    score: number,
+    isLead: boolean,
+    channel: Channel,       //玩家渠道信息
+}
+
+export class Frame {
+    isAi?: boolean;
+    steps?: number;
+    board?: string;
+
+    blockId?: number;
+    optionId?: number;
 }

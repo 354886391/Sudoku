@@ -29,6 +29,11 @@ const BLANK_BOARD = "...................................................." +
 
 export class Sudoku {
 
+
+    constructor() {
+        this.initialize();
+    }
+
     // Init
     // -------------------------------------------------------------------------
     initialize() {
@@ -42,7 +47,7 @@ export class Sudoku {
 
     // Generate
     // -------------------------------------------------------------------------
-    generate(difficulty, unique) {
+    generate(difficulty, unique?) {
         /* Generate a new Sudoku puzzle of a particular `difficulty`, e.g.,
         
             // Generate an "easy" sudoku puzzle
@@ -163,7 +168,7 @@ export class Sudoku {
 
     // Solve
     // -------------------------------------------------------------------------
-    solve(board, reverse) {
+    solve(board, reverse?) {
         /* Solve a sudoku puzzle given a sudoku `board`, i.e., an 81-character 
         string of DIGITS, 1-9, and spaces identified by '.', representing the
         squares. There must be a minimum of 17 givens. If the given board has no
@@ -204,7 +209,7 @@ export class Sudoku {
             }
             return solution;
         }
-        return false;
+        // return false;
     };
 
     get_candidates(board) {
@@ -226,7 +231,7 @@ export class Sudoku {
 
         // If there's an error, return false
         if (!candidates_map) {
-            return false;
+            return null;
         }
 
         // Transform candidates map into grid

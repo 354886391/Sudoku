@@ -14,9 +14,9 @@ export class OptionCom extends Component {
     blockBtn: UIButton = null;
 
     id: number = 0;
-    value: number = 0;
     row: number = 0;
     col: number = 0;
+    value: string = "";
 
     hasSelect: boolean = false; // 是否选中
     writable: boolean = true;  // 是否可修改
@@ -25,15 +25,15 @@ export class OptionCom extends Component {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(id: number, value: number): void {
+    public init(id: number, value: string): void {
         this.id = id;
         this.value = value;
         this.setValue(value);
     }
 
-    public setValue(blockVal: number) {
+    public setValue(value: string) {
         if (this.writable) {
-            this.blockLbl.string = `${blockVal}`;
+            this.blockLbl.string = `${value}`;
         }
     }
 
@@ -46,7 +46,7 @@ export class OptionCom extends Component {
     }
 
     public onClicked(): void {
-        Eventer.emit(GameEvents.ON_BLOCK_SELECT, this);
+        Eventer.emit(GameEvents.ON_OPTION_CLICK, this);
     }
 
     public reset(): void {

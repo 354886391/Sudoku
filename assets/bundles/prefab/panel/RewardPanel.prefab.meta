@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "f4a3c693-25a1-4cb8-abc2-66ef45e2be4e",
+  "uuid": "8f7080fb-7eec-4962-9b10-3d1c30f01229",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "ready"
+    "syncNodeName": "RewardPanel"
   }
 }

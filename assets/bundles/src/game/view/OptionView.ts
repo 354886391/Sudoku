@@ -10,38 +10,37 @@ export class OptionView extends Component {
     @property(Prefab)
     optionPrefab: Prefab = null;
 
+    curOption: OptionCom = null;
     optionList: OptionCom[] = [];
-
-    layout: Layout = null;
-
-    protected onLoad(): void {
-        this.layout = this.getComponent(Layout);
-    }
 
     public init(): void {
         for (let i = 0; i < 9; i++) {
             let node = instantiate(this.optionPrefab);
-            let block = node.getComponent(OptionCom);
+            let option = node.getComponent(OptionCom);
             node.setParent(this.node);
-            block.init(i + 1, i + 1);
-            this.optionList.push(block);
-            // 更新layout布局
-            this.layout.updateLayout();
+            option.init(i + 1, `${i + 1}`);
+            this.optionList.push(option);
         }
     }
 
-    /** highlight点击的option格子 */
-    public highlightOptionColor(click: OptionCom): void {
+    /** highlight点击的格子 */
+    public highlightClickColor(click: OptionCom): void {
         if (click.hasSelect) {
             click.hasSelect = false;
             click.setValueColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
+            this.curOption = null;
 
         } else {
             click.hasSelect = true;
             click.setValueColor(BlockColor.Gold);
             click.setBlockColor(BlockColor.Blue);
+            this.curOption = click;
         }
+    }
+
+    public getOption(optionId: number): OptionCom {
+        return this.optionList[optionId - 1];
     }
 
     public reset(): void {

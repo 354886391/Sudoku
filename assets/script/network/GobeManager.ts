@@ -1,4 +1,4 @@
-import { Asset,  EmptyDevice, resources, sys } from "cc";
+import { Asset, EmptyDevice, resources, sys } from "cc";
 import { FrameInfo, PlayerInfo, Room } from "../libs/GOBE";
 import { Eventer } from "../framework/tool/Eventer";
 import { Singleton } from "../framework/util/Singleton";
@@ -116,7 +116,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         return this._currFrame;
     }
 
-    public get wifiType(){
+    public get wifiType() {
         return this._wifiType;
     }
 
@@ -164,7 +164,7 @@ export class GobeManager extends Singleton<GobeManager>() {
             }
         } else {
             if (!this._room) return;
-            console.log("sendFrame: ", info);
+            LogEX.log("sendFrame: ", info);
             this._room.sendFrame(JSON.stringify(info));
         }
     }
@@ -183,7 +183,6 @@ export class GobeManager extends Singleton<GobeManager>() {
             if (xhr.status !== 200) {
                 return;
             }
-            console.log("getToken--->  onLoad xhr", xhr.response);
             let info = JSON.parse(xhr.response);
             this.initGobe(info["access_token"], callback);
         };
@@ -200,13 +199,11 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 获取证书url */
     private loadCert(token: string, callback: Function) {
-        console.log("loadCert--> 加载证书 token: " + token);
         resources.load("/endpoint-cert", Asset, (error, asset) => {
             if (error) {
-                console.log("loadCert: 加载证书失败" + error);
+                LogEX.error("loadCert: 加载证书失败" + error);
                 return;
             }
-            console.log("loadCert: 加载证书成功");
             this._cacertNativeUrl = asset.nativeUrl;
             this.initGobe(token, callback);
         })
@@ -214,14 +211,12 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 初始化GOBE */
     private initGobe(token: string, callback: Function) {
-        console.log("initSDK: ", Global.CLIENT_ID);
         // 初始化 client
         if (sys.Platform.ANDROID == sys.platform) {
             if (this._cacertNativeUrl == "") {
                 this.loadCert(token, callback);
                 return;
             }
-            console.log("initGobe on ANDROID", token);
             this._client = new window.GOBE.Client({
                 appId: Global.APP_ID,                  // 应用ID
                 openId: this.openId,                        // 玩家ID，区别不同用户
@@ -232,7 +227,6 @@ export class GobeManager extends Singleton<GobeManager>() {
                 cerPath: this._cacertNativeUrl
             });
         } else {
-            console.log("initGobe on OTHERS", token);
             this._client = new window.GOBE.Client({
                 appId: Global.APP_ID,                  // 应用ID
                 openId: this.openId,                        // 玩家ID，区别不同用户
@@ -245,16 +239,15 @@ export class GobeManager extends Singleton<GobeManager>() {
         this.statistics();
         // 监听Client.init方法的返回结果
         this._client.onInitResult(resultCode => {
-            console.log("initGobe-->  onInitResult: ", resultCode);
             if (resultCode == 0) {
                 callback && callback(true);
                 // 如果有上次登录的房间
                 if (this.lastRoomId) {
-                    console.log("initGobe-->  onInitResult: 加载上次登录房间 roomId: ", this.lastRoomId);
+                    LogEX.info("initGobe-->  onInitResult: 加载上次登录房间 roomId: ", this.lastRoomId);
                     // 加入房间
                     this.joinRoom(this.lastRoomId, () => {
                         let info = JSON.parse(this._room.customRoomProperties);
-                        console.log("initGobe-->  joinRoom: 加载上次登录房间 customRoomProperties: ", info);
+                        LogEX.info("initGobe-->  joinRoom: 加载上次登录房间 customRoomProperties: ", info);
                         // 游戏未开始或游戏已结束, 退出房间
                         if (info["type"] == ROOM_TYPE.READY || info["type"] == ROOM_TYPE.END) {
                             this.leaveRoom();
@@ -275,23 +268,20 @@ export class GobeManager extends Singleton<GobeManager>() {
                                 this.lastRoomId = null!;
                             }
                         }
-                        console.log("lastRoomId reconnect success");
                     }, (error: any) => {
-                        console.log("lastRoomId reconnect fail: ", error);
+                        LogEX.error("initGobe-->  lastRoomId reconnect fail: ", error);
                     });
                 }
             }
         });
-
         // 调用Client.init方法进行初始化
         this._client.init().then(client => {
             // 已完成初始化请求, 具体初始化结果通过onInitResult回调获取
             this.playerId = client.playerId;
             this.lastRoomId = this._client.lastRoomId;
             this._serverTimeDis = client.loginTimestamp - new Date().getTime();
-            console.log("init playerId: ", client.playerId);
         }).catch(error => {
-            console.log("调用Client.init方法进行初始化error: ", error);
+            LogEX.error("initGobe-->  init始化失败: ", error);
             callback && callback(false);
         })
     }
@@ -302,7 +292,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._recvMap = new Map();
         this._isAi = false;
         this._wifiType = WIFI_TYPE.WIFI;
-        console.log("createRoom--> 创建房间");
+        LogEX.info("createRoom--> 创建房间");
         this._client.createRoom({
             maxPlayers: Global.MAX_PLAYER,  // 房间最大支持人数，取值范围为[1, 100]。
             matchParams: Global.MATCH_PARAMS,
@@ -315,14 +305,14 @@ export class GobeManager extends Singleton<GobeManager>() {
             this._player = room.player;
             this.lastRoomId = room.roomId;
             this.enabledEventRoom();
-            console.log("-----------ROOM_READY-----------");
+            LogEX.info("-----------ROOM_READY-----------");
             // 更新房间自定义属性
             this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ "type": ROOM_TYPE.READY, "time": 0 }) });  // todo: 房间信息
             callback && callback();
-            console.log("创建房间成功");
+            LogEX.info("创建房间成功");
         }).catch(error => {
             errorCallback && errorCallback(error);
-            console.log("创建房间失败 错误: ", error);
+            LogEX.error("创建房间失败 错误: ", error);
         })
     }
 
@@ -333,7 +323,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._serverTimeDis = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.STAND_ALONE;
-        console.log("createRoomAI--> 创建房间");
+        LogEX.info("createRoomAI--> 创建房间");
         this._roomAlone = new RoomAloneInfo();
         this._roomAlone.ownerId = this.playerId;
         this._roomAlone.roomCode = "0001" + Math.floor(Math.random() * 100);
@@ -361,7 +351,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._currFrame = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.WIFI;
-        console.log("matchRoom--> 开始匹配房间");
+        LogEX.info("matchRoom--> 开始匹配房间");
         this._client.matchRoom({
             maxPlayers: Global.MAX_PLAYER,
             matchParams: Global.MATCH_PARAMS,
@@ -370,7 +360,6 @@ export class GobeManager extends Singleton<GobeManager>() {
             customPlayerStatus: 0,
             customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo:
         }).then((room: Room) => {
-            console.log("matchRoom success");
             this._room = room;
             this.lastRoomId = room.roomId;
             this.enabledEventRoom();
@@ -381,7 +370,7 @@ export class GobeManager extends Singleton<GobeManager>() {
             callback && callback();
         }).catch((e) => {
             errorCallback && errorCallback(e);
-            console.log("matchRoom error", e)
+            LogEX.error("matchRoom 匹配房间失败: ", e)
         });
     }
     /** 获取可匹配房间列表 */
@@ -393,10 +382,9 @@ export class GobeManager extends Singleton<GobeManager>() {
         };
         this._client.getAvailableRooms(roomsConfig).then(info => {
             // 查询房间列表成功
-            console.log("查询房间列表成功: ", info.rooms);
             callback && callback(info);
         }).catch(error => {
-            console.log("查询房间列表失败: ", error);
+            LogEX.error("查询房间列表失败: ", error);
             callback && callback(error);
         });
     }
@@ -406,10 +394,10 @@ export class GobeManager extends Singleton<GobeManager>() {
         if (!this._room) return;
         this._room.update().then((room) => {
             this._room = room;
-            console.log("updateRoom--> ", room);
+            LogEX.info("updateRoom-->  ", room);
         }).catch((e) => {
             // 获取玩家房间最新信息失败
-            console.log("更新房间信息 error", e)
+            LogEX.error("updateRoom-->  error", e)
         });
     }
 
@@ -419,7 +407,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         this._currFrame = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.WIFI;
-        console.log("joinRoom--> 加入房间");
+        LogEX.info("joinRoom-->  加入房间");
         this._client.joinRoom(roomId, {
             customPlayerStatus: 0,
             customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
@@ -433,17 +421,16 @@ export class GobeManager extends Singleton<GobeManager>() {
             if (room.players.length == Global.MAX_PLAYER) {
                 this._isRoomOwnIn = true;
             }
-            console.log("加入房间成功");
             callback && callback();
         }).catch(error => {
-            console.log("申请加入房间 错误: ", error);
+            LogEX.error("joinRoom-->  error: ", error);
             errorCallback && errorCallback(error);
         });
     }
 
     /** 离开房间 */
     public leaveRoom(callback?: Function, errorCallback?: Function) {
-        console.log("leaveRoom--> 离开房间");
+        LogEX.info("leaveRoom-->  离开房间");
         if (this._isReadyDis) {
             this._isReadyDis = false;
             if (this._room)
@@ -451,7 +438,6 @@ export class GobeManager extends Singleton<GobeManager>() {
         }
         if (this.lastRoomId && this._client) {
             this._client.leaveRoom().then((client) => {
-                console.log("离开房间 成功")
                 this._client = client;
                 this._client.removeAllListeners();
                 this._room && this._room.removeAllListeners();
@@ -459,7 +445,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 callback && callback();
             }).catch((error) => {
                 errorCallback && errorCallback(error);
-                console.log("离开房间 失败", error)
+                LogEX.error("leaveRoom--> error", error)
             });
         } else {
             this._roomAlone = null!;
@@ -474,7 +460,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         // 加入房间
         this._room.onJoin(player => {
             // 加入房间成功, 做相关游戏逻辑处理
-            console.log(`onJoin--> 加入成功 room.ownerId: ${this._room.ownerId}", player.playerId: "${player.playerId}`);
+            LogEX.info(`enabledEventRoom-->  onJoin: ownerId: ${this._room.ownerId}", playerId: "${player.playerId}`);
             if (player.playerId != this._room.ownerId) {
                 Eventer.emit(GobeEvents.ON_OTHER_JOIN_ROOM, player.playerId);
             } else {
@@ -495,11 +481,11 @@ export class GobeManager extends Singleton<GobeManager>() {
         });
         // 加入房间失败
         this._room.onJoinFailed(error => {
-            console.log("onJoinFailed--> 加入失败: ", error);
+            LogEX.error("enabledEventRoom-->  onJoinFailed: ", error);
         });
         // 离开房间监听
         this._room.onLeave(player => {
-            console.log("onLeave--> 离开: ", player.playerId);
+            LogEX.info("enabledEventRoom-->  onLeave: ", player.playerId);
             if (player.playerId != this.playerId) {
                 this.updateRoom();
             } else {
@@ -512,12 +498,12 @@ export class GobeManager extends Singleton<GobeManager>() {
         });
 
         this._room.onDisconnect(player => {
-            console.log("onDisconnect--> ", player.playerId);
+            LogEX.info("enabledEventRoom-->  onDisconnect: ", player.playerId);
             // 当前玩家断线
             if (player.playerId == this._room.playerId) {
                 if (this._room) {
                     let interval = setInterval(() => {
-                        console.log("onDisconnect--> ", interval);
+                        LogEX.warn("enabledEventRoom-->  onDisconnect: interval ", interval);
                         if (this._room == null) {
                             clearInterval(interval);
                             return;
@@ -525,9 +511,8 @@ export class GobeManager extends Singleton<GobeManager>() {
                         // 重连
                         this._room.reconnect().then(() => {
                             clearInterval(interval);
-                            console.log("reconnect--> success");
                         }).catch(error => {
-                            console.log("reconnect--> fail: ", error);
+                            LogEX.error("enabledEventRoom-->  reconnect error", error);
                         })
                     }, 1000);
                 }
@@ -555,7 +540,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         });
 
         this._room.onRoomPropertiesChange(roomInfo => {
-            console.log("onRoomPropertiesChange--> ", roomInfo.customRoomProperties);
+            LogEX.info("enabledEventRoom-->  onRoomPropertiesChange: ", roomInfo.customRoomProperties);
             let info = JSON.parse(roomInfo.customRoomProperties);
             this._time = info["time"];
             this.roomType = info["type"];
@@ -573,19 +558,19 @@ export class GobeManager extends Singleton<GobeManager>() {
         });
 
         this._room.onStartFrameSync(() => {
-            console.log("onStartFrameSync--> 开始帧同步");
+            LogEX.log("enabledEventRoom-->  onStartFrameSync");
             this._isStartFrameSync = true;
         });
 
         this._room.onStopFrameSync(() => {
-            console.log("onStopFrameSync--> 结束帧同步");
+            LogEX.log("enabledEventRoom-->  onStopFrameSync");
             this._currFrame = 0;
             this._isStartFrameSync = false;
             this._recvMap = new Map();
         });
 
         this._room.onRecvFromServer(recvFromServerInfo => {
-            console.log("onRecvFromServer--> 服务器端数据: ", recvFromServerInfo.msg);
+            LogEX.log("enabledEventRoom-->  onRecvFromServer: ", recvFromServerInfo.msg);
             let info = JSON.parse(recvFromServerInfo.msg);
             if (info) {
                 if (info["msg"] == Global.START_GAME) {
@@ -610,7 +595,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         });
 
         this._room.onRecvFrame(msg => {
-            console.log("onRecvFrame: ", msg);
+            LogEX.log("enabledEventRoom-->  onRecvFrame: ", msg);
             if (msg instanceof Array) {
                 for (let i = 0; i < msg.length; i++) {
                     this._time = msg[i].time;
@@ -643,6 +628,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 Eventer.emit(GobeEvents.ON_GAME_START);
             } else {
                 if (this._room) {
+                    LogEX.warn("startGame--> sendToServer");
                     this._room.sendToServer(JSON.stringify({ "msg": Global.START_GAME, "playerId": this.playerId }));   // todo: 
                 }
             }
@@ -654,11 +640,11 @@ export class GobeManager extends Singleton<GobeManager>() {
         this.playerId = "";
         this._roomAlone = null!;
         if (this._client) {
+            LogEX.warn("leaveGame--> destroy");
             this._client.destroy();
             this._client = null!;
             this._room = null!;
             this.playerId = "";
-            Log.d("leaveGame--> destroy");
             PlayerData.instance.isInit = false;
         }
     }
@@ -670,16 +656,16 @@ export class GobeManager extends Singleton<GobeManager>() {
             this._roomAlone.customRoomProperties = JSON.stringify({ "type": ROOM_TYPE.END, "time": this._time });
             Eventer.emit(GobeEvents.ON_GAME_END);
         } else {
-            // // 房主是自己或(房主不在房间且自己不是房主)
+            // // 房主是自己或(玩家不是房主)
             if (this._room && this.playerId == this._room.ownerId
                 || (!this._isRoomOwnIn && this.playerId != this._room.ownerId)
             ) {
                 if (this._isStartFrameSync) {
                     this._isStartFrameSync = false;
-                    console.log("finishGame--> stopFrameSync");
+                    LogEX.warn("finishGame--> stopFrameSync");
                     this._room.stopFrameSync();
                 }
-                console.log("-------finishGame------")
+                LogEX.warn("-------finishGame------")
                 this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ "type": ROOM_TYPE.END, "time": this._time }) });
                 if (!this._isRoomOwnIn) {
                     Eventer.emit(GobeEvents.ON_GAME_END);
@@ -707,7 +693,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         }).then((response: Response) => {
             return response.text()
         }).then((value) => {
-            console.log(value);
+            LogEX.log(value);
         })
     }
 }

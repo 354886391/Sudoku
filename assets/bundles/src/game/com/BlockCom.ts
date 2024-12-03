@@ -7,6 +7,8 @@ import { GameEvents } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
 
+export const BLANK = '.';
+
 @ccclass
 export class BlockCom extends Component {
 
@@ -37,32 +39,18 @@ export class BlockCom extends Component {
         this.setValue(blockInfo.type, blockInfo.value);
     }
 
-    public setValue(type: BlockType, value: number): void {
-        if (type == BlockType.Blank) {
-            this.blockInfo.value = 0;
-            this.blockLbl.string = ``;
-        } else {
-            this.blockInfo.value = value;
-            this.blockLbl.string = `${value}`;
-        }
-    }
-
-    public clearValue(): void {
-        if (this.blockInfo.type != 1) {
-            this.blockLbl.string = ``;
-        }
+    public setValue(type: BlockType, value: string): void {
+        this.blockInfo.type = type;
+        this.blockInfo.value = value;
+        this.blockLbl.string = `${value}`;
     }
 
     public setBlockColor(str: string): void {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
     }
+    
     public setValueColor(str: string): void {
         this.blockLbl.color = new Color().fromHEX(str);
-    }
-
-    private calcRowCol(nIndex: number, bIndex: number): void {
-        this.blockInfo.row = Math.trunc(nIndex / 3) * 3 + Math.trunc(bIndex / 3);
-        this.blockInfo.col = nIndex % 3 * 3 + bIndex % 3;
     }
 
     public onClicked(): void {
@@ -76,11 +64,10 @@ export class BlockCom extends Component {
     }
 
     //getter / setter
-    get blockId() {
+    get id() {
         return this.blockInfo.id;
     }
 
-    /** 0: 空白, 1: 静态,  2: 候选, 3: 错误 */
     get type() {
         return this.blockInfo.type;
     }
@@ -97,7 +84,7 @@ export class BlockCom extends Component {
         return this.blockInfo.value;
     }
 
-    set value(value: number) {
+    set value(value: string) {
         this.blockInfo.value = value;
     }
 
@@ -109,6 +96,9 @@ export class BlockCom extends Component {
         this.blockInfo.isSelect = value;
     }
 
+    get isValid() {
+        return this.blockInfo.type == BlockType.Right || this.blockInfo.type == BlockType.Lock;
+    }
 
 }
 

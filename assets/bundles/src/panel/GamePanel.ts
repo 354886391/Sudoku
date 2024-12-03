@@ -13,6 +13,10 @@ import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { GobeManager } from '../../../script/network/GobeManager';
 import { HintDialog } from './dialog/HintDialog';
+import { UIButton } from '../../../script/framework/ui/group/UIButton';
+import { HintNotice } from './notice/HintNotice';
+import { BlockType, Frame } from '../data/GameData';
+import { RewardPanel } from './RewardPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -25,14 +29,16 @@ export class GamePanel extends UIView {
     boardView: BoardView = null;
     @property(OptionView)
     optionView: OptionView = null;
+    @property(UIButton)
+    closeBtn: UIButton = null;
+
+    sudoku: Sudoku = new Sudoku();
 
     machine: StateMachine = null;
 
     start() {
-        let sudoku = new Sudoku();
-        sudoku.initialize();
-        let board = sudoku.generate("veryHard", true);
-        sudoku.print_board(board);
+        this.sudoku = new Sudoku();
+        this.sudoku.initialize();
 
         this.machine = new StateMachine();
         this.machine.setCallbacks(EState.Init, { enter: this.onInit }, this);
@@ -42,18 +48,21 @@ export class GamePanel extends UIView {
         this.machine.setCallbacks(EState.Showing, { enter: this.onShowing }, this);
         this.machine.setCallbacks(EState.Finish, { enter: this.onFinish }, this);
 
-        Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
-        Eventer.on(GameEvents.ON_BLOCK_SELECT, this.onOptionClick, this);
+        this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
 
-        // Eventer.on(GobeEvents.ON_GAME_READY, null, this);
-        // Eventer.on(GobeEvents.ON_GAME_START, null, this);
-        // Eventer.on(GobeEvents.ON_GAME_END, null, this);
-        // Eventer.on(GobeEvents.ON_GAME_321, null, this);
+        Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
+        Eventer.on(GameEvents.ON_OPTION_CLICK, this.onOptionClick, this);
+
+        Eventer.on(GameEvents.ON_BLOCK_FRAME, this.onBlockFrame, this);
+        Eventer.on(GameEvents.ON_OPTION_FRAME, this.onOptionFrame, this);
+
         this.machine.state = EState.Init;
     }
 
     onInit() {
         // 初始化
+        GameState.initBoard("easy", true);
+        this.boardView.init(1, GameState.gridBoard);
         this.drawView.init();
         this.optionView.init();
         this.machine.state = EState.Idle;
@@ -68,8 +77,6 @@ export class GamePanel extends UIView {
 
     onReady() {
         // 初始化牌面
-        let board = GameState.boardInfo.board;
-        this.boardView.init(1, board);
         this.machine.state = EState.Playing;
     }
 
@@ -85,20 +92,61 @@ export class GamePanel extends UIView {
         // 结束当前回合
     }
 
-    onBlockClick(click: BlockCom) {
-        this.boardView.highlightClickColor(click);
+    onBlockClick(block: BlockCom) {
+        this.boardView.highlightClickColor(block);
+        // 发送frame数据
+        let curBoard = this.boardView.curBoard;
+        let frameInfo: Frame = {
+            blockId: block.id,
+            optionId: undefined,
+            board: curBoard,
+            steps: undefined,
+
+        }
+        GobeManager.instance.sendFrame(frameInfo);
     }
 
     onOptionClick(option: OptionCom) {
-        this.boardView.reset();
-        this.optionView.reset();
-        this.boardView.highlightBlockColor_all(option.value);
-        this.optionView.highlightOptionColor(option);
+        let block = this.boardView.curClick;
+        if (block && block.type != BlockType.Lock) {
+            if (option) {
+                this.boardView.reset();
+                this.boardView.setBlock(block, option.value);
+                this.boardView.highlightClickColor_all(option.value);
+                block.isSelect = true;
+                // 发送frame数据
+                let curBoard = this.boardView.curBoard;
+                let frameInfo: Frame = {
+                    blockId: block.id,
+                    optionId: option.id,
+                    board: curBoard,
+                    steps: undefined,
+                }
+                GobeManager.instance.sendFrame(frameInfo);
+            }
+        }
+    }
+
+    onBlockFrame(blockId: number) {
+        let block = this.boardView.getBlock(blockId);
+        this.onBlockClick(block);
+    }
+
+    onOptionFrame(optionId: number) {
+        let option = this.optionView.getOption(optionId);
+        this.onOptionClick(option);
     }
 
     onCloseClick() {
         GobeManager.instance.finishGame();
-        UIManager.instance.open(HintDialog, "游戏结束");
+        UIManager.instance.open(HintNotice, "游戏结束");
+    }
+
+    checkReward() {
+        let isWin = this.boardView.checkWin();
+        if (isWin) {
+            UIManager.instance.open(RewardPanel);
+        }
     }
 }
 UIManager.instance.register(GamePanel);
