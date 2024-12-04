@@ -129,12 +129,11 @@ export class GamePanel extends UIView {
 
     onBlockFrame(blockId: number) {
         let block = this.boardView.getBlock(blockId);
-        this.onBlockClick(block);
+        this.boardView.highlightBlockColor2(block);
     }
 
     onOptionFrame(optionId: number) {
         let option = this.optionView.getOption(optionId);
-        this.onOptionClick(option);
     }
 
     onCloseClick() {

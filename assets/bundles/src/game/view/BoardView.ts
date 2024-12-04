@@ -2,7 +2,7 @@ import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { BlockColor } from '../../data/GameConst';
 import { BLANK, BlockCom } from '../com/BlockCom';
 import { NonetCom } from '../com/NonetCom';
-import { BlockInfo, BlockType } from '../../data/GameData';
+import { BlockType } from '../../data/GameData';
 import { GameState } from '../../data/GameState';
 const { ccclass, property } = _decorator;
 
@@ -89,11 +89,16 @@ export class BoardView extends Component {
     }
 
     /** highlight与click相同value的格子 */
-    private highlightBlockColor(value: string, block: BlockCom): void {
+    public highlightBlockColor(value: string, block: BlockCom): void {
         if (value != BLANK && value == block.value) {
             block.setValueColor(BlockColor.White);
             block.setBlockColor(BlockColor.Blue);
         }
+    }
+
+    /**  */
+    public highlightBlockColor2(block: BlockCom): void {
+        block.setBlockColor(BlockColor.Gold);
     }
 
     /** gray所在的十字格 */
@@ -145,7 +150,7 @@ export class BoardView extends Component {
     }
 
     public getBlock(blockId: number): BlockCom {
-        let nonetIndex = Math.floor(blockId / 9);
+        let nonetIndex = Math.floor((blockId - 1) / 9);
         let blockIndex = (blockId - 1) % 9; // error: blockId(79->80)
         return this.nonetList[nonetIndex].blockList[blockIndex];
     }
