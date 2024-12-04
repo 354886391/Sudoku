@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, find, Node } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { Global } from '../../../script/Global';
@@ -25,12 +25,25 @@ export class GameManager extends Component {
 
     sudoku: Sudoku = new Sudoku();
 
+    static _instance: GameManager;
+
     get roomPlayers() {
         return GobeManager.instance.roomPlayers;
     }
 
     get statePlayers() {
         return GameState.players;
+    }
+
+    static get instance() {
+        if (!this._instance) {
+            this._instance = find("GamePanel").getComponent(GameManager);
+        }
+        return this._instance;
+    }
+
+    protected onLoad(): void {
+        GameManager._instance = this;
     }
 
     protected start(): void {
@@ -65,6 +78,15 @@ export class GameManager extends Component {
                 UIManager.instance.open(HintDialog, "登录失败");
             }
         });
+    }
+
+    init() {
+
+    }
+
+    reset() {
+        this.initGameState();
+        this.init();
     }
 
     /** 设置初始信息 */
@@ -107,8 +129,6 @@ export class GameManager extends Component {
     onGameReady() {
         Log.d("onGameReady");
         // 生成牌面
-
-
         this.statePlayers.forEach((value: Player, index: number) => {
             if (value.channel) {
                 let playerPath = "player/girl";
@@ -232,7 +252,7 @@ export class GameManager extends Component {
 
     }
 
-    checkPlayerReward(){
+    checkPlayerReward() {
 
     }
 

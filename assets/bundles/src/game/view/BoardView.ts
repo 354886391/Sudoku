@@ -12,16 +12,14 @@ export class BoardView extends Component {
     @property(Prefab)
     nonetPrefab: Prefab = null;
 
-    boardId: number = 0;
     curClick: BlockCom = null;    // 点击的格子
     nonetList: NonetCom[] = [];   // 九宫格列表
 
-    public init(boardId: number, board: string[][]): void {
-        this.setBoard(boardId, board);
+    public init(): void {
+        this.setBoard(GameState.gridBoard);
     }
 
-    public setBoard(boardId: number, board: string[][]) {
-        this.boardId = boardId;
+    public setBoard(board: string[][]) {
         for (let i = 0; i < 9; i++) {
             let nonetId = i + 1;
             if (this.nonetList[i]) {
@@ -150,8 +148,8 @@ export class BoardView extends Component {
     }
 
     public getBlock(blockId: number): BlockCom {
-        let nonetIndex = Math.floor((blockId - 1) / 9);
-        let blockIndex = (blockId - 1) % 9; // error: blockId(79->80)
+        let nonetIndex = Math.floor((blockId - 1) / 9); // error
+        let blockIndex = (blockId - 1) % 9;
         return this.nonetList[nonetIndex].blockList[blockIndex];
     }
 

@@ -6,6 +6,7 @@ import { HintDialog } from "./dialog/HintDialog";
 import { ReadyPanel } from "./ReadyPanel";
 import { LoadNotice } from "./notice/LoadNotice";
 import { SelectPanel } from "./SelectPanel";
+import { GameManager } from "../game/GameManager";
 
 const { ccclass, property } = _decorator;
 
@@ -28,8 +29,15 @@ export class RewardPanel extends UIView {
     }
 
     public onLeaveClick(): void {
-        GobeManager.instance.leaveGame();
-        UIManager.instance.close(RewardPanel);
+        if (GobeManager.instance.wifiType == WIFI_TYPE.WIFI) {
+            GameManager.instance.reset();
+            UIManager.instance.open(SelectPanel);
+            UIManager.instance.close(RewardPanel);
+        }else{
+            GobeManager.instance.leaveGame();
+            UIManager.instance.open(SelectPanel);
+            UIManager.instance.close(RewardPanel);
+        }
     }
 
     public onAgainClick(): void {
