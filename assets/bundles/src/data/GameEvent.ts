@@ -12,6 +12,9 @@ export enum GameEvents {
     ON_BOARD_FRAME = "OnBoardFrame",
     ON_STEPS_FRAME = "OnStepsFrame",
 
+    ON_FRAME_REQ = "OnFrameReq",
+    ON_FRAME_REC = "OnFrameRec",
+
     // show
     ON_SHOW_READYGO = "onShowReadyGo",
 }

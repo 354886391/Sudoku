@@ -13,27 +13,41 @@ export class OptionView extends Component {
     curClick: OptionCom = null;
     optionList: OptionCom[] = [];
 
-    public init(): void {
+
+    public init() {
         for (let i = 0; i < 9; i++) {
-            let node = instantiate(this.optionPrefab);
-            let option = node.getComponent(OptionCom);
-            node.setParent(this.node);
-            option.init(i + 1, `${i + 1}`);
-            this.optionList.push(option);
+            let optionId = i + 1;
+            if (this.optionList[i]) {
+                this.setOption(optionId);
+            } else {
+                this.createOption(optionId)
+            }
         }
+    }
+
+    public setOption(optionId: number) {
+        this.optionList[optionId - 1].init(optionId, `${optionId}`);
+    }
+
+    public createOption(optionId: number): void {
+        let node = instantiate(this.optionPrefab);
+        node.parent = this.node;
+        let option = node.getComponent(OptionCom);
+        option.init(optionId, `${optionId}`);
+        this.optionList.push(option);
     }
 
     /** highlight点击的格子 */
     public highlightClickColor(click: OptionCom): void {
         if (click.hasSelect) {
             click.hasSelect = false;
-            click.setValueColor(BlockColor.Black);
+            click.setResultColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
             this.curClick = null;
 
         } else {
             click.hasSelect = true;
-            click.setValueColor(BlockColor.Gold);
+            click.setResultColor(BlockColor.Gold);
             click.setBlockColor(BlockColor.Blue);
             this.curClick = click;
         }

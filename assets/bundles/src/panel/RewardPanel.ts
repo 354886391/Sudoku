@@ -7,6 +7,7 @@ import { ReadyPanel } from "./ReadyPanel";
 import { LoadNotice } from "./notice/LoadNotice";
 import { SelectPanel } from "./SelectPanel";
 import { GameManager } from "../game/GameManager";
+import { GameState } from "../data/GameState";
 
 const { ccclass, property } = _decorator;
 
@@ -44,17 +45,13 @@ export class RewardPanel extends UIView {
         UIManager.instance.open(LoadNotice);
         if (GobeManager.instance.wifiType == WIFI_TYPE.WIFI) {
             GobeManager.instance.matchRoom(() => {
-                // ready
                 this.showReady();
             }, () => {
                 UIManager.instance.open(HintDialog, "房间匹配失败");
             });
         } else {
-            GobeManager.instance.createRoomAI(() => {
-                // ready
+            GobeManager.instance.createRoomAI(GameState.board, () => {
                 this.showReady();
-            }, () => {
-                UIManager.instance.open(HintDialog, "房间创建失败");
             });
         }
     }

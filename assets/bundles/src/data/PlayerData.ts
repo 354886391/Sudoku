@@ -1,22 +1,7 @@
 import { Singleton } from "../../../script/framework/util/Singleton";
 import { StorageManager } from '../../../script/framework/storage/StorageManager';
 import { LOCAL_CACHE } from "./GameConst";
-
-
-interface PlayerInfo {
-    pid?: string;
-    name?: string;
-    avatar?: string;
-    staticId?: number;
-}
-
-interface HistoryInfo {
-    pid?: string;
-}
-
-interface SettingInfo {
-    pid?: string;
-}
+import { PlayerInfo, HistoryInfo, SettingInfo } from "./GameDefine";
 
 export class PlayerData extends Singleton<PlayerData>() {
 

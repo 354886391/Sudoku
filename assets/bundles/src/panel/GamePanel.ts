@@ -3,7 +3,6 @@ import { UIView } from '../../../script/framework/ui/UIView';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { OptionView } from '../game/view/OptionView';
 import { BoardView } from '../game/view/BoardView';
-import { Sudoku } from '../tool/Sudoku';
 import { DrawView } from '../game/view/DrawView';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvents } from '../data/GameEvent';
@@ -13,12 +12,12 @@ import { GameState } from '../data/GameState';
 import { GobeManager } from '../../../script/network/GobeManager';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { HintNotice } from './notice/HintNotice';
-import { BlockType, Frame } from '../data/GameData';
+import { BlockType, Frame } from '../data/GameDefine';
 import { RewardPanel } from './RewardPanel';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('GamePanel')
+@ccclass
 export class GamePanel extends UIView {
 
     @property(DrawView)
@@ -30,60 +29,53 @@ export class GamePanel extends UIView {
     @property(UIButton)
     closeBtn: UIButton = null;
 
-    sudoku: Sudoku = null;
-
     onLoad() {
-        this.sudoku = new Sudoku();
-        this.sudoku.initialize();
-
         this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
         Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
         Eventer.on(GameEvents.ON_OPTION_CLICK, this.onOptionClick, this);
-        Eventer.on(GameEvents.ON_BLOCK_FRAME, this.onBlockFrame, this);
-        Eventer.on(GameEvents.ON_OPTION_FRAME, this.onOptionFrame, this);
-
-        this.init();
+        Eventer.on(GameEvents.ON_FRAME_REC, this.onFrameRec, this);
     }
 
-    init() {
-        // 初始化
-        GameState.initBoard("easy", true);
-        this.boardView.init();
-        this.drawView.init();
-        this.optionView.init();
+    protected start(): void {
+       this.initGame();
+    }
+
+    initGame() {
+      // 初始化
+      this.drawView.init();
+      this.optionView.init();
+    }
+
+    initBoard(){
+        this.boardView.init(GameState.gridBoard);
     }
 
     onBlockClick(block: BlockCom) {
-        this.boardView.highlightClickColor(block);
+        // this.boardView.highlightClickColor(block);
         // 发送frame数据
-        let curBoard = this.boardView.curBoard;
         let frameInfo: Frame = {
             blockId: block.id,
             optionId: undefined,
-            board: curBoard,
+            board: this.boardView.curBoard,
             steps: undefined,
         }
         LogEX.warn("onBlockClick-->  frameInfo: ", frameInfo);
         GobeManager.instance.sendFrame(frameInfo);
-
-        let block2 = this.boardView.getBlock(block.id);
-        LogEX.warn("onBlockClick-->  block2: ", block2);
     }
 
     onOptionClick(option: OptionCom) {
         let block = this.boardView.curClick;
         if (block && block.type != BlockType.Lock) {
             if (option) {
-                this.boardView.reset();
-                this.boardView.setBlock(block, option.value);
-                this.boardView.highlightClickColor_all(option.value);
-                block.isSelect = true;
+                // this.boardView.reset();
+                // this.boardView.setBlock(block, option.value);
+                // this.boardView.highlightClickColor_all(option.value);
+                // block.isSelect = true;
                 // 发送frame数据
-                let curBoard = this.boardView.curBoard;
                 let frameInfo: Frame = {
                     blockId: block.id,
                     optionId: option.id,
-                    board: curBoard,
+                    board: this.boardView.curBoard,
                     steps: undefined,
                 }
                 LogEX.warn("onOptionClick-->  frameInfo: ", frameInfo);
@@ -92,15 +84,33 @@ export class GamePanel extends UIView {
         }
     }
 
-    onBlockFrame(blockId: number) {
-        LogEX.warn("onBlockFrame-->  blockId: ", blockId);
-        let block = this.boardView.getBlock(blockId);
-        this.boardView.highlightBlockColor2(block);
-    }
-
-    onOptionFrame(optionId: number) {
-        LogEX.warn("onOptionFrame-->  blockId: ", optionId);
-        let option = this.optionView.getOption(optionId);
+    onFrameRec(playerId: string, frame: Frame) {
+        LogEX.warn("onBlockFrame-->  playerId: ", playerId, frame);
+        let blockId = frame.blockId;
+        let optionId = frame.optionId;
+        if (GobeManager.instance.isOwnPlayer(playerId)) {
+            let block: BlockCom = null;
+            if (blockId) {
+                block = this.boardView.getBlock(blockId);
+                this.boardView.highlightClickColor(block);
+                if (optionId) {
+                    let option = this.optionView.getOption(optionId);
+                    if (block && block.type != BlockType.Lock) {
+                        if (option) {
+                            this.boardView.reset();
+                            this.boardView.setBlock(block, option.value);
+                            this.boardView.highlightClickColor_all(option.value);
+                            block.isSelect = true;
+                        }
+                    }
+                }
+            }         
+        } else {
+            if (blockId) {
+                let block = this.boardView.getBlock(blockId);
+                this.boardView.highlightBlockColor2(block);
+            }
+        }
     }
 
     onCloseClick() {

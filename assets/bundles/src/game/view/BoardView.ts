@@ -2,7 +2,7 @@ import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { BlockColor } from '../../data/GameConst';
 import { BLANK, BlockCom } from '../com/BlockCom';
 import { NonetCom } from '../com/NonetCom';
-import { BlockType } from '../../data/GameData';
+import { BlockType } from '../../data/GameDefine';
 import { GameState } from '../../data/GameState';
 const { ccclass, property } = _decorator;
 
@@ -16,11 +16,7 @@ export class BoardView extends Component {
     blockList: BlockCom[] = [];     // 格子列表
     nonetList: NonetCom[] = [];     // 九宫格列表
 
-    public init(): void {
-        this.setBoard(GameState.gridBoard);
-    }
-
-    public setBoard(board: string[][]) {
+    public init(board: string[][]) {
         for (let i = 0; i < 9; i++) {
             let nonetId = i + 1;
             if (this.nonetList[i]) {
@@ -32,14 +28,14 @@ export class BoardView extends Component {
     }
 
     private setNonet(index: number, nonetId: number, board: string[][]) {
-        this.nonetList[index].setNonet(nonetId, board);
+        this.nonetList[index].init(nonetId, board, this);
     }
 
     /** 创建九宫格*/
     private createNonet(nonetId: number, board: string[][], parent: Node) {
         let node = instantiate(this.nonetPrefab);
+        node.parent = parent;
         let nonet = node.getComponent(NonetCom);
-        node.setParent(parent);
         nonet.init(nonetId, board, this);
         this.nonetList.push(nonet);
     }
@@ -140,7 +136,12 @@ export class BoardView extends Component {
     }
 
     public getBlock(blockId: number): BlockCom {
-        return this.blockList[blockId - 1];
+        if (blockId < 1 || blockId > 81) {
+            return null;
+        }
+        else {
+            return this.blockList[blockId - 1];
+        }
     }
 
     public setBlock(click: BlockCom, result: string) {

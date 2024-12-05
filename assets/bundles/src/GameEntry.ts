@@ -8,6 +8,10 @@ import { GamePanel } from "./panel/GamePanel";
 import { PlayerData } from "./data/PlayerData";
 import { Util } from "../../script/framework/util/Util";
 import { ResourceManager } from "../../script/framework/resources/ResourceManager";
+import { GobeManager } from "../../script/network/GobeManager";
+import { SelectPanel } from "./panel/SelectPanel";
+import { HintDialog } from "./panel/dialog/HintDialog";
+import { GameState } from "./data/GameState";
 
 export class GameEntry extends Entry {
 
@@ -24,12 +28,19 @@ export class GameEntry extends Entry {
                 console.error(err);
                 return;
             }
-            this.onCompleteBundle();
+            this.onComplete();
         });
         Log.w("GameEntry--> onEnter: ", this.bundle);
     }
 
-    onCompleteBundle(){
+    onComplete() {
+        UIManager.instance.init(UI_GAME);
+        UIManager.instance.open(GamePanel);
+        this.initGame();
+        this.loginGame();
+    }
+
+    initGame() {
         let playerId = PlayerData.instance.playerInfo.pid;
         if (playerId == null) {
             playerId = "cocos" + (new Date().getTime()).toString().substring(6);
@@ -44,8 +55,22 @@ export class GameEntry extends Entry {
                 PlayerData.instance.updatePlayer("name", playerName);
             })
         }
-        UIManager.instance.init(UI_GAME);
-        UIManager.instance.open(GamePanel);
+    }
+
+    /** 登录 */
+    loginGame() {
+        LogEX.level = 1;
+        LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
+        let playerId = PlayerData.instance.playerInfo.pid;
+        GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
+            if (successInit) {
+                // 登录成功
+                UIManager.instance.open(SelectPanel);
+            } else {
+                // 登录失败
+                UIManager.instance.open(HintDialog, "登录失败");
+            }
+        });
     }
 }
 EntryManager.instance.register(GameEntry);

@@ -1,4 +1,4 @@
-import { _decorator, Component, find, Node } from 'cc';
+import { _decorator, Component, Node } from 'cc';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { Global } from '../../../script/Global';
@@ -6,14 +6,11 @@ import { FrameInfo, PlayerInfo } from '../../../script/libs/GOBE';
 import { GobeEvents } from '../../../script/network/GobeEvents';
 import { GobeManager, ROOM_TYPE } from '../../../script/network/GobeManager';
 import { GameEvents } from '../data/GameEvent';
-import { PlayerData } from '../data/PlayerData';
-import { HintDialog } from '../panel/dialog/HintDialog';
 import { ReadyGoPanel } from '../panel/ReadyGoPanel';
-import { SelectPanel } from '../panel/SelectPanel';
 import { RewardPanel } from '../panel/RewardPanel';
-import { Sudoku } from '../tool/Sudoku';
-import { Channel, Frame, Player } from '../data/GameData';
+import { Channel, Frame, Player } from '../data/GameDefine';
 import { GameState } from '../data/GameState';
+import { GamePanel } from '../panel/GamePanel';
 
 const { ccclass, property } = _decorator;
 
@@ -23,7 +20,7 @@ export class GameManager extends Component {
     _frameIndex: number = 0;
     _startGameTime: number = 0;
 
-    sudoku: Sudoku = new Sudoku();
+    _gamePanel: GamePanel = null;
 
     static _instance: GameManager;
 
@@ -36,18 +33,12 @@ export class GameManager extends Component {
     }
 
     static get instance() {
-        if (!this._instance) {
-            this._instance = find("GamePanel").getComponent(GameManager);
-        }
         return this._instance;
     }
 
     protected onLoad(): void {
         GameManager._instance = this;
-    }
-
-    protected start(): void {
-        this.loginGame();
+        this._gamePanel = this.getComponent(GamePanel);
     }
 
     protected onEnable(): void {
@@ -64,29 +55,10 @@ export class GameManager extends Component {
         Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
-    loginGame() {
-        // 登录
-        LogEX.level = 1;
-        LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
-        let playerId = PlayerData.instance.playerInfo.pid;
-        GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
-            if (successInit) {
-                // 登录成功
-                UIManager.instance.open(SelectPanel);
-            } else {
-                // 登录失败
-                UIManager.instance.open(HintDialog, "登录失败");
-            }
-        });
-    }
-
-    init() {
-
-    }
-
     reset() {
         this.initGameState();
-        this.init();
+        this._gamePanel.initGame();
+        this.showGameBoard();
     }
 
     /** 设置初始信息 */
@@ -95,8 +67,12 @@ export class GameManager extends Component {
         GameState.frameId = 0;
         GameState.players = this.initPlayer();
         GameState.frameTime = Date.now();
-
+        GameState.initBoard("easy", true);
         this._frameIndex = 0;
+    }
+
+    showGameBoard() {
+        this._gamePanel.initBoard();
     }
 
     private initPlayer() {
@@ -128,24 +104,15 @@ export class GameManager extends Component {
 
     onGameReady() {
         Log.d("onGameReady");
-        // 生成牌面
-        this.statePlayers.forEach((value: Player, index: number) => {
-            if (value.channel) {
-                let playerPath = "player/girl";
-                if (GobeManager.instance.checkIsRoomOwner(value.channel.openId)) {
-                    playerPath = "player/boy";
-                }
-            }
-        });
     }
 
     onGameReadyGo() {
-        Log.d("onGameGo");
+        Log.d("onGameReadyGo");
         this.checkIsReCovery();
-        // ready GO
         UIManager.instance.open(ReadyGoPanel, () => {
             this.initGameState();
             this.onGetRoomInfo();
+            this.showGameBoard();
             UIManager.instance.close(ReadyGoPanel);
             GobeManager.instance.startGame();
         });
@@ -218,18 +185,7 @@ export class GameManager extends Component {
             if (!result.length) return;
             let frame = JSON.parse(frameInfo.data[0]) as Frame;
             if (frame) {
-                if (frame.blockId) {
-                    Eventer.emit(GameEvents.ON_BLOCK_FRAME, frame.blockId);
-                }
-                if (frame.optionId) {
-                    Eventer.emit(GameEvents.ON_OPTION_FRAME, frame.optionId);
-                }
-                if (frame.board) {
-                    Eventer.emit(GameEvents.ON_BOARD_FRAME, frame.board);
-                }
-                if (frame.steps) {
-                    Eventer.emit(GameEvents.ON_STEPS_FRAME, frame.steps);
-                }
+                Eventer.emit(GameEvents.ON_FRAME_REC, playerId, frame);
             }
         }
         if (callback) {

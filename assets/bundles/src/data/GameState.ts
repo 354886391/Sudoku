@@ -1,5 +1,6 @@
+import { GobeManager } from "../../../script/network/GobeManager";
 import { Sudoku } from "../tool/Sudoku";
-import { Player } from "./GameData";
+import { Player } from "./GameDefine";
 
 export class GameState {
     public static isGaming: boolean;
@@ -13,6 +14,10 @@ export class GameState {
     private static _board: string;           // 牌面
     private static _solveBoard: string;
     private static _candidatesBoard: string[][];
+
+    static get board() {
+        return this._board;
+    }
 
     static get gridBoard() {
         if (this._board) {
@@ -28,7 +33,11 @@ export class GameState {
 
     static initBoard(difficulty: string | number, isInit: boolean = true) {
         let sudoku = new Sudoku();
-        this._board = sudoku.generate(difficulty);
+        if (isInit) {
+            this._board = sudoku.generate(difficulty);
+        } else {
+            this._board = GobeManager.instance.board;
+        }
         this._solveBoard = sudoku.solve(this._board);
         this._candidatesBoard = sudoku.get_candidates(this._board);
     }

@@ -28,10 +28,11 @@ export class OptionCom extends Component {
     public init(id: number, value: string): void {
         this.id = id;
         this.value = value;
-        this.setValue(value);
+        this.setResult(value);
+        this.node.name = `${this.id}`;
     }
 
-    public setValue(value: string) {
+    public setResult(value: string) {
         if (this.writable) {
             this.blockLbl.string = `${value}`;
         }
@@ -41,7 +42,7 @@ export class OptionCom extends Component {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
     }
 
-    public setValueColor(str: string): void {
+    public setResultColor(str: string): void {
         this.blockLbl.color = new Color().fromHEX(str);
     }
 
@@ -51,7 +52,7 @@ export class OptionCom extends Component {
 
     public reset(): void {
         this.hasSelect = false;
-        this.setValueColor(BlockColor.Black);
+        this.setResultColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
     }
 }

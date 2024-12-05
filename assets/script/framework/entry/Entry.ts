@@ -12,12 +12,13 @@ export abstract class Entry {
         this.node = node;
         this.isRunning = true;
     }
+    
+    onLoad(): void {
+
+    }
 
     onDestroy(): void {
         this.isRunning = false;
     }
 
-    onLoad(): void {
-
-    }
 }

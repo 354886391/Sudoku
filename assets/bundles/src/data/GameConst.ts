@@ -29,11 +29,3 @@ export const FRAME_SYNC_STATE = {
     STOP: 0,
     START: 1
 }
-
-export class GameConst {
-
-}
-
-
-
-

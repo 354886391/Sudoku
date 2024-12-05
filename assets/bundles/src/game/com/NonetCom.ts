@@ -1,5 +1,5 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
-import { BlockInfo, BlockType } from '../../data/GameData';
+import { BlockInfo, BlockType } from '../../data/GameDefine';
 import { BlockCom, BLANK } from './BlockCom';
 import { BoardView } from '../view/BoardView';
 
@@ -13,19 +13,9 @@ export class NonetCom extends Component {
 
     boardView: BoardView = null;
     blockList: BlockCom[] = [];   // 块列表
-    layout: Layout = null;
 
-    protected onLoad(): void {
-        this.layout = this.getComponent(Layout);
-    }
-
-    public init(nonetId: number, board: string[][], boardView: BoardView): void {
-        this.boardView = boardView;
-        this.setNonet(nonetId, board);
-    }
-
-    /** 生成九宫格 (所有id从1开始; 所有index从0开始) */
-    public setNonet(nonetId: number, board: string[][]): void {
+    public init(nonetId: number, board: string[][], view: BoardView): void {
+        this.boardView = view;
         let index = 0;
         let nonIndex = nonetId - 1;
         let colIndex = nonIndex % 3 * 3;
@@ -60,8 +50,8 @@ export class NonetCom extends Component {
     /** 创建格子 (所有id从1开始; 所有index从0开始) */
     private createBlock(nonetId: number, info: BlockInfo, parent: Node): void {
         let node = instantiate(this.blockPrefab);
+        node.parent = parent;
         let item = node.getComponent(BlockCom);
-        node.setParent(parent);
         item.init(nonetId, info);
         this.blockList.push(item);
         this.boardView.addBlock(info.id, item);

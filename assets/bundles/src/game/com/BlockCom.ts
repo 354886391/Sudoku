@@ -2,7 +2,7 @@ import { _decorator, Color, Component, Label, Sprite } from 'cc';
 import { Eventer } from '../../../../script/framework/tool/Eventer';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
-import { BlockInfo, BlockType } from '../../data/GameData';
+import { BlockInfo, BlockType } from '../../data/GameDefine';
 import { GameEvents } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
@@ -26,17 +26,17 @@ export class BlockCom extends Component {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(nonetId: number, blockInfo: BlockInfo): void {
+    public init(nonetId: number, info: BlockInfo): void {
         this.nonetId = nonetId;
-        this.blockInfo = blockInfo;
-        this.setResult(blockInfo.type, blockInfo.result);
-        this.node.name = `${this.nonetId}-${blockInfo.id}`;
+        this.blockInfo = info;
+        this.setResult(info.type, info.result);
+        this.node.name = `${this.nonetId}-${info.id}`;
     }
 
-    public setBlock(nonetId: number, blockInfo: BlockInfo): void {
+    public setBlock(nonetId: number, info: BlockInfo): void {
         this.nonetId = nonetId;
-        this.blockInfo = blockInfo;
-        this.setResult(blockInfo.type, blockInfo.result);
+        this.blockInfo = info;
+        this.setResult(info.type, info.result);
     }
 
     public setResult(type: BlockType, value: string): void {

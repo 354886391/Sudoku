@@ -11,16 +11,6 @@ export enum BlockType {
     Candidate,
 }
 
-/** 方块信息 */
-export interface BlockInfo {
-    id: number;
-    row: number;
-    col: number;
-    type: BlockType;
-    result: string;
-    isSelect: boolean;
-}
-
 export interface Channel {
     openId: string,         //玩家渠道id
     name: string,           //玩家昵称
@@ -43,4 +33,29 @@ export class Frame {
 
     blockId?: number;
     optionId?: number;
+}
+
+/** 方块信息 */
+export interface BlockInfo {
+    id: number;
+    row: number;
+    col: number;
+    type: BlockType;
+    result: string;
+    isSelect: boolean;
+}
+
+export interface PlayerInfo {
+    pid?: string;
+    name?: string;
+    avatar?: string;
+    staticId?: number;
+}
+
+export interface HistoryInfo {
+    pid?: string;
+}
+
+export interface SettingInfo {
+    pid?: string;
 }
