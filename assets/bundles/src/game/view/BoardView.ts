@@ -12,8 +12,9 @@ export class BoardView extends Component {
     @property(Prefab)
     nonetPrefab: Prefab = null;
 
-    curClick: BlockCom = null;    // 点击的格子
-    nonetList: NonetCom[] = [];   // 九宫格列表
+    curClick: BlockCom = null;      // 点击的格子
+    blockList: BlockCom[] = [];     // 格子列表
+    nonetList: NonetCom[] = [];     // 九宫格列表
 
     public init(): void {
         this.setBoard(GameState.gridBoard);
@@ -39,7 +40,7 @@ export class BoardView extends Component {
         let node = instantiate(this.nonetPrefab);
         let nonet = node.getComponent(NonetCom);
         node.setParent(parent);
-        nonet.init(nonetId, board);
+        nonet.init(nonetId, board, this);
         this.nonetList.push(nonet);
     }
 
@@ -49,10 +50,10 @@ export class BoardView extends Component {
         let isSelect = !click.isSelect;
         this.setClickBlockColor(click, isSelect);
         if (isSelect) {
-            click.setValueColor(BlockColor.White);
+            click.setResultColor(BlockColor.White);
             click.setBlockColor(BlockColor.Blue);
         } else {
-            click.setValueColor(BlockColor.Black);
+            click.setResultColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
         }
         // 记录状态
@@ -82,14 +83,14 @@ export class BoardView extends Component {
             }
             this.grayCrossColor(click, block);
             this.grayNonetColor(click, block);
-            this.highlightBlockColor(click.value, block);
+            this.highlightBlockColor(click.result, block);
         }
     }
 
     /** highlight与click相同value的格子 */
     public highlightBlockColor(value: string, block: BlockCom): void {
-        if (value != BLANK && value == block.value) {
-            block.setValueColor(BlockColor.White);
+        if (value != BLANK && value == block.result) {
+            block.setResultColor(BlockColor.White);
             block.setBlockColor(BlockColor.Blue);
         }
     }
@@ -116,19 +117,6 @@ export class BoardView extends Component {
         }
     }
 
-    public setBlock(click: BlockCom, value: string) {
-        let row = click.row;
-        let col = click.col;
-        let solve = GameState.gridSolveBoard[row][col];
-        if (click.type != BlockType.Lock) {
-            if (solve == value) {
-                click.setValue(BlockType.Right, value);
-            } else {
-                click.setValue(BlockType.Fault, value);
-            }
-        }
-    }
-
     public checkWin(): boolean {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
@@ -147,17 +135,26 @@ export class BoardView extends Component {
         }
     }
 
+    public addBlock(blockId: number, block: BlockCom) {
+        this.blockList[blockId - 1] = block;
+    }
+
     public getBlock(blockId: number): BlockCom {
-        let nonetIndex = Math.floor((blockId - 1) / 9); // error
-        let blockIndex = (blockId - 1) % 9;
-        return this.nonetList[nonetIndex].blockList[blockIndex];
+        return this.blockList[blockId - 1];
+    }
+
+    public setBlock(click: BlockCom, result: string) {
+        let solve = GameState.gridSolveBoard[click.row][click.col];
+        if (click.type != BlockType.Lock) {
+            click.setResult(solve == result ? BlockType.Right : BlockType.Fault, result);
+        }
     }
 
     public get curBoard() {
         let board = "";
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            board += block.value;
+            board += block.result;
         }
         return board;
     }

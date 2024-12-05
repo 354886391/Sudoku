@@ -4,7 +4,6 @@ import { UIManager } from '../../../script/framework/ui/UIManager';
 import { OptionView } from '../game/view/OptionView';
 import { BoardView } from '../game/view/BoardView';
 import { Sudoku } from '../tool/Sudoku';
-import { StateMachine, EState } from '../game/StateMachine';
 import { DrawView } from '../game/view/DrawView';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvents } from '../data/GameEvent';
@@ -12,7 +11,6 @@ import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { GobeManager } from '../../../script/network/GobeManager';
-import { HintDialog } from './dialog/HintDialog';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { HintNotice } from './notice/HintNotice';
 import { BlockType, Frame } from '../data/GameData';
@@ -67,6 +65,9 @@ export class GamePanel extends UIView {
         }
         LogEX.warn("onBlockClick-->  frameInfo: ", frameInfo);
         GobeManager.instance.sendFrame(frameInfo);
+
+        let block2 = this.boardView.getBlock(block.id);
+        LogEX.warn("onBlockClick-->  block2: ", block2);
     }
 
     onOptionClick(option: OptionCom) {

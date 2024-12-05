@@ -10,7 +10,7 @@ export class OptionView extends Component {
     @property(Prefab)
     optionPrefab: Prefab = null;
 
-    curOption: OptionCom = null;
+    curClick: OptionCom = null;
     optionList: OptionCom[] = [];
 
     public init(): void {
@@ -29,13 +29,13 @@ export class OptionView extends Component {
             click.hasSelect = false;
             click.setValueColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
-            this.curOption = null;
+            this.curClick = null;
 
         } else {
             click.hasSelect = true;
             click.setValueColor(BlockColor.Gold);
             click.setBlockColor(BlockColor.Blue);
-            this.curOption = click;
+            this.curClick = click;
         }
     }
 

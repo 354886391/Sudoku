@@ -1,6 +1,7 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { BlockInfo, BlockType } from '../../data/GameData';
 import { BlockCom, BLANK } from './BlockCom';
+import { BoardView } from '../view/BoardView';
 
 const { ccclass, property } = _decorator;
 
@@ -10,6 +11,7 @@ export class NonetCom extends Component {
     @property(Prefab)
     blockPrefab: Prefab;
 
+    boardView: BoardView = null;
     blockList: BlockCom[] = [];   // 块列表
     layout: Layout = null;
 
@@ -17,7 +19,8 @@ export class NonetCom extends Component {
         this.layout = this.getComponent(Layout);
     }
 
-    public init(nonetId: number, board: string[][]): void {
+    public init(nonetId: number, board: string[][], boardView: BoardView): void {
+        this.boardView = boardView;
         this.setNonet(nonetId, board);
     }
 
@@ -30,39 +33,38 @@ export class NonetCom extends Component {
         for (let row = rowIndex; row < rowIndex + 3; row++) {
             for (let col = colIndex; col < colIndex + 3; col++) {
                 let id = row * 9 + col + 1;
-                let value = board[row][col];
-                let type = value == BLANK ? BlockType.Void : BlockType.Lock;
-                let blockInfo: BlockInfo = {
+                let result = board[row][col];
+                let type = result == BLANK ? BlockType.Void : BlockType.Lock;
+                let info: BlockInfo = {
                     id: id,
                     row: row,
                     col: col,
                     type: type,
-                    value: value,
+                    result: result,
                     isSelect: false,
                 }
                 if (this.blockList[index]) {
-                    this.setBlock(index, nonetId, blockInfo);
+                    this.setBlock(index, nonetId, info);
                 } else {
-                    this.createBlock(nonetId, blockInfo, this.node);
+                    this.createBlock(nonetId, info, this.node);
                 }
                 index++;
             }
         }
-        // 更新layout布局
-        // this.layout.updateLayout();
     }
 
-    private setBlock(index: number, nonetId: number, blockInfo: BlockInfo): void {
-        this.blockList[index].setBlock(nonetId, blockInfo);
+    private setBlock(index: number, nonetId: number, info: BlockInfo): void {
+        this.blockList[index].setBlock(nonetId, info);
     }
 
-    /** 创建块 (所有id从1开始; 所有index从0开始) */
-    private createBlock(nonetId: number, blockInfo: BlockInfo, parent: Node): void {
+    /** 创建格子 (所有id从1开始; 所有index从0开始) */
+    private createBlock(nonetId: number, info: BlockInfo, parent: Node): void {
         let node = instantiate(this.blockPrefab);
         let item = node.getComponent(BlockCom);
         node.setParent(parent);
-        item.init(nonetId, blockInfo);
+        item.init(nonetId, info);
         this.blockList.push(item);
+        this.boardView.addBlock(info.id, item);
     }
 }
 

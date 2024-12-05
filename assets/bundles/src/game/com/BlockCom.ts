@@ -29,19 +29,19 @@ export class BlockCom extends Component {
     public init(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
         this.blockInfo = blockInfo;
-        this.setValue(blockInfo.type, blockInfo.value);
+        this.setResult(blockInfo.type, blockInfo.result);
         this.node.name = `${this.nonetId}-${blockInfo.id}`;
     }
 
     public setBlock(nonetId: number, blockInfo: BlockInfo): void {
         this.nonetId = nonetId;
         this.blockInfo = blockInfo;
-        this.setValue(blockInfo.type, blockInfo.value);
+        this.setResult(blockInfo.type, blockInfo.result);
     }
 
-    public setValue(type: BlockType, value: string): void {
+    public setResult(type: BlockType, value: string): void {
         this.blockInfo.type = type;
-        this.blockInfo.value = value;
+        this.blockInfo.result = value;
         this.blockLbl.string = `${value}`;
     }
 
@@ -49,7 +49,7 @@ export class BlockCom extends Component {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
     }
     
-    public setValueColor(str: string): void {
+    public setResultColor(str: string): void {
         this.blockLbl.color = new Color().fromHEX(str);
     }
 
@@ -59,7 +59,7 @@ export class BlockCom extends Component {
 
     public reset(): void {
         this.blockInfo.isSelect = false;
-        this.setValueColor(BlockColor.Black);
+        this.setResultColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
     }
 
@@ -80,12 +80,12 @@ export class BlockCom extends Component {
         return this.blockInfo.col;
     }
 
-    get value() {
-        return this.blockInfo.value;
+    get result() {
+        return this.blockInfo.result;
     }
 
-    set value(value: string) {
-        this.blockInfo.value = value;
+    set result(value: string) {
+        this.blockInfo.result = value;
     }
 
     get isSelect() {

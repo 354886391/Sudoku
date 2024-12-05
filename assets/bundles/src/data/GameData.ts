@@ -1,4 +1,3 @@
-
 export enum BlockType {
     /** 空白 */
     Void = 0,
@@ -17,19 +16,9 @@ export interface BlockInfo {
     id: number;
     row: number;
     col: number;
-    value: string;
     type: BlockType;
+    result: string;
     isSelect: boolean;
-}
-
-/** 地图信息 */
-export interface BoardInfo {
-    /** 标识 */
-    id: number;
-    /** 等级 */
-    level: number;
-    /** 牌面 */
-    board: string;
 }
 
 export interface Channel {
