@@ -35,7 +35,7 @@ export class RewardPanel extends UIView {
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }else{
-            GobeManager.instance.leaveGame();
+            GobeManager.instance.finishGame();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }
@@ -50,7 +50,7 @@ export class RewardPanel extends UIView {
                 UIManager.instance.open(HintDialog, "房间匹配失败");
             });
         } else {
-            GobeManager.instance.createRoomAI(GameState.board, () => {
+            GobeManager.instance.createRoomAI(() => {
                 this.showReady();
             });
         }

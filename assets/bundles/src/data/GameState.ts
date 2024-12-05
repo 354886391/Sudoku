@@ -10,6 +10,7 @@ export class GameState {
     public static frameTime: number;        // 当前帧的时间
     public static remainTime: number;       // 剩余时间
 
+    private static _sudoku: Sudoku;
 
     private static _board: string;           // 牌面
     private static _solveBoard: string;
@@ -17,6 +18,10 @@ export class GameState {
 
     static get board() {
         return this._board;
+    }
+
+    static set board(board: string) {
+        this._board = board;
     }
 
     static get gridBoard() {
@@ -31,15 +36,17 @@ export class GameState {
         }
     }
 
-    static initBoard(difficulty: string | number, isInit: boolean = true) {
-        let sudoku = new Sudoku();
-        if (isInit) {
-            this._board = sudoku.generate(difficulty);
-        } else {
-            this._board = GobeManager.instance.board;
+    static getBoard(difficulty: string | number) {
+        if(this._sudoku == null){
+            this._sudoku = new Sudoku();
         }
-        this._solveBoard = sudoku.solve(this._board);
-        this._candidatesBoard = sudoku.get_candidates(this._board);
+        return this._sudoku.generate(difficulty);
+    }
+
+    static initBoard(board?: string) {
+        this._board = board;
+        this._solveBoard = this._sudoku.solve(this._board);
+        this._candidatesBoard = this._sudoku.get_candidates(this._board);
     }
 
     static convertGridBoard(board: string): string[][] {

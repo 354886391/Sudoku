@@ -67,7 +67,7 @@ export class GameManager extends Component {
         GameState.frameId = 0;
         GameState.players = this.initPlayer();
         GameState.frameTime = Date.now();
-        GameState.initBoard("easy", true);
+
         this._frameIndex = 0;
     }
 
@@ -108,30 +108,21 @@ export class GameManager extends Component {
 
     onGameReadyGo() {
         Log.d("onGameReadyGo");
-        this.checkIsReCovery();
+        // this.checkIsReCovery();
+        this.initGameState();
+        this.onGetRoomInfo();
         UIManager.instance.open(ReadyGoPanel, () => {
-            this.initGameState();
-            this.onGetRoomInfo();
-            this.showGameBoard();
-            UIManager.instance.close(ReadyGoPanel);
+            GameState.initBoard("easy");
             GobeManager.instance.startGame();
+            UIManager.instance.close(ReadyGoPanel);
         });
-    }
-
-    /** 检测是否断线重连 */
-    public checkIsReCovery() {
-        if (GobeManager.instance.isJoinDis) {
-            LogEX.warn("checkIsReCovery-->  isJoinDis: ", GobeManager.instance.isJoinDis);
-            this.handleAction(() => {
-                this.updateRecoveryState();
-            });
-        }
     }
 
     onGameStart() {
         Log.d("onGameStart");
         GameState.isGaming = true;
         this._startGameTime = GobeManager.instance.time;
+        this.showGameBoard();
     }
 
     onGameEnd() {
@@ -210,6 +201,16 @@ export class GameManager extends Component {
 
     checkPlayerReward() {
 
+    }
+
+    /** 检测是否断线重连 */
+    public checkIsReCovery() {
+        if (GobeManager.instance.isJoinDis) {
+            LogEX.warn("checkIsReCovery-->  isJoinDis: ", GobeManager.instance.isJoinDis);
+            this.handleAction(() => {
+                this.updateRecoveryState();
+            });
+        }
     }
 
 }

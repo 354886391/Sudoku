@@ -22,7 +22,7 @@ export class SelectPanel extends UIView {
 
     public init(): void {
         Log.w("SelectPanel init");
-        
+
         this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);   // 人机
         this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);       // 创建
         this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);         // 匹配
@@ -32,7 +32,7 @@ export class SelectPanel extends UIView {
     public onCreateRoomAIClick(): void {
         Log.d("SelectPanel--> onCreateRoomAIClick");
         UIManager.instance.open(LoadNotice);
-        GobeManager.instance.createRoomAI(GameState.board,() => {
+        GobeManager.instance.createRoomAI(() => {
             this.showReady();
         });
     }
@@ -41,7 +41,7 @@ export class SelectPanel extends UIView {
     public onCreateRoomClick(): void {
         Log.d("SelectPanel--> onCreateRoomClick");
         UIManager.instance.open(LoadNotice);
-        GobeManager.instance.createRoom(GameState.board, () => {
+        GobeManager.instance.createRoom(() => {
             this.showReady();
         }, () => {
             UIManager.instance.open(HintDialog, "房间创建失败");
