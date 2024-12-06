@@ -1,15 +1,12 @@
 import { Asset, EmptyDevice, resources, sys } from "cc";
-import { FrameInfo, GOBEError, PlayerInfo, Room } from "../libs/GOBE";
+import { FrameInfo, PlayerInfo, Room } from "../libs/GOBE";
 import { Eventer } from "../framework/tool/Eventer";
 import { Singleton } from "../framework/util/Singleton";
 import { GobeEvents } from "./GobeEvents";
 import { Global } from "../Global";
 import { PlayerData } from "../../bundles/src/data/PlayerData";
 import { Util } from "../framework/util/Util";
-import { GameManager } from "../../bundles/src/game/GameManager";
 import { GameState } from "../../bundles/src/data/GameState";
-import { UIManager } from "../framework/ui/UIManager";
-import { SelectPanel } from "../../bundles/src/panel/SelectPanel";
 
 export enum ROOM_TYPE {
     NONE = "none",
@@ -77,22 +74,28 @@ export class GobeManager extends Singleton<GobeManager>() {
     private _cacertNativeUrl: string = "";
 
     public get room() {
-        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
+        if (this.isNetwork) {
+            return this._room;
+        } else {
             return this._roomAlone;
         }
-        return this._room;
     }
 
     /** 房间内的玩家列表 */
     public get roomPlayers(): PlayerInfo[] {
-        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
+        if (this.isNetwork) {
+            if (this._room) {
+                return this._room.players;
+            } else {
+                return [];
+            }
+        } else {
             return this._roomAlone.players;
         }
-        if (this._room) {
-            return this._room.players;
-        } else {
-            return [];
-        }
+    }
+
+    public get isNetwork() {
+        return this._wifiType == WIFI_TYPE.WIFI;
     }
 
     /** 准备过程中掉线 */
@@ -110,18 +113,15 @@ export class GobeManager extends Singleton<GobeManager>() {
     }
 
     public get time(): number {
-        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
+        if (this.isNetwork) {
+            return this._time;
+        } else {
             return new Date().getTime();
         }
-        return this._time;
     }
 
     public get currFrame(): number {
         return this._currFrame;
-    }
-
-    public get wifiType() {
-        return this._wifiType;
     }
 
     private _board: string;
@@ -166,16 +166,16 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 发送帧数据 */
     public sendFrame(info: any) {
-        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
-            this._recvMap[++this._currFrame] = {
-                playerId: this.playerId,
-                data: [JSON.stringify(info)],
-                timestamp: 0
-            }
-        } else {
+        if (this.isNetwork) {
             if (!this._room) return;
             LogEX.info("sendFrame: ", info);
             this._room.sendFrame(JSON.stringify(info));
+        } else {
+            this.recvMap.set(++this._currFrame, [{
+                playerId: this.playerId,
+                data: [JSON.stringify(info)],
+                timestamp: 0
+            }]);
         }
     }
 
@@ -650,15 +650,13 @@ export class GobeManager extends Singleton<GobeManager>() {
             this._isJoinDis = false;
             Eventer.emit(GobeEvents.ON_GAME_START);
         } else {
-            if (this._wifiType == WIFI_TYPE.WIFI) {
-                if (this._room) {
-                    LogEX.warn("startGame-->  sendToServer: ", Global.START_GAME);
-                    this._room.sendToServer(JSON.stringify({ msg: Global.START_GAME, playerId: this.playerId }));   // todo: 
-                }
+            if (this.isNetwork) {
+                LogEX.warn("startGame-->  sendToServer: ", Global.START_GAME);
+                this._room.sendToServer(JSON.stringify({ msg: Global.START_GAME, playerId: this.playerId }));   // todo: 
             } else {
-                this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.START, time: new Date().getTime() });    // todo:
                 this.roomType = ROOM_TYPE.START;
                 this._time = new Date().getTime();
+                this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.START, time: new Date().getTime() });    // todo:
                 // 游戏开始
                 GameState.handleBoard(GameState.createBoard(true));
                 Eventer.emit(GobeEvents.ON_GAME_START);
@@ -682,13 +680,8 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 结束游戏 */
     public finishGame() {
-        if (this._wifiType == WIFI_TYPE.STAND_ALONE) {
-            this._isStartFrameSync = false;
-            this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.END, time: this._time });
-            Eventer.emit(GobeEvents.ON_GAME_END);
-        } else {
-            // // 房主是自己或(玩家不是房主)
-            if (this._room && this.isRoomOwner() || (!this._isRoomOwnIn && !this.isRoomOwner())) {
+        if (this.isNetwork) {
+            if (this._room && this.isRoomOwner() || !(this._isRoomOwnIn && this.isRoomOwner())) {
                 if (this._isStartFrameSync) {
                     this._isStartFrameSync = false;
                     LogEX.log("finishGame-->  stopFrameSync");
@@ -700,6 +693,10 @@ export class GobeManager extends Singleton<GobeManager>() {
                     Eventer.emit(GobeEvents.ON_GAME_END);
                 }
             }
+        } else {
+            this._isStartFrameSync = false;
+            this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.END, time: this._time });
+            Eventer.emit(GobeEvents.ON_GAME_END);
         }
     }
 

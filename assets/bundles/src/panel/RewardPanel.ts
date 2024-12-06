@@ -30,7 +30,7 @@ export class RewardPanel extends UIView {
     }
 
     public onLeaveClick(): void {
-        if (GobeManager.instance.wifiType == WIFI_TYPE.WIFI) {
+        if (GobeManager.instance.isNetwork) {
             GameManager.instance.reset();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
@@ -43,7 +43,7 @@ export class RewardPanel extends UIView {
 
     public onAgainClick(): void {
         UIManager.instance.open(LoadNotice);
-        if (GobeManager.instance.wifiType == WIFI_TYPE.WIFI) {
+        if (GobeManager.instance.isNetwork) {
             GobeManager.instance.matchRoom(() => {
                 this.showReady();
             }, () => {

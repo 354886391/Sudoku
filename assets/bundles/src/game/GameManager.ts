@@ -70,9 +70,9 @@ export class GameManager extends Component {
 
     /** 设置房间信息 */
     private initRoomInfo() {
-        this.roomPlayers.forEach((value: PlayerInfo, index: number) => {
+        this.roomPlayers.forEach((value: PlayerInfo) => {
             let pIndex = GobeManager.instance.isRoomOwnerBy(value.playerId) ? 0 : 1;
-            let player: Player = this.statePlayers[pIndex];
+            let player = this.statePlayers[pIndex];
             player.channel.openId = value.playerId;
             player.channel.name = value.customPlayerProperties as string;
             player.channel.state = value.customPlayerStatus as number;
@@ -152,18 +152,18 @@ export class GameManager extends Component {
         for (let i = 0; i < frames.length; i++) {
             let frameInfo = frames[i];
             let playerId = frameInfo.playerId;
-            let result = GameState.players.filter((player: Player) => {
-                return player.channel && player.channel.openId === playerId;
-            });
-            if (!result.length) return;
+            if (GobeManager.instance.isNetwork) {
+                let result = GameState.players.filter(player => {
+                    return player.channel && player.channel.openId === playerId;
+                });
+                if (!result.length) return;
+            }
             let frame = JSON.parse(frameInfo.data[0]) as Frame;
             if (frame) {
                 Eventer.emit(GameEvents.ON_FRAME_REC, playerId, frame);
             }
         }
-        if (callback) {
-            callback();
-        }
+        callback && callback();
         this.handleAction(callback);
     }
 
