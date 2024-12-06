@@ -40,8 +40,30 @@ export class BoardView extends Component {
         this.nonetList.push(nonet);
     }
 
-    /** highlight点击的格子 */
-    public highlightClickColor(click: BlockCom) {
+    /** 设置格子颜色 */
+    public setBlockColor(block: BlockCom, blockColor: BlockColor): void {
+        block.setBlockColor(blockColor);
+    }
+
+    /** gray cross and nonet.
+     *  highlight the same value in board.
+     */
+    public setClickBlockColor(click: BlockCom, isSelect: boolean) {
+        for (let i = 1; i <= 81; i++) {
+            let block = this.getBlock(i);
+            // 重置所有格
+            block.reset();
+            if (click == this.curClick && !isSelect) {
+                continue;
+            }
+            this.grayCrossColor(click, block);
+            this.grayNonetColor(click, block);
+            this.setBlockResultColor(click.result, block);
+        }
+    }
+
+    /** 设置点击的格子颜色 */
+    public highlightClickBlockColor(click: BlockCom) {
         Log.d(`ClickView::onClickBlock, id: ${click.id} row:${click.row} col:${click.col}`);
         let isSelect = !click.isSelect;
         this.setClickBlockColor(click, isSelect);
@@ -58,42 +80,20 @@ export class BoardView extends Component {
     }
 
     /** highlight与click相同value的[所有]格子 */
-    public highlightClickColor_all(value: string) {
+    public highlightBlockResultColor(value: string) {
         console.log("ClickView::onSelectBlock", value);
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            this.highlightBlockColor(value, block);
-        }
-    }
-
-    /** gray cross and nonet.
-     *  highlight the same value in board.
-     */
-    public setClickBlockColor(click: BlockCom, isSelect: boolean) {
-        for (let i = 1; i <= 81; i++) {
-            let block = this.getBlock(i);
-            // 重置所有格
-            block.reset();
-            if (click == this.curClick && !isSelect) {
-                continue;
-            }
-            this.grayCrossColor(click, block);
-            this.grayNonetColor(click, block);
-            this.highlightBlockColor(click.result, block);
+            this.setBlockResultColor(value, block);
         }
     }
 
     /** highlight与click相同value的格子 */
-    public highlightBlockColor(value: string, block: BlockCom): void {
+    public setBlockResultColor(value: string, block: BlockCom): void {
         if (value != BLANK && value == block.result) {
             block.setResultColor(BlockColor.White);
             block.setBlockColor(BlockColor.Blue);
         }
-    }
-
-    /**  */
-    public highlightBlockColor2(block: BlockCom): void {
-        block.setBlockColor(BlockColor.Gold);
     }
 
     /** gray所在的十字格 */

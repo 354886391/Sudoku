@@ -8,9 +8,11 @@ import { GobeManager, ROOM_TYPE } from '../../../script/network/GobeManager';
 import { GameEvents } from '../data/GameEvent';
 import { ReadyGoPanel } from '../panel/ReadyGoPanel';
 import { RewardPanel } from '../panel/RewardPanel';
-import { Channel, Frame, Player } from '../data/GameDefine';
+import { Frame, Player } from '../data/GameDefine';
 import { GameState } from '../data/GameState';
 import { GamePanel } from '../panel/GamePanel';
+import { SelectPanel } from '../panel/SelectPanel';
+import { ReadyPanel } from '../panel/ReadyPanel';
 
 const { ccclass, property } = _decorator;
 
@@ -18,8 +20,6 @@ const { ccclass, property } = _decorator;
 export class GameManager extends Component {
 
     _frameIndex: number = 0;
-    _startGameTime: number = 0;
-
     _gamePanel: GamePanel = null;
 
     static _instance: GameManager;
@@ -55,44 +55,23 @@ export class GameManager extends Component {
         Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
-    reset() {
-        this.initGameState();
+    protected start(): void {
+        GameState.init();
         this._gamePanel.initGame();
-        this.showGameBoard();
-    }
-
-    /** 设置初始信息 */
-    private initGameState() {
-        GameState.isGaming = false;
-        GameState.frameId = 0;
-        GameState.players = this.initPlayer();
-        GameState.frameTime = Date.now();
-
         this._frameIndex = 0;
     }
 
-    showGameBoard() {
+    public reset() {
+        GameState.init();
+        this._gamePanel.initGame();
         this._gamePanel.initBoard();
+        this._frameIndex = 0;
     }
 
-    private initPlayer() {
-        let players: Player[] = [];
-        for (let i: number = 0; i < Global.MAX_PLAYER; i++) {
-            let player: Player = {
-                id: i,
-                score: 0,
-                isLead: false,
-                channel: {} as Channel,
-            };
-            players.push(player);
-        }
-        return players;
-    }
-
-    /** 收到房间信息 */
-    private onGetRoomInfo() {
+    /** 设置房间信息 */
+    private initRoomInfo() {
         this.roomPlayers.forEach((value: PlayerInfo, index: number) => {
-            let pIndex = GobeManager.instance.checkIsRoomOwner(value.playerId) ? 0 : 1;
+            let pIndex = GobeManager.instance.isRoomOwnerBy(value.playerId) ? 0 : 1;
             let player: Player = this.statePlayers[pIndex];
             player.channel.openId = value.playerId;
             player.channel.name = value.customPlayerProperties as string;
@@ -109,10 +88,8 @@ export class GameManager extends Component {
     onGameReadyGo() {
         Log.d("onGameReadyGo");
         // this.checkIsReCovery();
-        this.initGameState();
-        this.onGetRoomInfo();
+        this.initRoomInfo();
         UIManager.instance.open(ReadyGoPanel, () => {
-            GameState.initBoard("easy");
             GobeManager.instance.startGame();
             UIManager.instance.close(ReadyGoPanel);
         });
@@ -121,8 +98,13 @@ export class GameManager extends Component {
     onGameStart() {
         Log.d("onGameStart");
         GameState.isGaming = true;
-        this._startGameTime = GobeManager.instance.time;
-        this.showGameBoard();
+        GameState.startTime = GobeManager.instance.time;
+
+        this._gamePanel.initBoard();
+
+        UIManager.instance.close(ReadyPanel);
+        UIManager.instance.close(ReadyGoPanel);
+        UIManager.instance.close(SelectPanel);
     }
 
     onGameEnd() {
@@ -143,7 +125,7 @@ export class GameManager extends Component {
         this.handleAction();
 
         let frameTime: number = GobeManager.instance.time + GobeManager.instance.serverTimeDis;
-        GameState.remainTime = Math.floor(Global.GAME_TIME - (frameTime - this._startGameTime) / 1000);
+        GameState.remainTime = Math.floor(Global.GAME_TIME - (frameTime - GameState.startTime) / 1000);
         if (GameState.remainTime <= 0) {
             GameState.isGaming = false;
             GobeManager.instance.finishGame();

@@ -1,20 +1,21 @@
-import { GobeManager } from "../../../script/network/GobeManager";
+import { Global } from "../../../script/Global";
 import { Sudoku } from "../tool/Sudoku";
-import { Player } from "./GameDefine";
+import { Channel, Player } from "./GameDefine";
 
 export class GameState {
-    public static isGaming: boolean;
+
     public static players: Player[];        // 玩家信息
-
-    public static frameId: number;          // 逻辑帧标示符
-    public static frameTime: number;        // 当前帧的时间
-    public static remainTime: number;       // 剩余时间
-
+    public static isGaming: boolean;
+    // board
     private static _sudoku: Sudoku;
-
-    private static _board: string;           // 牌面
+    private static _board: string;
     private static _solveBoard: string;
     private static _candidatesBoard: string[][];
+    // frame
+    public static frameId: number;          // 逻辑帧标示符
+    public static frameTime: number;        // 当前帧的时间
+    public static startTime: number;        // 游戏开始时间
+    public static remainTime: number;       // 剩余时间
 
     static get board() {
         return this._board;
@@ -36,14 +37,37 @@ export class GameState {
         }
     }
 
-    static getBoard(difficulty: string | number) {
-        if(this._sudoku == null){
-            this._sudoku = new Sudoku();
+    /** 设置初始信息 */
+    public static init() {
+        let initPlayers = () => {
+            let players: Player[] = [];
+            for (let i: number = 0; i < Global.MAX_PLAYER; i++) {
+                let player: Player = {
+                    id: i,
+                    score: 0,
+                    isLead: false,
+                    channel: {} as Channel,
+                };
+                players.push(player);
+            }
+            return players;
         }
-        return this._sudoku.generate(difficulty);
+        GameState.isGaming = false;
+        GameState.frameId = 0;
+        GameState.players = initPlayers();
+        GameState.frameTime = Date.now();
     }
 
-    static initBoard(board?: string) {
+    /** 生成牌面 */
+    static createBoard(create: boolean, difficulty: string | number = "easy") {
+        if (this._sudoku == null) {
+            this._sudoku = new Sudoku();
+        }
+        return create ? this._sudoku.generate(difficulty) : null;
+    }
+
+    /** 处理牌面 */
+    static handleBoard(board?: string) {
         this._board = board;
         this._solveBoard = this._sudoku.solve(this._board);
         this._candidatesBoard = this._sudoku.get_candidates(this._board);

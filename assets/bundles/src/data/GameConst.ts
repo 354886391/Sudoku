@@ -1,7 +1,7 @@
 export enum BlockColor {
     Red = "#FF6A6A",
-    Gold = "#FFD700",
     Blue = "#3399FF",
+    Gold = "#FFD700",
     Gray = "#E8E8E8",
     White = "#FFFFFF",
     Black = "#000000"

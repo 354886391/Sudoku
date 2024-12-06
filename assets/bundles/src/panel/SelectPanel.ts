@@ -31,9 +31,8 @@ export class SelectPanel extends UIView {
     /** 创建人机房间 */
     public onCreateRoomAIClick(): void {
         Log.d("SelectPanel--> onCreateRoomAIClick");
-        UIManager.instance.open(LoadNotice);
         GobeManager.instance.createRoomAI(() => {
-            this.showReady();
+            GobeManager.instance.startGame();
         });
     }
 
@@ -57,8 +56,6 @@ export class SelectPanel extends UIView {
         }, () => {
             UIManager.instance.open(HintDialog, "房间匹配失败");
         });
-
-        Log
     }
 
     showReady() {
