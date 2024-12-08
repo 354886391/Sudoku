@@ -1,7 +1,6 @@
 import { _decorator, Node, Component, Animation, Label, Sprite, SpriteFrame, find } from "cc";
 import { UIManager } from "../../../script/framework/ui/UIManager";
 import { UIView } from "../../../script/framework/ui/UIView";
-import { GobeManager } from "../../../script/network/GobeManager";
 import { Global } from "../../../script/Global";
 import { Eventer } from "../../../script/framework/tool/Eventer";
 import { GobeEvents } from "../../../script/network/GobeEvents";
@@ -9,6 +8,7 @@ import { HintNotice } from "./notice/HintNotice";
 import { GameEvents } from "../data/GameEvent";
 import { UIButton } from "../../../script/framework/ui/group/UIButton";
 import { SelectPanel } from "./SelectPanel";
+import { NetworkManager } from "../network/NetworkManager";
 
 const { ccclass, property } = _decorator;
 
@@ -47,7 +47,7 @@ export class ReadyPanel extends UIView {
         this.readyAnim.node.active = false;
         this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
         Eventer.on(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom, this);
-        this.txtNum.string = "房间号：" + GobeManager.instance.room.roomCode;
+        this.txtNum.string = "房间号：" + NetworkManager.instance.roomCode;
         let count: number = this.playerHeadList.length;
         for (let i = 0; i < count; i++) {
             this.showReadyPlayer(i, false);
@@ -68,7 +68,7 @@ export class ReadyPanel extends UIView {
     }
 
     updateShowPlayer(playerId?: string) {
-        let roomPlayers = GobeManager.instance.roomPlayers;
+        let roomPlayers = NetworkManager.instance.roomPlayers;
         for (let i = 0; i < roomPlayers.length; i++) {
             let player = roomPlayers[i];
             if (playerId && playerId != "") {
@@ -94,7 +94,7 @@ export class ReadyPanel extends UIView {
 
     checkStart() {
         if (!this.isShowVs) return;
-        let roomPlayers = GobeManager.instance.roomPlayers;
+        let roomPlayers = NetworkManager.instance.roomPlayers;
         if (roomPlayers.length >= Global.MAX_PLAYER) {
             this.vsAnim.node.active = true;
             this.vsAnim.play();
@@ -106,11 +106,9 @@ export class ReadyPanel extends UIView {
     }
 
     public onCloseClick(): void {
-        GobeManager.instance.leaveRoom(() => {
+        NetworkManager.instance.leaveRoom(() => {
             UIManager.instance.open(HintNotice, "退出房间");
             UIManager.instance.open(SelectPanel);
-        }, () => {
-            UIManager.instance.open(HintNotice, "退出房间失败");
         });
         this.callback && this.callback();
         UIManager.instance.close(ReadyPanel);

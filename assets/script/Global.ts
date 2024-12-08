@@ -27,7 +27,8 @@ export class Global {
     public static ownSteps: number;
     public static ownDices: number[];
 
-    public static CLIENT_ID: string = '1247079560185433024'; // 需要手动修改
-    public static CLIENT_SECRET: string = 'C7731F7C3530A0B355550A8339841584B4172B75F536BADEFA7ED7C3F72BF67E'; // 需要手动修改
-    public static APP_ID: string = '172249065902717087'; // 需要手动修改
+    public static GAME_ID: number = 1;
+    public static CLIENT_ID: string = '1571149523537916544'; // 需要手动修改
+    public static CLIENT_SECRET: string = '1D058E6347CF2804A0D3B59B50F9AA8A570ACAF143166C70808D385319D11A88'; // 需要手动修改
+    public static APP_ID: string = '245150415728055539'; // 需要手动修改
 }

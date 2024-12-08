@@ -8,10 +8,9 @@ import { GamePanel } from "./panel/GamePanel";
 import { PlayerData } from "./data/PlayerData";
 import { Util } from "../../script/framework/util/Util";
 import { ResourceManager } from "../../script/framework/resources/ResourceManager";
-import { GobeManager } from "../../script/network/GobeManager";
 import { SelectPanel } from "./panel/SelectPanel";
 import { HintDialog } from "./panel/dialog/HintDialog";
-import { GameState } from "./data/GameState";
+import { NetworkManager } from "./network/NetworkManager";
 
 export class GameEntry extends Entry {
 
@@ -62,7 +61,7 @@ export class GameEntry extends Entry {
         LogEX.level = 1;
         LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
         let playerId = PlayerData.instance.playerInfo.pid;
-        GobeManager.instance.initSDK(playerId, (successInit: boolean) => {
+        NetworkManager.instance.initSDK(playerId, (successInit: boolean) => {
             if (successInit) {
                 // 登录成功
                 UIManager.instance.open(SelectPanel);

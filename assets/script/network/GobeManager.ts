@@ -20,10 +20,18 @@ export enum WIFI_TYPE {
     WIFI = "wifi", // 联网模式
 }
 
-export interface CustomRoomInfo {
+export interface CustomServerMsg {
+    status?: string,
+    playerId?: string,
+    gameBoard?: string,
+    time?: number,
+}
+
+export interface CustomRoomProp {
+    curFrameId?: number;
     type: ROOM_TYPE;
-    time: number;
     board?: string;
+    time: number;
     serverTimeDis?: number;
 }
 
@@ -256,7 +264,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                     LogEX.info("initGobe-->  lastRoomId: ", this.lastRoomId);
                     // 加入房间
                     this.joinRoom(this.lastRoomId, () => {
-                        let info = JSON.parse(this._room.customRoomProperties) as CustomRoomInfo;
+                        let info = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
                         LogEX.info("initGobe-->  customRoomProperties: ", info);
                         // 游戏未开始或游戏已结束, 退出房间
                         if (info.type == ROOM_TYPE.READY || info.type == ROOM_TYPE.END) {
@@ -475,7 +483,7 @@ export class GobeManager extends Singleton<GobeManager>() {
         // 加入房间
         this._room.onJoin(player => {
             // 加入房间成功, 做相关游戏逻辑处理
-            LogEX.info(`enabledEventRoom-->  onJoin: ownerId: ${this._room.ownerId}", playerId: "${player.playerId}`);
+            LogEX.info(`enabledEventRoom-->  onJoin: roomOwnerId: ${this._room.ownerId}", playerId: "${player.playerId}`);
             if (this.isRoomOwnerBy(player.playerId)) {
                 // 房主加入房间
                 this._isRoomOwnIn = true;
@@ -489,7 +497,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 }
             }
             if (this._room && this.isOwnPlayer(player.playerId) && this._room.customRoomProperties) {
-                let info = JSON.parse(this._room.customRoomProperties) as CustomRoomInfo;
+                let info = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
                 this.roomType = info.type;
                 this._time = info.time;
             }
@@ -568,7 +576,7 @@ export class GobeManager extends Singleton<GobeManager>() {
 
         this._room.onRoomPropertiesChange(roomInfo => {
             LogEX.info("enabledEventRoom-->  onRoomPropertiesChange: ", roomInfo.customRoomProperties);
-            let info = JSON.parse(roomInfo.customRoomProperties) as CustomRoomInfo;
+            let info = JSON.parse(roomInfo.customRoomProperties) as CustomRoomProp;
             this._time = info.time;
             this.roomType = info.type;
             if (this.roomType == ROOM_TYPE.START) {
@@ -576,7 +584,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 if (info && info.board) {
                     GameState.handleBoard(info.board);
                 } else {
-                    GameState.handleBoard(GameState.createBoard(true));
+                    GameState.handleBoard(GameState.createBoard());
                 }
                 Eventer.emit(GobeEvents.ON_GAME_START);
             } else if (this.roomType == ROOM_TYPE.END) {
@@ -614,7 +622,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 } else if (info["msg"] == Global.START_GAME_TIME) {
                     this._serverTimeDis = info["time"] - new Date().getTime();
                     let owner = this.isRoomOwner();
-                    let board = GameState.createBoard(owner);    // 生成牌面
+                    let board = GameState.createBoard();    // 生成牌面
                     if (owner) {
                         this._room.startFrameSync();
                         this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ type: ROOM_TYPE.START, time: info["time"], board: board, serverTimeDis: this._serverTimeDis }) });
@@ -658,7 +666,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 this._time = new Date().getTime();
                 this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.START, time: new Date().getTime() });    // todo:
                 // 游戏开始
-                GameState.handleBoard(GameState.createBoard(true));
+                GameState.handleBoard(GameState.createBoard());
                 Eventer.emit(GobeEvents.ON_GAME_START);
             }
         }

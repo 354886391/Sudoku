@@ -4,7 +4,6 @@ import { UIManager } from '../../../script/framework/ui/UIManager';
 import { Global } from '../../../script/Global';
 import { FrameInfo, PlayerInfo } from '../../../script/libs/GOBE';
 import { GobeEvents } from '../../../script/network/GobeEvents';
-import { GobeManager, ROOM_TYPE } from '../../../script/network/GobeManager';
 import { GameEvents } from '../data/GameEvent';
 import { ReadyGoPanel } from '../panel/ReadyGoPanel';
 import { RewardPanel } from '../panel/RewardPanel';
@@ -13,6 +12,8 @@ import { GameState } from '../data/GameState';
 import { GamePanel } from '../panel/GamePanel';
 import { SelectPanel } from '../panel/SelectPanel';
 import { ReadyPanel } from '../panel/ReadyPanel';
+import { NetworkManager } from '../network/NetworkManager';
+import { ROOM_TYPE } from '../../../script/network/GobeManager';
 
 const { ccclass, property } = _decorator;
 
@@ -25,7 +26,7 @@ export class GameManager extends Component {
     static _instance: GameManager;
 
     get roomPlayers() {
-        return GobeManager.instance.roomPlayers;
+        return NetworkManager.instance.roomPlayers;
     }
 
     get statePlayers() {
@@ -58,7 +59,6 @@ export class GameManager extends Component {
     protected start(): void {
         GameState.init();
         this._gamePanel.initGame();
-        this._frameIndex = 0;
     }
 
     public reset() {
@@ -71,7 +71,7 @@ export class GameManager extends Component {
     /** 设置房间信息 */
     private initRoomInfo() {
         this.roomPlayers.forEach((value: PlayerInfo) => {
-            let pIndex = GobeManager.instance.isRoomOwnerBy(value.playerId) ? 0 : 1;
+            let pIndex = NetworkManager.instance.isRoomOwnerBy(value.playerId) ? 0 : 1;
             let player = this.statePlayers[pIndex];
             player.channel.openId = value.playerId;
             player.channel.name = value.customPlayerProperties as string;
@@ -90,7 +90,7 @@ export class GameManager extends Component {
         // this.checkIsReCovery();
         this.initRoomInfo();
         UIManager.instance.open(ReadyGoPanel, () => {
-            GobeManager.instance.startGame();
+            NetworkManager.instance.startGame();
             UIManager.instance.close(ReadyGoPanel);
         });
     }
@@ -98,9 +98,9 @@ export class GameManager extends Component {
     onGameStart() {
         Log.d("onGameStart");
         GameState.isGaming = true;
-        GameState.startTime = GobeManager.instance.time;
-
+        GameState.startTime = NetworkManager.instance.time;
         this._gamePanel.initBoard();
+        this._frameIndex = 0;
 
         UIManager.instance.close(ReadyPanel);
         UIManager.instance.close(ReadyGoPanel);
@@ -119,16 +119,15 @@ export class GameManager extends Component {
     }
 
     protected lateUpdate(dt: number): void {
-        if (GobeManager.instance.room && GobeManager.instance.roomType != ROOM_TYPE.START || !GameState.isGaming) {
+        if (!GameState.isGaming) {
             return;
         }
         this.handleAction();
-
-        let frameTime: number = GobeManager.instance.time + GobeManager.instance.serverTimeDis;
+        let frameTime: number = NetworkManager.instance.time + NetworkManager.instance.serverTimeDis;
         GameState.remainTime = Math.floor(Global.GAME_TIME - (frameTime - GameState.startTime) / 1000);
         if (GameState.remainTime <= 0) {
             GameState.isGaming = false;
-            GobeManager.instance.finishGame();
+            NetworkManager.instance.finishGame();
         }
         this.updateOwnState(dt);
         this.updateOtherState(dt);
@@ -138,12 +137,12 @@ export class GameManager extends Component {
 
     /** 处理玩家操作 */
     handleAction(callback?: Function) {
-        if (this._frameIndex > GobeManager.instance.currFrame) {
+        if (this._frameIndex > NetworkManager.instance.currFrame) {
             return;
         }
         let frames: FrameInfo[] = [];
-        if (GobeManager.instance.recvMap.has(this._frameIndex)) {
-            frames = GobeManager.instance.recvMap.get(this._frameIndex);
+        if (NetworkManager.instance.recvMap.has(this._frameIndex)) {
+            frames = NetworkManager.instance.recvMap.get(this._frameIndex);
             this._frameIndex++;
         } else {
             this._frameIndex++;
@@ -152,7 +151,7 @@ export class GameManager extends Component {
         for (let i = 0; i < frames.length; i++) {
             let frameInfo = frames[i];
             let playerId = frameInfo.playerId;
-            if (GobeManager.instance.isNetwork) {
+            if (NetworkManager.instance.isNetwork) {
                 let result = GameState.players.filter(player => {
                     return player.channel && player.channel.openId === playerId;
                 });
@@ -187,12 +186,12 @@ export class GameManager extends Component {
 
     /** 检测是否断线重连 */
     public checkIsReCovery() {
-        if (GobeManager.instance.isJoinDis) {
-            LogEX.warn("checkIsReCovery-->  isJoinDis: ", GobeManager.instance.isJoinDis);
-            this.handleAction(() => {
-                this.updateRecoveryState();
-            });
-        }
+        // if (NetworkManager.instance.isJoinDis) {
+        //     LogEX.warn("checkIsReCovery-->  isJoinDis: ", NetworkManager.instance.isJoinDis);
+        //     this.handleAction(() => {
+        //         this.updateRecoveryState();
+        //     });
+        // }
     }
 
 }

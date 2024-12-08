@@ -11,6 +11,13 @@ export enum BlockType {
     Candidate,
 }
 
+export enum LoginType {
+    /** 游客 */
+    Guest,
+    /**账号 */
+    Account,
+}
+
 export interface Channel {
     openId: string,         //玩家渠道id
     name: string,           //玩家昵称

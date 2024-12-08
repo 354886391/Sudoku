@@ -59,11 +59,11 @@ export class GameState {
     }
 
     /** 生成牌面 */
-    static createBoard(create: boolean, difficulty: string | number = "easy") {
-        if (this._sudoku == null) {
+    static createBoard(difficulty: string | number = "easy") {
+        if (!this._sudoku) {
             this._sudoku = new Sudoku();
         }
-        return create ? this._sudoku.generate(difficulty) : null;
+        return this._sudoku.generate(difficulty);
     }
 
     /** 处理牌面 */

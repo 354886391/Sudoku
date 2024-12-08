@@ -1,13 +1,11 @@
 import { _decorator, Node, Component, Animation } from "cc";
 import { UIManager } from "../../../script/framework/ui/UIManager";
 import { UIView } from "../../../script/framework/ui/UIView";
-import { GobeManager, WIFI_TYPE } from "../../../script/network/GobeManager";
-import { HintDialog } from "./dialog/HintDialog";
 import { ReadyPanel } from "./ReadyPanel";
 import { LoadNotice } from "./notice/LoadNotice";
 import { SelectPanel } from "./SelectPanel";
 import { GameManager } from "../game/GameManager";
-import { GameState } from "../data/GameState";
+import { NetworkManager } from "../network/NetworkManager";
 
 const { ccclass, property } = _decorator;
 
@@ -26,16 +24,16 @@ export class RewardPanel extends UIView {
 
     protected start(): void {
         // this.rewardAnim.play();
-        GobeManager.instance.leaveRoom();
+        NetworkManager.instance.leaveRoom();
     }
 
     public onLeaveClick(): void {
-        if (GobeManager.instance.isNetwork) {
+        if (NetworkManager.instance.isNetwork) {
             GameManager.instance.reset();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }else{
-            GobeManager.instance.finishGame();
+            NetworkManager.instance.finishGame();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }
@@ -43,14 +41,12 @@ export class RewardPanel extends UIView {
 
     public onAgainClick(): void {
         UIManager.instance.open(LoadNotice);
-        if (GobeManager.instance.isNetwork) {
-            GobeManager.instance.matchRoom(() => {
+        if (NetworkManager.instance.isNetwork) {
+            NetworkManager.instance.matchRoom(() => {
                 this.showReady();
-            }, () => {
-                UIManager.instance.open(HintDialog, "房间匹配失败");
             });
         } else {
-            GobeManager.instance.createRoomAI(() => {
+            NetworkManager.instance.createRoomAI(() => {
                 this.showReady();
             });
         }

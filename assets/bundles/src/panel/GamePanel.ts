@@ -9,12 +9,12 @@ import { GameEvents } from '../data/GameEvent';
 import { OptionCom } from '../game/com/OptionCom';
 import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
-import { GobeManager } from '../../../script/network/GobeManager';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { HintNotice } from './notice/HintNotice';
 import { BlockType, Frame } from '../data/GameDefine';
 import { RewardPanel } from './RewardPanel';
 import { BlockColor } from '../data/GameConst';
+import { NetworkManager } from '../network/NetworkManager';
 
 const { ccclass, property } = _decorator;
 
@@ -61,7 +61,7 @@ export class GamePanel extends UIView {
             steps: undefined,
         }
         LogEX.warn("onBlockClick-->  frameInfo: ", frameInfo);
-        GobeManager.instance.sendFrame(frameInfo);
+        NetworkManager.instance.sendFrame(frameInfo);
     }
 
     onOptionClick(option: OptionCom) {
@@ -80,7 +80,7 @@ export class GamePanel extends UIView {
                     steps: undefined,
                 }
                 LogEX.warn("onOptionClick-->  frameInfo: ", frameInfo);
-                GobeManager.instance.sendFrame(frameInfo);
+                NetworkManager.instance.sendFrame(frameInfo);
             }
         }
     }
@@ -89,7 +89,7 @@ export class GamePanel extends UIView {
         LogEX.warn("onBlockFrame-->  playerId: ", playerId, frame);
         let blockId = frame.blockId;
         let optionId = frame.optionId;
-        if (GobeManager.instance.isOwnPlayer(playerId)) {
+        if (NetworkManager.instance.isOwnPlayer(playerId)) {
             let block: BlockCom = null;
             if (blockId) {
                 block = this.boardView.getBlock(blockId);
@@ -116,7 +116,7 @@ export class GamePanel extends UIView {
     }
 
     onCloseClick() {
-        GobeManager.instance.finishGame();
+        NetworkManager.instance.finishGame();
         UIManager.instance.open(HintNotice, "游戏结束");
     }
 

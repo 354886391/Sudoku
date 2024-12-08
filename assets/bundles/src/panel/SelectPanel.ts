@@ -2,11 +2,10 @@ import { _decorator, Node, Component } from "cc";
 import { UIManager } from "../../../script/framework/ui/UIManager";
 import { UIView } from "../../../script/framework/ui/UIView";
 import { UIButton } from "../../../script/framework/ui/group/UIButton";
-import { GobeManager } from "../../../script/network/GobeManager";
 import { ReadyPanel } from "./ReadyPanel";
 import { HintDialog } from "./dialog/HintDialog";
 import { LoadNotice } from "./notice/LoadNotice";
-import { GameState } from "../data/GameState";
+import { NetworkManager } from "../network/NetworkManager";
 
 const { ccclass, property } = _decorator;
 
@@ -31,8 +30,8 @@ export class SelectPanel extends UIView {
     /** 创建人机房间 */
     public onCreateRoomAIClick(): void {
         Log.d("SelectPanel--> onCreateRoomAIClick");
-        GobeManager.instance.createRoomAI(() => {
-            GobeManager.instance.startGame();
+        NetworkManager.instance.createRoomAI(() => {
+            NetworkManager.instance.startGame();
         });
     }
 
@@ -40,10 +39,8 @@ export class SelectPanel extends UIView {
     public onCreateRoomClick(): void {
         Log.d("SelectPanel--> onCreateRoomClick");
         UIManager.instance.open(LoadNotice);
-        GobeManager.instance.createRoom(() => {
+        NetworkManager.instance.createRoom(() => {
             this.showReady();
-        }, () => {
-            UIManager.instance.open(HintDialog, "房间创建失败");
         });
     }
 
@@ -51,10 +48,8 @@ export class SelectPanel extends UIView {
     public onMatchRoomClick(): void {
         Log.d("SelectPanel--> onMatchRoomClick");
         UIManager.instance.open(LoadNotice);
-        GobeManager.instance.matchRoom(() => {
+        NetworkManager.instance.matchRoom(() => {
             this.showReady();
-        }, () => {
-            UIManager.instance.open(HintDialog, "房间匹配失败");
         });
     }
 
