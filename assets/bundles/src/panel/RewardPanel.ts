@@ -42,9 +42,9 @@ export class RewardPanel extends UIView {
     }
 
     public onAgainClick(): void {
-        UIManager.instance.open(LoadNotice);
         UIManager.instance.close(RewardPanel);
         if (GobeManager.instance.isNetwork) {
+            UIManager.instance.open(LoadNotice);
             GobeManager.instance.matchRoom(() => {
                 this.showReady();
                 Eventer.emit(GobeEvents.ON_GAME_READY);
