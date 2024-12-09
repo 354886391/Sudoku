@@ -11,12 +11,6 @@ import { GameState } from "../data/GameState";
 
 export class NetworkManager extends Singleton<NetworkManager>() {
 
-    // 玩家自定义Id
-    public openId: string = null;
-    public roomId: string = null;
-    // 玩家Id
-    public playerId: string = null;
-    public lastRoomId: string = null;         // 上次登录房间Id
     // 房间
     private _room: GOBE.Room = null;
     private _roomAlone: AloneRoomInfo = null;
@@ -39,10 +33,13 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     private _isOtherStartGame: boolean = false;
     private _isStartFrameSync: boolean = false;
 
+    private _openId: string = null;             // 玩家自定义Id
+    private _playerId: string = null;           // 玩家Id
+    private _lastRoomId: string = null;         // 上次登录房间Id
+
     private _time: number = 0;
     private _currFrame: number = 0;
     private _serverTimeDis: number = 0;         // 服务器与客户端时间间隔
-    private _otherIntervalDis: number = 0;      // 对手掉线 倒计时 10秒 游戏结束
 
     public get isNetwork() {
         return this._wifiType == WIFI_TYPE.WIFI;
@@ -51,11 +48,11 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     /** 判断是否初始化 */
     public get isInitd() {
         // 初始化成功后才有玩家Id
-        return !!this.playerId;
+        return !!this._playerId;
     }
 
     public get time(): number {
-        return this.isNetwork ? this._time : new Date().getTime();
+        return this.isNetwork ? this._time : nowTime();
     }
 
     public get currFrame(): number {
@@ -74,6 +71,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         return this._recvMap;
     }
 
+    /** 房间号 */
     public get roomCode(): string {
         return this.isNetwork ? this._room.roomCode : this._roomAlone.roomCode;
     }
@@ -85,12 +83,12 @@ export class NetworkManager extends Singleton<NetworkManager>() {
 
     /** 检查是否为玩家自己 */
     public isOwnPlayer(playerId: string) {
-        return this.playerId == playerId;
+        return this._playerId == playerId;
     }
 
     /** 检查自己是否为房主 */
     public isRoomOwner() {
-        return this._room && this._room.ownerId == this.playerId;
+        return this._room && this._room.ownerId == this._playerId;
     }
 
     /** 检查是否为房主 */
@@ -99,17 +97,17 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     }
 
     /** 初始化SDK */
-    public initSDK(openId: string, callback: Function) {
+    public initSDK(openId: string, callback: (success: boolean) => void) {
         if (this.isInitd) {
-            callback();
+            callback(true);
             return LogEX.warn("SDK 已经初始化，无需重复操作");
         }
-        this.openId = openId;
+        this._openId = openId;
         this.getToken(callback);
     }
 
     /** 获取Token */
-    private getToken(callback: Function) {
+    private getToken(callback: (success: boolean) => void) {
         let url: string = "https://connect-drcn.hispace.hicloud.com/agc/apigw/oauth2/v1/token";
         // 初始化一个 XMLHttpRequest 实例对象。
         const xhr = new XMLHttpRequest();
@@ -137,7 +135,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     }
 
     /** 获取证书url */
-    private loadCert(token: string, callback: Function) {
+    private loadCert(token: string, callback: (success: boolean) => void) {
         resources.load("/endpoint-cert", Asset, (error, asset) => {
             if (error) {
                 LogEX.error("loadCert: 加载证书失败" + error);
@@ -149,13 +147,13 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     }
 
     /** 初始化GOBE */
-    private initGobe(token: string, callback: Function) {
+    private initGobe(token: string, callback: (success: boolean) => void) {
         let clientConfig = {
             appId: Global.APP_ID,                  // 应用ID
-            openId: this.openId,                        // 玩家ID，区别不同用户
+            openId: this._openId,                        // 玩家ID，区别不同用户
             clientId: Global.CLIENT_ID,            // 客户端ID
             clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
-            accessToken: token,                         // AGC接入凭证(推荐)
+            accessToken: token,                    // AGC接入凭证(推荐)
             appVersion: '1.10.111',
         }
         // 初始化 client
@@ -171,12 +169,12 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         }
         this._client = new window.GOBE.Client(clientConfig);
         // 监听Client.init方法的返回结果
-        this._client.onInitResult(this.onInitResult);
+        this._client.onInitResult(this.onInitResult.bind(this));
         // 调用Client.init方法进行初始化
         this._client.init().then(client => {
-            this.playerId = client.playerId;
-            this.lastRoomId = this._client.lastRoomId;
-            this._serverTimeDis = client.loginTimestamp - new Date().getTime();
+            this._playerId = client.playerId;
+            this._lastRoomId = client.lastRoomId;
+            this._serverTimeDis = client.loginTimestamp - nowTime();
             callback && callback(true);
         }).catch(error => {
             LogEX.error("initGobe--> client init fail: ", error);
@@ -188,10 +186,11 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     private onInitResult(resultCode: number) {
         if (resultCode == window.GOBE.ErrorCode.COMMON_OK) {
             // 如果有上次登录的房间
-            if (this.lastRoomId) {
-                LogEX.info("onInitResult-->  lastRoomId: ", this.lastRoomId);
-                this.joinRoom(this.lastRoomId, () => {
-                    LogEX.info("initGobe-->  customRoomProperties: ", this._room.customRoomProperties);
+            if (this._lastRoomId) {
+                LogEX.info("onInitResult-->  lastRoomId: ", this._lastRoomId);
+                // 自动加入房间
+                this.joinRoom(this._lastRoomId, () => {
+                    LogEX.info("joinRoom-->  customRoomProperties: ", this._room.customRoomProperties);
                     let roomProp = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
                     // 重置房间起始帧Id
                     if (roomProp.curFrameId) {
@@ -199,18 +198,20 @@ export class NetworkManager extends Singleton<NetworkManager>() {
                     }
                     // 游戏未开始或游戏已结束, 退出房间
                     if (roomProp.type == ROOM_TYPE.READY || roomProp.type == ROOM_TYPE.END) {
+                        LogEX.log("joinRoom-->  游戏未开始或游戏已结束, 退出房间");
                         this.leaveRoom();
-                        this.lastRoomId = null;
+                        this._lastRoomId = null;
                     } else {
                         let time = roomProp.time;
-                        let remainTime = Math.floor(Global.GAME_TIME - (new Date().getTime() - time + this._serverTimeDis) / 1000); // 游戏剩余时间s
+                        let remainTime = Math.floor(Global.GAME_TIME - (nowTime() - time + this._serverTimeDis) / 1000); // 游戏剩余时间s
                         if (remainTime > 5) {
                             // 游戏时间内, 重新进入房间                               
                             LogEX.log("joinRoom 重新进入房间");
                         } else {
                             // 超过游戏时间, 退出房间
+                            LogEX.log("joinRoom 超过游戏时间, 退出房间");
                             this.leaveRoom();
-                            this.lastRoomId = null;
+                            this._lastRoomId = null;
                         }
                     }
                 });
@@ -236,7 +237,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         this._client.joinRoom(roomId, playerConfig).then(room => {
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
+            this._lastRoomId = room.roomId;
             this.enabledEventRoom();
             callback && callback();
         }).catch(error => {
@@ -246,7 +247,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
 
     public leaveRoom(callback?: Function) {
         LogEX.log("leaveRoom-->  离开房间");
-        if (this.lastRoomId && this._client) {
+        if (this._lastRoomId && this._client) {
             this._client.leaveRoom().then(client => {
                 this._client = client;
                 this._roomType = ROOM_TYPE.NONE;
@@ -275,13 +276,13 @@ export class NetworkManager extends Singleton<NetworkManager>() {
             time: 0,
         };
         this._roomAlone = {
-            ownerId: this.playerId,
+            ownerId: this._playerId,
             roomCode: "0001" + Math.floor(Math.random() * 100),
             players: [],
             customRoomProperties: JSON.stringify(roomProp)
         };
         let playerConfig = {
-            playerId: this.playerId,
+            playerId: this._playerId,
             customPlayerStatus: 0,
             customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
         };
@@ -327,7 +328,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
             LogEX.log("创建房间成功");
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
+            this._lastRoomId = room.roomId;
             this.enabledEventRoom();
             let roomProp = {
                 type: ROOM_TYPE.READY,
@@ -366,12 +367,12 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         this._client.matchRoom(roomConfig, playerConfig).then(room => {
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
-            this.enabledEventRoom();
+            this._lastRoomId = room.roomId;
             // 如果加入房间 默认房主在房间里
             if (this._room.players.length == Global.MAX_PLAYER) {
                 this._isRoomOwnIn = true;
             }
+            this.enabledEventRoom();
             let roomProp = {
                 type: ROOM_TYPE.READY,
                 time: 0
@@ -393,7 +394,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
             LogEX.info("updateRoom-->  ", room);
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
+            this._lastRoomId = room.roomId;
             this.enabledEventRoom();
 
             callback && callback();
@@ -410,7 +411,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
             this._room.sendFrame(JSON.stringify(info));
         } else {
             this.recvMap.set(++this._currFrame, [{
-                playerId: this.playerId,
+                playerId: this._playerId,
                 data: [JSON.stringify(info)],
                 timestamp: 0
             }]);
@@ -422,17 +423,17 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         if (this.isNetwork) {
             let serverMsg: CustomServerMsg = {
                 status: "startGame",
-                playerId: this.playerId,
+                playerId: this._playerId,
                 gameBoard: GameState.createBoard(),
             }
             LogEX.warn("startGame-->  先同步游戏信息: ");
             this._room.sendToServer(JSON.stringify(serverMsg));   // todo: 
         } else {
-            this._time = new Date().getTime();
+            this._time = nowTime();
             this._roomType = ROOM_TYPE.START;
             let roomProp = {
                 type: ROOM_TYPE.START,
-                time: new Date().getTime()
+                time: this._time
             }
             this._roomAlone.customRoomProperties = JSON.stringify(roomProp);    // todo:
             Eventer.emit(GobeEvents.ON_GAME_START);
@@ -491,82 +492,73 @@ export class NetworkManager extends Singleton<NetworkManager>() {
 
     // ====================SDK广播====================
     private onJoining(playerInfo: FramePlayerInfo) {
-        LogEX.info(`onJoin: ownerId: ${this._room.ownerId}", playerId: "${playerInfo.playerId}`);
-        if (this.isRoomOwnerBy(playerInfo.playerId)) {
-            this._isRoomOwnIn = true;   // 房主加入房间
-        } else {
-            Eventer.emit(GobeEvents.ON_OTHER_JOIN_ROOM, playerInfo.playerId);
-        }
-        if (!this.isOwnPlayer(playerInfo.playerId)) {
-            if (this._otherIntervalDis > 0) {
-                clearInterval(this._otherIntervalDis);
-                this._otherIntervalDis = 0;
-            }
-        }
-        if (this._room && this.isOwnPlayer(playerInfo.playerId) && this._room.customRoomProperties) {
+        let playerId = playerInfo.playerId;
+        LogEX.info(`onJoin: ownerId: ${this._room.ownerId}", playerId: "${playerId}`);
+        if (this.isOwnPlayer(playerId) && this._room && this._room.customRoomProperties) {
+            // 同步玩家的房间信息
             let roomProp = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
             this._time = roomProp.time;
             this._roomType = roomProp.type;
         }
+        if (this.isRoomOwnerBy(playerId)) {
+            this._isRoomOwnIn = true;
+            Eventer.emit(GobeEvents.ON_OWNER_JOIN_ROOM, playerId);  // 房主加入房间
+        } else {
+            Eventer.emit(GobeEvents.ON_OTHER_JOIN_ROOM, playerId);  // 其他玩家加入房间
+        }
     }
 
     private onLeaving(playerInfo: FramePlayerInfo) {
-        LogEX.info("onLeave: ", playerInfo.playerId);
-        if (this.isOwnPlayer(playerInfo.playerId)) {
+        let playerId = playerInfo.playerId;
+        LogEX.info("onLeave: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
             this._room.removeAllListeners();
         } else {
             this.updateRoom();
         }
-        // 房主离开房间
-        if (this.isRoomOwnerBy(playerInfo.playerId)) {
-            this._isRoomOwnIn = false;
+        if (this.isRoomOwnerBy(playerId)) {
+            this._isRoomOwnIn = false;  // 房主离开房间
         }
     }
 
     private onConnect(playerInfo: FramePlayerInfo) {
-        if (this.isOwnPlayer(playerInfo.playerId)) {
+        let playerId = playerInfo.playerId;
+        LogEX.info("onConnect: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
             this._isConnected = true;
-            LogEX.info("玩家在线了, playerId: ", playerInfo.playerId);
+            LogEX.info("玩家在线了, playerId: ", playerId);
         } else {
-            LogEX.info("其他玩家上线了, playerId: ", playerInfo.playerId);
+            LogEX.info("其他玩家上线了, playerId: ", playerId);
         }
     }
 
     private async onDisconnect(playerInfo: FramePlayerInfo) {
-        LogEX.info("onDisconnect: ", playerInfo.playerId);
-        // 当前玩家断线
-        if (this.isOwnPlayer(playerInfo.playerId)) {
-            this._isConnected = false;
+        let playerId = playerInfo.playerId;
+        LogEX.info("onDisconnect: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
+            this._isConnected = false;  // 当前玩家断线
             if (this._room) {
                 // 没有超过重连时间，就进行重连操作
                 while (!this._isConnected) {
-                    // 1秒重连一次，防止并发过大游戏直接卡死
-                    await sleep(1000).then();
+                    await sleep(1000).then();   // 1秒重连一次，防止并发过大游戏直接卡死
                     await this._room.reconnect();
                 }
             }
         } else {
             if (this._roomType == ROOM_TYPE.READY) {
-                let countdown: number = 10;
-                this._otherIntervalDis = setInterval(() => {
-                    countdown--;    // todo: 显示倒计时提示
-                    if (countdown <= 0) {
-                        clearInterval(this._otherIntervalDis);
-                        let roomProp = {
-                            type: ROOM_TYPE.END,
-                            time: 0,
-                        }
-                        let roomInfo = {
-                            customRoomProperties: JSON.stringify(roomProp),
-                        }
-                        this._room.updateRoomProperties(roomInfo);
-                        Eventer.emit(GobeEvents.ON_GAME_END);   // 游戏结束
-                    }
-                }, 1000);
+                let roomProp = {
+                    type: ROOM_TYPE.END,
+                    time: 0,
+                }
+                let roomInfo = {
+                    customRoomProperties: JSON.stringify(roomProp),
+                }
+                this._room.updateRoomProperties(roomInfo);
+                Eventer.emit(GobeEvents.ON_GAME_END);   // 游戏结束
             }
         }
         // 房主掉线
-        if (this.isRoomOwnerBy(playerInfo.playerId)) {
+        if (this.isRoomOwnerBy(playerId)) {
             this._isRoomOwnIn = false;
         }
     }
@@ -587,45 +579,47 @@ export class NetworkManager extends Singleton<NetworkManager>() {
         let roomProp = JSON.parse(roomInfo.customRoomProperties) as CustomRoomProp;
         this._time = roomProp.time;
         this._roomType = roomProp.type;
-        if (this._roomType == ROOM_TYPE.START) {
-            // 游戏开始
-            Eventer.emit(GobeEvents.ON_GAME_START);
-        } else if (this._roomType == ROOM_TYPE.END) {
-            // 游戏结束
-            Eventer.emit(GobeEvents.ON_GAME_END);
-        } else if (this._roomType == ROOM_TYPE.READY) {
-            // 游戏准备
-            // Eventer.emit(GobeEvents.ON_GAME_READY);
+        switch (this._roomType) {
+            case ROOM_TYPE.READY:
+                // Eventer.emit(GobeEvents.ON_GAME_READY);  // 游戏准备
+                break;
+            case ROOM_TYPE.START:
+                Eventer.emit(GobeEvents.ON_GAME_START); // 游戏开始
+                break;
+            case ROOM_TYPE.END:
+                Eventer.emit(GobeEvents.ON_GAME_END);   // 游戏结束
+                break;
+            default: break;
         }
     }
 
     private onStartFrameSync() {
-        LogEX.log("enabledEventRoom-->  onStartFrameSync");
+        LogEX.log("onStartFrameSync");
         this._isStartFrameSync = true;
     }
 
     private onStopFrameSync() {
-        LogEX.log("enabledEventRoom-->  onStopFrameSync");
-        this._currFrame = 0;
+        LogEX.log("onStopFrameSync");
         this._isStartFrameSync = false;
         this._recvMap = new Map();
     }
 
     onRecvFrame(msg: RecvFrameMessage | RecvFrameMessage[]) {
-        LogEX.info("enabledEventRoom-->  onRecvFrame: ", msg);
+        LogEX.info("onRecvFrame: ", msg);
         if (msg instanceof Array) {
             for (let i = 0; i < msg.length; i++) {
-                this._time = msg[i].time;
                 if (msg[i].frameInfo) {
                     this._recvMap.set(msg[i].currentRoomFrameId, msg[i].frameInfo);
                 }
             }
-            this._currFrame = msg[msg.length - 1].currentRoomFrameId;
+            let last = msg.length - 1;
+            this._time = msg[last].time;
+            this._currFrame = msg[last].currentRoomFrameId;
         } else {
-            this._time = msg.time;
             if (msg.frameInfo) {
                 this._recvMap.set(msg.currentRoomFrameId, msg.frameInfo);
             }
+            this._time = msg.time;
             this._currFrame = msg.currentRoomFrameId;
         }
     }
@@ -640,22 +634,21 @@ export class NetworkManager extends Singleton<NetworkManager>() {
 
     // 接收实时服务器消息
     private onRecvFromServer(data: RecvFromServerInfo) {
-        LogEX.info("onRecvFromServer: ", data);
         if (data.msg) {
             let parseMsg = JSON.parse(data.msg) as CustomServerMsg;
-            LogEX.warn(`onRecvFromServer-->  gameStatus: ${parseMsg.status}, 
-                own: ${this._isStartGame}, other: ${this._isOtherStartGame}`);
+            LogEX.info(`onRecvFromServer-->  gameStatus: ${parseMsg.status}`);
             if (parseMsg.status == Global.START_GAME) {
                 if (this.isOwnPlayer(parseMsg.playerId)) {
                     this._isStartGame = true;
                 } else {
                     this._isOtherStartGame = true;
                 }
+                LogEX.info(`onRecvFromServer-->  ownStartGame: ${this._isStartGame}, otherStartGame: ${this._isOtherStartGame}`);
                 if (this.isRoomOwner()) {
                     if (this._isStartGame && this._isOtherStartGame) {
                         let serverMsg = {
                             msg: Global.START_GAME_TIME,
-                            time: new Date().getTime()
+                            time: nowTime()
                         }
                         this._room.sendToServer(JSON.stringify(serverMsg));
                     }
@@ -664,14 +657,11 @@ export class NetworkManager extends Singleton<NetworkManager>() {
                     GameState.handleBoard(parseMsg.gameBoard);
                 }
             } else if (parseMsg.status == Global.START_GAME_TIME) {
-                let owner = this.isRoomOwner();
-                this._serverTimeDis = parseMsg.time - new Date().getTime();
-                // let board = GameState.createBoard();    // 生成牌面
-                if (owner) {
+                if (this.isRoomOwner()) {
                     let roomProp = {
                         type: ROOM_TYPE.START,
                         time: parseMsg.time,
-                        serverTimeDis: this._serverTimeDis
+                        serverTimeDis: parseMsg.time - nowTime()
                     }
                     let roomInfo = {
                         customRoomProperties: JSON.stringify(roomProp),
@@ -679,6 +669,7 @@ export class NetworkManager extends Singleton<NetworkManager>() {
                     this._room.startFrameSync();
                     this._room.updateRoomProperties(roomInfo);
                 }
+                this._serverTimeDis = parseMsg.time - nowTime();
             }
         }
     }
@@ -686,6 +677,10 @@ export class NetworkManager extends Singleton<NetworkManager>() {
 
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function nowTime() {
+    return new Date().getTime();
 }
 
 

@@ -2,6 +2,7 @@ import { Singleton } from "../../../script/framework/util/Singleton";
 import { StorageManager } from '../../../script/framework/storage/StorageManager';
 import { LOCAL_CACHE } from "./GameConst";
 import { PlayerInfo, HistoryInfo, SettingInfo } from "./GameDefine";
+import { nowTime } from "../network/NetworkManager";
 
 export class PlayerData extends Singleton<PlayerData>() {
 
@@ -23,7 +24,7 @@ export class PlayerData extends Singleton<PlayerData>() {
     * @returns
     */
     public generateAccount() {
-        this.userId = new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
+        this.userId = nowTime() + "_" + Math.floor(Math.random() * 1000);
         StorageManager.instance.setUserId(this.userId);
     }
 

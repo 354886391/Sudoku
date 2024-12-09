@@ -11,7 +11,7 @@ import { BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { HintNotice } from './notice/HintNotice';
-import { BlockType, Frame } from '../data/GameDefine';
+import { BLOCK_TYPE, Frame } from '../data/GameDefine';
 import { RewardPanel } from './RewardPanel';
 import { BlockColor } from '../data/GameConst';
 import { NetworkManager } from '../network/NetworkManager';
@@ -66,7 +66,7 @@ export class GamePanel extends UIView {
 
     onOptionClick(option: OptionCom) {
         let block = this.boardView.curClick;
-        if (block && block.type != BlockType.Lock) {
+        if (block && block.type != BLOCK_TYPE.Lock) {
             if (option) {
                 // this.boardView.reset();
                 // this.boardView.setBlock(block, option.value);
@@ -96,7 +96,7 @@ export class GamePanel extends UIView {
                 this.boardView.highlightClickBlockColor(block);
                 if (optionId) {
                     let option = this.optionView.getOption(optionId);
-                    if (block && block.type != BlockType.Lock) {
+                    if (block && block.type != BLOCK_TYPE.Lock) {
                         if (option) {
                             this.boardView.reset();
                             this.boardView.setBlock(block, option.value);

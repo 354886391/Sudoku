@@ -10,7 +10,7 @@ import { Util } from "../../script/framework/util/Util";
 import { ResourceManager } from "../../script/framework/resources/ResourceManager";
 import { SelectPanel } from "./panel/SelectPanel";
 import { HintDialog } from "./panel/dialog/HintDialog";
-import { NetworkManager } from "./network/NetworkManager";
+import { NetworkManager, nowTime } from "./network/NetworkManager";
 
 export class GameEntry extends Entry {
 
@@ -42,7 +42,7 @@ export class GameEntry extends Entry {
     initGame() {
         let playerId = PlayerData.instance.playerInfo.pid;
         if (playerId == null) {
-            playerId = "cocos" + (new Date().getTime()).toString().substring(6);
+            playerId = "cocos" + nowTime().toString().substring(6);
             var staticId: number = Math.floor(Math.random() * 2);
             PlayerData.instance.createPlayer({
                 pid: playerId,
@@ -61,8 +61,8 @@ export class GameEntry extends Entry {
         LogEX.level = 1;
         LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
         let playerId = PlayerData.instance.playerInfo.pid;
-        NetworkManager.instance.initSDK(playerId, (successInit: boolean) => {
-            if (successInit) {
+        NetworkManager.instance.initSDK(playerId, success => {
+            if (success) {
                 // 登录成功
                 UIManager.instance.open(SelectPanel);
             } else {

@@ -8,6 +8,13 @@ import { PlayerData } from "../../bundles/src/data/PlayerData";
 import { Util } from "../framework/util/Util";
 import { GameState } from "../../bundles/src/data/GameState";
 
+export enum LOGIN_TYPE {
+    /** 游客 */
+    Guest,
+    /** 账号 */
+    Account,
+}
+
 export enum ROOM_TYPE {
     NONE = "none",
     READY = "ready",

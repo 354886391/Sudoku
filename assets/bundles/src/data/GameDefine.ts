@@ -1,4 +1,4 @@
-export enum BlockType {
+export enum BLOCK_TYPE {
     /** 空白 */
     Void = 0,
     /** 锁定 */
@@ -9,13 +9,6 @@ export enum BlockType {
     Fault,
     /** 候选 */
     Candidate,
-}
-
-export enum LoginType {
-    /** 游客 */
-    Guest,
-    /**账号 */
-    Account,
 }
 
 export interface Channel {
@@ -47,7 +40,7 @@ export interface BlockInfo {
     id: number;
     row: number;
     col: number;
-    type: BlockType;
+    type: BLOCK_TYPE;
     result: string;
     isSelect: boolean;
 }

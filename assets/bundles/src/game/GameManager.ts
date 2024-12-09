@@ -13,7 +13,6 @@ import { GamePanel } from '../panel/GamePanel';
 import { SelectPanel } from '../panel/SelectPanel';
 import { ReadyPanel } from '../panel/ReadyPanel';
 import { NetworkManager } from '../network/NetworkManager';
-import { ROOM_TYPE } from '../../../script/network/GobeManager';
 
 const { ccclass, property } = _decorator;
 

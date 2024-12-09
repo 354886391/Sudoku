@@ -2,7 +2,7 @@ import { _decorator, Color, Component, Label, Sprite } from 'cc';
 import { Eventer } from '../../../../script/framework/tool/Eventer';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
-import { BlockInfo, BlockType } from '../../data/GameDefine';
+import { BlockInfo, BLOCK_TYPE } from '../../data/GameDefine';
 import { GameEvents } from '../../data/GameEvent';
 
 const { ccclass, property } = _decorator;
@@ -39,7 +39,7 @@ export class BlockCom extends Component {
         this.setResult(info.type, info.result);
     }
 
-    public setResult(type: BlockType, value: string): void {
+    public setResult(type: BLOCK_TYPE, value: string): void {
         this.blockInfo.type = type;
         this.blockInfo.result = value;
         this.blockLbl.string = `${value}`;
@@ -97,7 +97,7 @@ export class BlockCom extends Component {
     }
 
     get isValid() {
-        return this.blockInfo.type == BlockType.Right || this.blockInfo.type == BlockType.Lock;
+        return this.blockInfo.type == BLOCK_TYPE.Right || this.blockInfo.type == BLOCK_TYPE.Lock;
     }
 
 }

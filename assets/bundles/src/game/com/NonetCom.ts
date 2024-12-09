@@ -1,5 +1,5 @@
 import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
-import { BlockInfo, BlockType } from '../../data/GameDefine';
+import { BlockInfo, BLOCK_TYPE } from '../../data/GameDefine';
 import { BlockCom, BLANK } from './BlockCom';
 import { BoardView } from '../view/BoardView';
 
@@ -24,7 +24,7 @@ export class NonetCom extends Component {
             for (let col = colIndex; col < colIndex + 3; col++) {
                 let id = row * 9 + col + 1;
                 let result = board[row][col];
-                let type = result == BLANK ? BlockType.Void : BlockType.Lock;
+                let type = result == BLANK ? BLOCK_TYPE.Void : BLOCK_TYPE.Lock;
                 let info: BlockInfo = {
                     id: id,
                     row: row,

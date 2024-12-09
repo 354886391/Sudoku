@@ -2,7 +2,7 @@ import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
 import { BlockColor } from '../../data/GameConst';
 import { BLANK, BlockCom } from '../com/BlockCom';
 import { NonetCom } from '../com/NonetCom';
-import { BlockType } from '../../data/GameDefine';
+import { BLOCK_TYPE } from '../../data/GameDefine';
 import { GameState } from '../../data/GameState';
 const { ccclass, property } = _decorator;
 
@@ -146,8 +146,8 @@ export class BoardView extends Component {
 
     public setBlock(click: BlockCom, result: string) {
         let solve = GameState.gridSolveBoard[click.row][click.col];
-        if (click.type != BlockType.Lock) {
-            click.setResult(solve == result ? BlockType.Right : BlockType.Fault, result);
+        if (click.type != BLOCK_TYPE.Lock) {
+            click.setResult(solve == result ? BLOCK_TYPE.Right : BLOCK_TYPE.Fault, result);
         }
     }
 
