@@ -12,7 +12,7 @@ import { GameState } from '../data/GameState';
 import { GamePanel } from '../panel/GamePanel';
 import { SelectPanel } from '../panel/SelectPanel';
 import { ReadyPanel } from '../panel/ReadyPanel';
-import { NetworkManager } from '../network/NetworkManager';
+import { GobeManager } from '../../../script/network/GobeManager';
 
 const { ccclass, property } = _decorator;
 
@@ -25,7 +25,7 @@ export class GameManager extends Component {
     static _instance: GameManager;
 
     get roomPlayers() {
-        return NetworkManager.instance.roomPlayers;
+        return GobeManager.instance.roomPlayers;
     }
 
     get statePlayers() {
@@ -68,7 +68,7 @@ export class GameManager extends Component {
     /** 设置房间信息 */
     private initRoomInfo() {
         this.roomPlayers.forEach((playerInfo: PlayerInfo) => {
-            let pIndex = NetworkManager.instance.isRoomOwnerBy(playerInfo.playerId) ? 0 : 1;
+            let pIndex = GobeManager.instance.isRoomOwnerBy(playerInfo.playerId) ? 0 : 1;
             GameState.players[pIndex].channel.openId = playerInfo.playerId;
             GameState.players[pIndex].channel.name = playerInfo.customPlayerProperties;
             GameState.players[pIndex].channel.state = playerInfo.customPlayerStatus;
@@ -87,7 +87,7 @@ export class GameManager extends Component {
         this.initRoomInfo();
         UIManager.instance.close(ReadyPanel);
         UIManager.instance.open(ReadyGoPanel, () => {
-            NetworkManager.instance.startGame();
+            GobeManager.instance.startGame();
             UIManager.instance.close(ReadyGoPanel);
         });
     }
@@ -95,7 +95,10 @@ export class GameManager extends Component {
     onGameStart() {
         Log.d("onGameStart");
         GameState.isGaming = true;
-        GameState.startTime = NetworkManager.instance.time;
+        GameState.startTime = GobeManager.instance.time;
+        if (!GobeManager.instance.isNetwork) {
+            GameState.handleBoard();
+        }
         this._gamePanel.initBoard();
         this._frameIndex = 0;
 
@@ -112,7 +115,10 @@ export class GameManager extends Component {
         } else {
             winner = 1;
         }
-        UIManager.instance.open(RewardPanel, winner);
+        if (GameState.isGaming) {
+            GameState.isGaming = false;
+            UIManager.instance.open(RewardPanel, winner);
+        }
     }
 
     protected lateUpdate(dt: number): void {
@@ -120,11 +126,11 @@ export class GameManager extends Component {
             return;
         }
         this.handleAction();
-        let frameTime: number = NetworkManager.instance.time + NetworkManager.instance.serverTimeDis;
+        let frameTime: number = GobeManager.instance.time + GobeManager.instance.serverTimeDis;
         GameState.remainTime = Math.floor(Global.GAME_TIME - (frameTime - GameState.startTime) / 1000);
         if (GameState.remainTime <= 0) {
             GameState.isGaming = false;
-            NetworkManager.instance.finishGame();
+            GobeManager.instance.finishGame();
         }
         this.updateOwnState(dt);
         this.updateOtherState(dt);
@@ -134,12 +140,12 @@ export class GameManager extends Component {
 
     /** 处理玩家操作 */
     handleAction(callback?: Function) {
-        if (this._frameIndex > NetworkManager.instance.currFrame) {
+        if (this._frameIndex > GobeManager.instance.currFrame) {
             return;
         }
         let frames: FrameInfo[] = [];
-        if (NetworkManager.instance.recvMap.has(this._frameIndex)) {
-            frames = NetworkManager.instance.recvMap.get(this._frameIndex);
+        if (GobeManager.instance.recvMap.has(this._frameIndex)) {
+            frames = GobeManager.instance.recvMap.get(this._frameIndex);
             this._frameIndex++;
         } else {
             this._frameIndex++;
@@ -148,7 +154,7 @@ export class GameManager extends Component {
         for (let i = 0; i < frames.length; i++) {
             let frameInfo = frames[i];
             let playerId = frameInfo.playerId;
-            if (NetworkManager.instance.isNetwork) {
+            if (GobeManager.instance.isNetwork) {
                 let result = GameState.players.filter(player => {
                     return player.channel && player.channel.openId === playerId;
                 });
@@ -183,8 +189,8 @@ export class GameManager extends Component {
 
     /** 检测是否断线重连 */
     public checkIsReCovery() {
-        // if (NetworkManager.instance.isJoinDis) {
-        //     LogEX.warn("checkIsReCovery-->  isJoinDis: ", NetworkManager.instance.isJoinDis);
+        // if (GobeManager.instance.isJoinDis) {
+        //     LogEX.warn("checkIsReCovery-->  isJoinDis: ", GobeManager.instance.isJoinDis);
         //     this.handleAction(() => {
         //         this.updateRecoveryState();
         //     });

@@ -5,7 +5,9 @@ import { ReadyPanel } from "./ReadyPanel";
 import { LoadNotice } from "./notice/LoadNotice";
 import { SelectPanel } from "./SelectPanel";
 import { GameManager } from "../game/GameManager";
-import { NetworkManager } from "../network/NetworkManager";
+import { GobeManager } from "../../../script/network/GobeManager";
+import { Eventer } from "../../../script/framework/tool/Eventer";
+import { GobeEvents } from "../../../script/network/GobeEvents";
 
 const { ccclass, property } = _decorator;
 
@@ -24,16 +26,16 @@ export class RewardPanel extends UIView {
 
     protected start(): void {
         // this.rewardAnim.play();
-        NetworkManager.instance.leaveRoom();
+        GobeManager.instance.leaveRoom();
     }
 
     public onLeaveClick(): void {
-        if (NetworkManager.instance.isNetwork) {
+        if (GobeManager.instance.isNetwork) {
             GameManager.instance.reset();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }else{
-            NetworkManager.instance.finishGame();
+            GobeManager.instance.leaveGame();
             UIManager.instance.open(SelectPanel);
             UIManager.instance.close(RewardPanel);
         }
@@ -41,13 +43,15 @@ export class RewardPanel extends UIView {
 
     public onAgainClick(): void {
         UIManager.instance.open(LoadNotice);
-        if (NetworkManager.instance.isNetwork) {
-            NetworkManager.instance.matchRoom(() => {
+        UIManager.instance.close(RewardPanel);
+        if (GobeManager.instance.isNetwork) {
+            GobeManager.instance.matchRoom(() => {
                 this.showReady();
+                Eventer.emit(GobeEvents.ON_GAME_READY);
             });
         } else {
-            NetworkManager.instance.createRoomAI(() => {
-                this.showReady();
+            GobeManager.instance.createRoomAI(() => {
+                GobeManager.instance.startGame();
             });
         }
     }

@@ -8,7 +8,7 @@ import { HintNotice } from "./notice/HintNotice";
 import { GameEvents } from "../data/GameEvent";
 import { UIButton } from "../../../script/framework/ui/group/UIButton";
 import { SelectPanel } from "./SelectPanel";
-import { NetworkManager } from "../network/NetworkManager";
+import { GobeManager } from "../../../script/network/GobeManager";
 
 const { ccclass, property } = _decorator;
 
@@ -58,7 +58,7 @@ export class ReadyPanel extends UIView {
     }
 
     protected start(): void {
-        this.txtNum.string = "房间号：" + NetworkManager.instance.roomCode;
+        this.txtNum.string = "房间号：" + GobeManager.instance.roomCode;
         for (let i = 0; i < this.playerHeadList.length; i++) {
             this.showReadyPlayer(i, i == 0);    // 默认房主已准备
         }
@@ -80,7 +80,7 @@ export class ReadyPanel extends UIView {
     }
 
     updateShowPlayer(playerId?: string) {
-        let roomPlayers = NetworkManager.instance.roomPlayers;
+        let roomPlayers = GobeManager.instance.roomPlayers;
         for (let i = 0; i < roomPlayers.length; i++) {
             let player = roomPlayers[i];
             if (playerId && playerId == player.playerId) {
@@ -91,7 +91,7 @@ export class ReadyPanel extends UIView {
 
     checkStart() {
         if (!this.isShowVs) return;
-        let roomPlayers = NetworkManager.instance.roomPlayers;
+        let roomPlayers = GobeManager.instance.roomPlayers;
         if (roomPlayers.length >= Global.MAX_PLAYER) {
             this.vsAnim.node.active = true;
             this.vsAnim.play();
@@ -99,7 +99,7 @@ export class ReadyPanel extends UIView {
     }
 
     public onCloseClick(): void {
-        NetworkManager.instance.leaveRoom(() => {
+        GobeManager.instance.leaveRoom(() => {
             UIManager.instance.open(HintNotice, "退出房间");
             UIManager.instance.open(SelectPanel);
         });

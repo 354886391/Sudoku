@@ -10,7 +10,7 @@ import { Util } from "../../script/framework/util/Util";
 import { ResourceManager } from "../../script/framework/resources/ResourceManager";
 import { SelectPanel } from "./panel/SelectPanel";
 import { HintDialog } from "./panel/dialog/HintDialog";
-import { NetworkManager, nowTime } from "./network/NetworkManager";
+import { GobeManager, nowTime } from "../../script/network/GobeManager";
 
 export class GameEntry extends Entry {
 
@@ -61,7 +61,7 @@ export class GameEntry extends Entry {
         LogEX.level = 1;
         LogEX.log("loginGame-->  ", PlayerData.instance.playerInfo);
         let playerId = PlayerData.instance.playerInfo.pid;
-        NetworkManager.instance.initSDK(playerId, success => {
+        GobeManager.instance.initSDK(playerId, success => {
             if (success) {
                 // 登录成功
                 UIManager.instance.open(SelectPanel);

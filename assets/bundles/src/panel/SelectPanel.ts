@@ -5,9 +5,9 @@ import { UIButton } from "../../../script/framework/ui/group/UIButton";
 import { ReadyPanel } from "./ReadyPanel";
 import { HintDialog } from "./dialog/HintDialog";
 import { LoadNotice } from "./notice/LoadNotice";
-import { NetworkManager } from "../network/NetworkManager";
 import { Eventer } from "../../../script/framework/tool/Eventer";
 import { GobeEvents } from "../../../script/network/GobeEvents";
+import { GobeManager } from "../../../script/network/GobeManager";
 
 const { ccclass, property } = _decorator;
 
@@ -27,15 +27,13 @@ export class SelectPanel extends UIView {
         this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);   // 人机
         this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);       // 创建
         this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);         // 匹配
-
-        Eventer.on(GobeEvents.ON_GAME_READY, this.showReady, this);
     }
 
     /** 创建人机房间 */
     public onCreateRoomAIClick(): void {
         Log.d("SelectPanel--> onCreateRoomAIClick");
-        NetworkManager.instance.createRoomAI(() => {
-            NetworkManager.instance.startGame();
+        GobeManager.instance.createRoomAI(() => {
+            GobeManager.instance.startGame();
         });
     }
 
@@ -43,7 +41,8 @@ export class SelectPanel extends UIView {
     public onCreateRoomClick(): void {
         Log.d("SelectPanel--> onCreateRoomClick");
         UIManager.instance.open(LoadNotice);
-        NetworkManager.instance.createRoom(() => {
+        GobeManager.instance.createRoom(() => {
+            this.showReady();
             Eventer.emit(GobeEvents.ON_GAME_READY);
         });
     }
@@ -52,8 +51,9 @@ export class SelectPanel extends UIView {
     public onMatchRoomClick(): void {
         Log.d("SelectPanel--> onMatchRoomClick");
         UIManager.instance.open(LoadNotice);
-        NetworkManager.instance.matchRoom(() => {
-            Eventer.emit(GobeEvents.ON_GAME_READY);
+        GobeManager.instance.matchRoom(() => {
+           this.showReady();
+           Eventer.emit(GobeEvents.ON_GAME_READY);
         });
     }
 

@@ -1,5 +1,5 @@
 import { Asset, EmptyDevice, resources, sys } from "cc";
-import { FrameInfo, PlayerInfo, Room } from "../libs/GOBE";
+import { FrameInfo, FramePlayerInfo, PlayerInfo, RecvFrameMessage, RecvFromServerInfo, RoomInfo, UpdateCustomPropertiesResponse, UpdateCustomStatusResponse } from "../libs/GOBE";
 import { Eventer } from "../framework/tool/Eventer";
 import { Singleton } from "../framework/util/Singleton";
 import { GobeEvents } from "./GobeEvents";
@@ -54,95 +54,57 @@ window.GOBE.Logger.level = window.GOBE.LogLevel.INFO;
 
 export class GobeManager extends Singleton<GobeManager>() {
 
-    private _isAi: boolean = false;
-    private _isJoinDis: boolean = false;
-    private _isReadyDis: boolean = false;       // 准备过程中掉线
-    private _isRoomOwnIn: boolean = false;      // 房主有没有加入房间
-    private _isStartGame: boolean = false;
-    private _isOtherStartGame: boolean = false;
-    private _isStartFrameSync: boolean = false;
-
-    private _time: number = 0;
-    private _currFrame: number = 0;
-    private _serverTimeDis: number = 0;         // 服务器与客户端时间间隔
-    private _otherIntervalDis: number = 0;      // 对手掉线 倒计时 10秒 游戏结束
-
-    // 房主Id (玩家自定义Id)
-    public openId: string = null;
-    public roomId: string = null;
-    // 玩家Id
-    public playerId: string = null;
-    public lastRoomId: string = null;         // 上次登录房间Id
-    public roomType: ROOM_TYPE = ROOM_TYPE.NONE;
     // 房间
     private _room: GOBE.Room = null;
     private _roomAlone: AloneRoomInfo = null;
-
     // 玩家自己
     private _player: GOBE.Player = null;
     private _client: GOBE.Client = null;
     /** 接收的帧数据 key: frameId, value: FrameInfo[] */
     private _recvMap: Map<number, FrameInfo[]>;
-    // wifi模式
+    // 房间状态
+    private _roomType: ROOM_TYPE = ROOM_TYPE.NONE;
+    // 网络模式
     private _wifiType: WIFI_TYPE = WIFI_TYPE.WIFI;
     // 原生平台证书url
     private _cacertNativeUrl: string = "";
 
-    public get room() {
-        if (this.isNetwork) {
-            return this._room;
-        } else {
-            return this._roomAlone;
-        }
-    }
+    private _isAi: boolean = false;
+    private _isRoomOwnIn: boolean = false;      // 房主有没有加入房间
+    private _isConnected: boolean = false;      // 长链是否是连接状态，默认false
+    private _isStartGame: boolean = false;
+    private _isOtherStartGame: boolean = false;
+    private _isStartFrameSync: boolean = false;
 
-    /** 房间内的玩家列表 */
-    public get roomPlayers(): PlayerInfo[] {
-        if (this.isNetwork) {
-            if (this._room) {
-                return this._room.players;
-            } else {
-                return [];
-            }
-        } else {
-            return this._roomAlone.players;
-        }
-    }
+    private _openId: string = null;             // 玩家自定义Id
+    private _playerId: string = null;           // 玩家Id
+    private _lastRoomId: string = null;         // 上次登录房间Id
+
+    private _time: number = 0;
+    private _currFrame: number = 0;
+    private _serverTimeDis: number = 0;         // 服务器与客户端时间间隔
 
     public get isNetwork() {
         return this._wifiType == WIFI_TYPE.WIFI;
     }
 
-    /** 准备过程中掉线 */
-    public get isReadyDis(): boolean {
-        return this._isReadyDis;
-    }
-
-    public get isJoinDis(): boolean {
-        return this._isJoinDis;
-    }
-
-    /** 服务器与客户端时间间隔 */
-    public get serverTimeDis(): number {
-        return this._serverTimeDis;
+    /** 判断是否初始化 */
+    public get isInitd() {
+        // 初始化成功后才有玩家Id
+        return !!this._playerId;
     }
 
     public get time(): number {
-        if (this.isNetwork) {
-            return this._time;
-        } else {
-            return new Date().getTime();
-        }
+        return this.isNetwork ? this._time : nowTime();
     }
 
     public get currFrame(): number {
         return this._currFrame;
     }
 
-    private _board: string;
-
-    public get board() {
-        return this._board;
+    /** 服务器与客户端时间间隔 */
+    public get serverTimeDis(): number {
+        return this._serverTimeDis;
     }
 
     /** 接收的帧数据字典
@@ -152,20 +114,24 @@ export class GobeManager extends Singleton<GobeManager>() {
         return this._recvMap;
     }
 
-    /** 判断是否初始化 */
-    public isInitd() {
-        // 初始化成功后才有玩家Id
-        return !!this.playerId;
+    /** 房间号 */
+    public get roomCode(): string {
+        return this.isNetwork ? this._room.roomCode : this._roomAlone.roomCode;
+    }
+
+    /** 房间内的玩家列表 */
+    public get roomPlayers(): PlayerInfo[] {
+        return this.isNetwork ? this._room.players : this._roomAlone.players;
     }
 
     /** 检查是否为玩家自己 */
     public isOwnPlayer(playerId: string) {
-        return this.playerId == playerId;
+        return this._playerId == playerId;
     }
 
     /** 检查自己是否为房主 */
     public isRoomOwner() {
-        return this._room && this._room.ownerId == this.playerId;
+        return this._room && this._room.ownerId == this._playerId;
     }
 
     /** 检查是否为房主 */
@@ -174,28 +140,17 @@ export class GobeManager extends Singleton<GobeManager>() {
     }
 
     /** 初始化SDK */
-    public initSDK(openId: string, callback: Function) {
-        this.openId = openId;
+    public initSDK(openId: string, callback: (success: boolean) => void) {
+        if (this.isInitd) {
+            callback(true);
+            return LogEX.warn("SDK 已经初始化，无需重复操作");
+        }
+        this._openId = openId;
         this.getToken(callback);
     }
 
-    /** 发送帧数据 */
-    public sendFrame(info: any) {
-        if (this.isNetwork) {
-            if (!this._room) return;
-            LogEX.info("sendFrame: ", info);
-            this._room.sendFrame(JSON.stringify(info));
-        } else {
-            this.recvMap.set(++this._currFrame, [{
-                playerId: this.playerId,
-                data: [JSON.stringify(info)],
-                timestamp: 0
-            }]);
-        }
-    }
-
     /** 获取Token */
-    private getToken(callback: Function) {
+    private getToken(callback: (success: boolean) => void) {
         let url: string = "https://connect-drcn.hispace.hicloud.com/agc/apigw/oauth2/v1/token";
         // 初始化一个 XMLHttpRequest 实例对象。
         const xhr = new XMLHttpRequest();
@@ -223,7 +178,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     }
 
     /** 获取证书url */
-    private loadCert(token: string, callback: Function) {
+    private loadCert(token: string, callback: (success: boolean) => void) {
         resources.load("/endpoint-cert", Asset, (error, asset) => {
             if (error) {
                 LogEX.error("loadCert: 加载证书失败" + error);
@@ -235,508 +190,548 @@ export class GobeManager extends Singleton<GobeManager>() {
     }
 
     /** 初始化GOBE */
-    private initGobe(token: string, callback: Function) {
+    private initGobe(token: string, callback: (success: boolean) => void) {
+        let clientConfig = {
+            appId: Global.APP_ID,                  // 应用ID
+            openId: this._openId,                        // 玩家ID，区别不同用户
+            clientId: Global.CLIENT_ID,            // 客户端ID
+            clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
+            accessToken: token,                    // AGC接入凭证(推荐)
+            appVersion: '1.10.111',
+        }
         // 初始化 client
         if (sys.Platform.ANDROID == sys.platform) {
             if (this._cacertNativeUrl == "") {
                 this.loadCert(token, callback);
                 return;
             }
-            this._client = new window.GOBE.Client({
-                appId: Global.APP_ID,                  // 应用ID
-                openId: this.openId,                        // 玩家ID，区别不同用户
-                clientId: Global.CLIENT_ID,            // 客户端ID
-                clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
-                accessToken: token,                         // AGC接入凭证(推荐)
+            clientConfig = Object.assign(clientConfig, {
                 platform: window.GOBE.PlatformType.ANDROID,
-                cerPath: this._cacertNativeUrl
-            });
-        } else {
-            this._client = new window.GOBE.Client({
-                appId: Global.APP_ID,                  // 应用ID
-                openId: this.openId,                        // 玩家ID，区别不同用户
-                clientId: Global.CLIENT_ID,            // 客户端ID
-                clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
-                accessToken: token,                         // AGC接入凭证(推荐)
-            });
+                cerPath: this._cacertNativeUrl,
+            })
         }
-        // 添加数据统计
-        this.statistics();
+        this._client = new window.GOBE.Client(clientConfig);
         // 监听Client.init方法的返回结果
-        this._client.onInitResult(resultCode => {
-            if (resultCode == 0) {
-                callback && callback(true);
-                // 如果有上次登录的房间
-                if (this.lastRoomId) {
-                    LogEX.info("initGobe-->  lastRoomId: ", this.lastRoomId);
-                    // 加入房间
-                    this.joinRoom(this.lastRoomId, () => {
-                        let info = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
-                        LogEX.info("initGobe-->  customRoomProperties: ", info);
-                        // 游戏未开始或游戏已结束, 退出房间
-                        if (info.type == ROOM_TYPE.READY || info.type == ROOM_TYPE.END) {
-                            this.leaveRoom();
-                            this.lastRoomId = null!;
-                        } else {
-                            let time = info.time;
-                            // 游戏剩余时间s
-                            let remainTime = Math.floor(Global.GAME_TIME - (new Date().getTime() - time + this._serverTimeDis) / 1000);
-                            if (remainTime > 5) {
-                                // 游戏时间内, 重新进入房间                               
-                                setTimeout(() => {
-                                    // todo: 弹窗提示 正在重新进入房间
-                                    LogEX.log("initGobe-->  joinRoom 正在重新进入房间");
-                                }, 500);
-                                this._isJoinDis = true;
-                            } else {
-                                // 超过游戏时间, 退出房间
-                                this.leaveRoom();
-                                this.lastRoomId = null!;
-                            }
-                        }
-                    }, (error: any) => {
-                        LogEX.error("initGobe-->  lastRoomId reconnect fail: ", error);
-                    });
-                }
-            }
-        });
+        this._client.onInitResult(this.onInitResult.bind(this));
         // 调用Client.init方法进行初始化
         this._client.init().then(client => {
-            // 已完成初始化请求, 具体初始化结果通过onInitResult回调获取
-            this.playerId = client.playerId;
-            this.lastRoomId = this._client.lastRoomId;
-            this._serverTimeDis = client.loginTimestamp - new Date().getTime();
+            this._playerId = client.playerId;
+            this._lastRoomId = client.lastRoomId;
+            this._serverTimeDis = client.loginTimestamp - nowTime();
+            callback && callback(true);
         }).catch(error => {
-            LogEX.error("initGobe-->  init fail: ", error);
+            LogEX.error("initGobe--> client init fail: ", error);
             callback && callback(false);
         })
     }
 
-    /** 创建房间 */
-    public createRoom(callback: Function, errorCallback: Function) {
+    /** 初始化监听回调 */
+    private onInitResult(resultCode: number) {
+        if (resultCode == window.GOBE.ErrorCode.COMMON_OK) {
+            // 如果有上次登录的房间
+            if (this._lastRoomId) {
+                LogEX.info("onInitResult-->  lastRoomId: ", this._lastRoomId);
+                // 自动加入房间
+                this.joinRoom(this._lastRoomId, () => {
+                    LogEX.info("joinRoom-->  customRoomProperties: ", this._room.customRoomProperties);
+                    let roomProp = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
+                    // 重置房间起始帧Id
+                    if (roomProp.curFrameId) {
+                        this._room.resetRoomFrameId(roomProp.curFrameId);
+                    }
+                    // 游戏未开始或游戏已结束, 退出房间
+                    if (roomProp.type == ROOM_TYPE.READY || roomProp.type == ROOM_TYPE.END) {
+                        LogEX.log("joinRoom-->  游戏未开始或游戏已结束, 退出房间");
+                        this.leaveRoom();
+                        this._lastRoomId = null;
+                    } else {
+                        let time = roomProp.time;
+                        let remainTime = Math.floor(Global.GAME_TIME - (nowTime() - time + this._serverTimeDis) / 1000); // 游戏剩余时间s
+                        if (remainTime > 5) {
+                            // 游戏时间内, 重新进入房间                               
+                            LogEX.log("joinRoom 重新进入房间");
+                        } else {
+                            // 超过游戏时间, 退出房间
+                            LogEX.log("joinRoom 超过游戏时间, 退出房间");
+                            this.leaveRoom();
+                            this._lastRoomId = null;
+                        }
+                    }
+                });
+            } else {
+                this._roomType = ROOM_TYPE.NONE;
+            }
+            LogEX.info("onInitResult-->  init success");
+        } else {
+            LogEX.error("onInitResult-->  init failed: ", resultCode);
+        }
+    }
+
+    private joinRoom(roomId: string, callback: Function) {
+        LogEX.info("joinRoom-->  加入房间: ", roomId);
+        this._isAi = false;
         this._currFrame = 0;
         this._recvMap = new Map();
-        this._isAi = false;
         this._wifiType = WIFI_TYPE.WIFI;
-        LogEX.log("createRoom-->  创建房间");
-        this._client.createRoom({
-            maxPlayers: Global.MAX_PLAYER,  // 房间最大支持人数，取值范围为[1, 100]。
-            matchParams: Global.MATCH_PARAMS,
-            customRoomProperties: JSON.stringify({ type: ROOM_TYPE.NONE, time: 0 }) // todo: 房间信息
-        }, {
-            customPlayerStatus: 0,              // 选填，自定义玩家状态。
-            customPlayerProperties: PlayerData.instance.playerInfo.name,      // todo: 选填，自定义玩家属性，最大支持2048个字符。
-        }).then(room => {
+        let playerConfig = {
+            customPlayerStatus: 0,
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
+        };
+        this._client.joinRoom(roomId, playerConfig).then(room => {
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
+            this._lastRoomId = room.roomId;
             this.enabledEventRoom();
-            LogEX.log("-----------ROOM_READY-----------");
-            // 更新房间自定义属性
-            this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ type: ROOM_TYPE.READY, time: 0 }) });  // todo: 房间信息
             callback && callback();
-            LogEX.log("创建房间成功");
         }).catch(error => {
-            errorCallback && errorCallback(error);
-            LogEX.error("创建房间失败 错误: ", error);
-        })
+            LogEX.error("joinRoom-->  error: ", error);
+        });
+    }
+
+    public leaveRoom(callback?: Function) {
+        LogEX.log("leaveRoom-->  离开房间");
+        if (this._lastRoomId && this._client) {
+            this._client.leaveRoom().then(client => {
+                this._client = client;
+                this._roomType = ROOM_TYPE.NONE;
+                this._room.removeAllListeners();
+                this._room = null;
+                callback && callback();
+            }).catch((error) => {
+                LogEX.error("leaveRoom-->  error", error)
+            });
+        } else {
+            this._roomAlone = null;
+            callback && callback();
+        }
     }
 
     /** 创建AI房间 */
     public createRoomAI(callback: Function) {
+        LogEX.log("创建AI房间");
         this._isAi = true;
         this._currFrame = 0;
         this._serverTimeDis = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.STAND_ALONE;
-        LogEX.log("createRoomAI-->  创建AI房间");
+        let roomProp = {
+            type: ROOM_TYPE.READY,
+            time: 0,
+        };
         this._roomAlone = {
-            ownerId: this.playerId,
+            ownerId: this._playerId,
             roomCode: "0001" + Math.floor(Math.random() * 100),
             players: [],
-            customRoomProperties: JSON.stringify({ type: ROOM_TYPE.READY, time: 0 })
+            customRoomProperties: JSON.stringify(roomProp)
         };
-        this._roomAlone.players.push({
-            playerId: this.playerId,
-            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 自定义AI玩家属性
-        });
+        let playerConfig = {
+            playerId: this._playerId,
+            customPlayerStatus: 0,
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
+        };
+        this._roomAlone.players.push(playerConfig);
         Util.randomName(1).then((name) => {
-            this._roomAlone.players.push({
+            let playerConfig = {
                 playerId: "ai00000",
-                customPlayerProperties: name,
-            });
+                customPlayerStatus: 0,
+                customPlayerProperties: name,  // todo: 玩家属性
+            };
+            this._roomAlone.players.push(playerConfig);
         });
-        this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.READY, time: 0 });
         this._time = 0;
         this._isStartFrameSync = true;
-        this.roomType = ROOM_TYPE.READY;
+        this._roomType = ROOM_TYPE.READY;
         callback && callback();
     }
 
-    /** 匹配房间 */
-    public matchRoom(callback: Function, errorCallback: Function) {
+    /** 创建房间 */
+    public createRoom(callback: Function) {
+        if (!this.isInitd) {
+            return LogEX.warn("请先初始化 SDK");
+        }
+        LogEX.log("创建房间");
         this._isAi = false;
         this._currFrame = 0;
         this._recvMap = new Map();
         this._wifiType = WIFI_TYPE.WIFI;
-        LogEX.log("matchRoom-->  开始匹配房间");
-        this._client.matchRoom({
+        let roomProp = {
+            type: ROOM_TYPE.NONE,
+            time: 0,
+        };
+        let roomConfig = {
+            maxPlayers: Global.MAX_PLAYER,  // 房间最大支持人数，取值范围为[1, 100]。
+            matchParams: Global.MATCH_PARAMS,
+            customRoomProperties: JSON.stringify(roomProp) // todo: 房间信息
+        };
+        let playerConfig = {
+            customPlayerStatus: 0,
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
+        };
+        this._client.createRoom(roomConfig, playerConfig).then(room => {
+            LogEX.log("创建房间成功");
+            this._room = room;
+            this._player = room.player;
+            this._lastRoomId = room.roomId;
+            this.enabledEventRoom();
+            let roomProp = {
+                type: ROOM_TYPE.READY,
+                time: 0
+            };
+            let roomInfo = {
+                customRoomProperties: JSON.stringify(roomProp)
+            }
+            this._room.updateRoomProperties(roomInfo);    // 更新房间自定义属性
+            callback && callback();
+        }).catch(error => {
+            LogEX.error("创建房间失败 错误: ", error);
+        })
+    }
+
+    /** 匹配房间 */
+    public matchRoom(callback: Function) {
+        LogEX.log("开始匹配房间");
+        this._isAi = false;
+        this._currFrame = 0;
+        this._recvMap = new Map();
+        this._wifiType = WIFI_TYPE.WIFI;
+        let roomProp = {
+            type: ROOM_TYPE.NONE,
+            time: 0,
+        };
+        let roomConfig = {
             maxPlayers: Global.MAX_PLAYER,
             matchParams: Global.MATCH_PARAMS,
-            customRoomProperties: JSON.stringify({ type: ROOM_TYPE.READY, time: 0 })
-        }, {
+            customRoomProperties: JSON.stringify(roomProp)
+        };
+        let playerConfig = {
             customPlayerStatus: 0,
-            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo:
-        }).then((room: Room) => {
+            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
+        };
+        this._client.matchRoom(roomConfig, playerConfig).then(room => {
             this._room = room;
-            this.lastRoomId = room.roomId;
-            this.enabledEventRoom();
+            this._player = room.player;
+            this._lastRoomId = room.roomId;
             // 如果加入房间 默认房主在房间里
             if (this._room.players.length == Global.MAX_PLAYER) {
                 this._isRoomOwnIn = true;
             }
+            this.enabledEventRoom();
+            let roomProp = {
+                type: ROOM_TYPE.READY,
+                time: 0
+            };
+            let roomInfo = {
+                customRoomProperties: JSON.stringify(roomProp)
+            }
+            this._room.updateRoomProperties(roomInfo);    // 更新房间自定义属性
             callback && callback();
-        }).catch((e) => {
-            errorCallback && errorCallback(e);
-            LogEX.error("matchRoom 匹配房间失败: ", e)
-        });
-    }
-    /** 获取可匹配房间列表 */
-    private updateAvailableRooms(callback: Function) {
-        let roomsConfig = {
-            offset: '0',    // 偏移量
-            limit: 10,      // 单次请求获取的房间数量
-            sync: true,     // 是否返回帧同步中的房间
-        };
-        this._client.getAvailableRooms(roomsConfig).then(info => {
-            // 查询房间列表成功
-            callback && callback(info);
         }).catch(error => {
-            LogEX.error("查询房间列表失败: ", error);
-            callback && callback(error);
+            LogEX.error("matchRoom 匹配房间失败: ", error)
         });
     }
 
     /** 更新房间信息 */
-    public updateRoom() {
+    public updateRoom(callback?: Function) {
         if (!this._room) return;
-        this._room.update().then((room) => {
-            this._room = room;
+        this._room.update().then(room => {
             LogEX.info("updateRoom-->  ", room);
-        }).catch((e) => {
-            // 获取玩家房间最新信息失败
-            LogEX.error("updateRoom-->  error", e)
-        });
-    }
-
-    /** 加入房间 */
-    public joinRoom(roomId: string, callback: Function, errorCallback: Function) {
-        this._isAi = false;
-        this._currFrame = 0;
-        this._recvMap = new Map();
-        this._wifiType = WIFI_TYPE.WIFI;
-        LogEX.log("joinRoom-->  加入房间");
-        this._client.joinRoom(roomId, {
-            customPlayerStatus: 0,
-            customPlayerProperties: PlayerData.instance.playerInfo.name,  // todo: 玩家属性
-        }).then(room => {
-            // 加入房间中
             this._room = room;
             this._player = room.player;
-            this.lastRoomId = room.roomId;
+            this._lastRoomId = room.roomId;
             this.enabledEventRoom();
-            // 如果加入房间 默认房主在房间里
-            if (room.players.length == Global.MAX_PLAYER) {
-                this._isRoomOwnIn = true;
-            }
+
             callback && callback();
         }).catch(error => {
-            LogEX.error("joinRoom-->  error: ", error);
-            errorCallback && errorCallback(error);
+            LogEX.error("updateRoom-->  error", error);  // 获取玩家房间最新信息失败
         });
     }
 
-    /** 离开房间 */
-    public leaveRoom(callback?: Function, errorCallback?: Function) {
-        LogEX.log("leaveRoom-->  离开房间");
-        if (this._isReadyDis) {
-            this._isReadyDis = false;
-            if (this._room) {
-                LogEX.warn("leaveRoom-->  sendToServer: ", Global.DISMISS);
-                this._room.sendToServer(Global.DISMISS);
-            }
-        }
-        if (this.lastRoomId && this._client) {
-            this._client.leaveRoom().then((client) => {
-                this._client = client;
-                this._client.removeAllListeners();
-                this._room && this._room.removeAllListeners();
-                this._room = null!;
-                callback && callback();
-            }).catch((error) => {
-                errorCallback && errorCallback(error);
-                LogEX.error("leaveRoom-->  error", error)
-            });
+    /** 发送帧数据 */
+    public sendFrame(info: any) {
+        if (this.isNetwork) {
+            if (!this._room) return;
+            LogEX.info("sendFrame: ", info);
+            this._room.sendFrame(JSON.stringify(info));
         } else {
-            this._roomAlone = null!;
-            callback && callback();
+            this.recvMap.set(++this._currFrame, [{
+                playerId: this._playerId,
+                data: [JSON.stringify(info)],
+                timestamp: 0
+            }]);
         }
-    }
-
-    /** 房间监听信息 */
-    private enabledEventRoom() {
-        this._isStartGame = false;
-        this._isOtherStartGame = false;
-        // 加入房间
-        this._room.onJoin(player => {
-            // 加入房间成功, 做相关游戏逻辑处理
-            LogEX.info(`enabledEventRoom-->  onJoin: roomOwnerId: ${this._room.ownerId}", playerId: "${player.playerId}`);
-            if (this.isRoomOwnerBy(player.playerId)) {
-                // 房主加入房间
-                this._isRoomOwnIn = true;
-            } else {
-                Eventer.emit(GobeEvents.ON_OTHER_JOIN_ROOM, player.playerId);
-            }
-            if (!this.isOwnPlayer(player.playerId)) {
-                if (this._otherIntervalDis > 0) {
-                    clearInterval(this._otherIntervalDis);
-                    this._otherIntervalDis = 0;
-                }
-            }
-            if (this._room && this.isOwnPlayer(player.playerId) && this._room.customRoomProperties) {
-                let info = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
-                this.roomType = info.type;
-                this._time = info.time;
-            }
-        });
-        // 加入房间失败
-        this._room.onJoinFailed(error => {
-            LogEX.error("enabledEventRoom-->  onJoinFailed: ", error);
-        });
-        // 离开房间监听
-        this._room.onLeave(player => {
-            LogEX.info("enabledEventRoom-->  onLeave: ", player.playerId);
-            if (this.isOwnPlayer(player.playerId)) {
-                this._room.removeAllListeners();
-            } else {
-                this.updateRoom();
-            }
-            // 房主离开房间
-            if (this.isRoomOwnerBy(player.playerId)) {
-                this._isRoomOwnIn = false;
-            }
-        });
-
-        this._room.onDisconnect(player => {
-            LogEX.info("enabledEventRoom-->  onDisconnect: ", player.playerId);
-            // 当前玩家断线
-            if (player.playerId == this._room.playerId) {
-                if (this._room) {
-                    let interval = setInterval(() => {
-                        LogEX.warn("enabledEventRoom-->  onDisconnect: interval ", interval);
-                        if (this._room == null) {
-                            clearInterval(interval);
-                            return;
-                        }
-                        // 重连
-                        this._room.reconnect().then(() => {
-                            clearInterval(interval);
-                        }).catch(error => {
-                            LogEX.error("enabledEventRoom-->  reconnect error", error);
-                        })
-                    }, 1000);
-                }
-            } else {
-                this.updateRoom();
-                if (this.roomType == ROOM_TYPE.READY) {
-                    let time: number = 10;
-                    this._isReadyDis = true;
-                    this._otherIntervalDis = setInterval(() => {
-                        // todo: 显示倒计时提示
-                        time--;
-                        if (time <= 0) {
-                            // 游戏结束
-                            Eventer.emit(GobeEvents.ON_GAME_END);
-                            this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ type: ROOM_TYPE.END, time: 0 }) });    // todo: 
-                            clearInterval(this._otherIntervalDis);
-                        }
-                    }, 1000);
-                }
-            }
-            // 房间掉线
-            if (this.isRoomOwnerBy(player.playerId)) {
-                this._isRoomOwnIn = false;
-            }
-        });
-
-        this._room.onStartFrameSync(() => {
-            LogEX.log("enabledEventRoom-->  onStartFrameSync");
-            this._isStartFrameSync = true;
-        });
-
-        this._room.onStopFrameSync(() => {
-            LogEX.log("enabledEventRoom-->  onStopFrameSync");
-            this._currFrame = 0;
-            this._isStartFrameSync = false;
-            this._recvMap = new Map();
-        });
-
-        this._room.onRoomPropertiesChange(roomInfo => {
-            LogEX.info("enabledEventRoom-->  onRoomPropertiesChange: ", roomInfo.customRoomProperties);
-            let info = JSON.parse(roomInfo.customRoomProperties) as CustomRoomProp;
-            this._time = info.time;
-            this.roomType = info.type;
-            if (this.roomType == ROOM_TYPE.START) {
-                // 游戏开始
-                if (info && info.board) {
-                    GameState.handleBoard(info.board);
-                } else {
-                    GameState.handleBoard(GameState.createBoard());
-                }
-                Eventer.emit(GobeEvents.ON_GAME_START);
-            } else if (this.roomType == ROOM_TYPE.END) {
-                // 游戏结束
-                Eventer.emit(GobeEvents.ON_GAME_END);
-            } else if (this.roomType == ROOM_TYPE.READY) {
-                // 游戏准备
-                // Eventer.emit(GobeEvents.ON_GAME_READY);
-            }
-            this.updateRoom();
-        });
-
-        // 监听发送消息失败的结果
-        this._room.onSendToServerFailed(error => {
-            LogEX.error("enabledEventRoom-->  onSendToServerFailed: ", error);
-        });
-
-        // 接收实时服务器消息
-        this._room.onRecvFromServer(recvFromServerInfo => {
-            LogEX.info("enabledEventRoom-->  onRecvFromServer: ", recvFromServerInfo);
-            let info = JSON.parse(recvFromServerInfo.msg);
-            if (info) {
-                if (info["msg"] == Global.START_GAME) {
-                    if (this.isOwnPlayer(info["playerId"])) {
-                        this._isStartGame = true;
-                    } else {
-                        this._isOtherStartGame = true;
-                    }
-                    if (this.isRoomOwner()) {
-                        if (this._isOtherStartGame && this._isStartGame) {
-                            LogEX.warn("enabledEventRoom-->  sendToServer: ", Global.START_GAME_TIME);
-                            this._room.sendToServer(JSON.stringify({ msg: Global.START_GAME_TIME, time: new Date().getTime() }));
-                        }
-                    }
-                } else if (info["msg"] == Global.START_GAME_TIME) {
-                    this._serverTimeDis = info["time"] - new Date().getTime();
-                    let owner = this.isRoomOwner();
-                    let board = GameState.createBoard();    // 生成牌面
-                    if (owner) {
-                        this._room.startFrameSync();
-                        this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ type: ROOM_TYPE.START, time: info["time"], board: board, serverTimeDis: this._serverTimeDis }) });
-                    }
-                }
-            }
-        });
-
-        this._room.onRecvFrame(msg => {
-            LogEX.info("enabledEventRoom-->  onRecvFrame: ", msg);
-            if (msg instanceof Array) {
-                for (let i = 0; i < msg.length; i++) {
-                    this._time = msg[i].time;
-                    if (msg[i].frameInfo) {
-                        this._recvMap.set(msg[i].currentRoomFrameId, msg[i].frameInfo);
-                    }
-                }
-                this._currFrame = msg[msg.length - 1].currentRoomFrameId;
-                Eventer.emit(GobeEvents.ON_RECV_SYNC);
-            } else {
-                this._time = msg.time;
-                if (msg.frameInfo) {
-                    this._recvMap.set(msg.currentRoomFrameId, msg.frameInfo);
-                }
-                this._currFrame = msg.currentRoomFrameId;
-            }
-        });
     }
 
     /** 开始游戏 */
     public startGame() {
-        if (this._isJoinDis) {
-            this._isJoinDis = false;
-            Eventer.emit(GobeEvents.ON_GAME_START);
-        } else {
-            if (this.isNetwork) {
-                LogEX.warn("startGame-->  sendToServer: ", Global.START_GAME);
-                this._room.sendToServer(JSON.stringify({ msg: Global.START_GAME, playerId: this.playerId }));   // todo: 
-            } else {
-                this.roomType = ROOM_TYPE.START;
-                this._time = new Date().getTime();
-                this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.START, time: new Date().getTime() });    // todo:
-                // 游戏开始
-                GameState.handleBoard(GameState.createBoard());
-                Eventer.emit(GobeEvents.ON_GAME_START);
+        if (this.isNetwork) {
+            let serverMsg: CustomServerMsg = {
+                status: Global.START_GAME,
+                playerId: this._playerId,
             }
-        }
-    }
-
-    /** 离开游戏 */
-    public leaveGame() {
-        this.playerId = "";
-        this._roomAlone = null!;
-        if (this._client) {
-            LogEX.log("leaveGame--> destroy");
-            this._client.destroy();
-            this._client = null!;
-            this._room = null!;
-            this.playerId = "";
-            PlayerData.instance.isInit = false;
+            this._room.sendToServer(JSON.stringify(serverMsg));   // todo: 
+        } else {
+            this._time = nowTime();
+            this._roomType = ROOM_TYPE.START;
+            let roomProp = {
+                type: ROOM_TYPE.START,
+                time: this._time
+            }
+            this._roomAlone.customRoomProperties = JSON.stringify(roomProp);    // todo:
+            Eventer.emit(GobeEvents.ON_GAME_START);
         }
     }
 
     /** 结束游戏 */
     public finishGame() {
         if (this.isNetwork) {
-            if (this._room && this.isRoomOwner() || !(this._isRoomOwnIn && this.isRoomOwner())) {
-                if (this._isStartFrameSync) {
-                    this._isStartFrameSync = false;
-                    LogEX.log("finishGame-->  stopFrameSync");
-                    this._room.stopFrameSync();
-                }
-                LogEX.log("-------finishGame------")
-                this._room.updateRoomProperties({ customRoomProperties: JSON.stringify({ type: ROOM_TYPE.END, time: this._time }) });
-                if (!this._isRoomOwnIn) {
-                    Eventer.emit(GobeEvents.ON_GAME_END);
-                }
+            if (this._isStartFrameSync) {
+                LogEX.log("finishGame-->  stopFrameSync");
+                this._isStartFrameSync = false;
+                this._room.stopFrameSync();
             }
+            let roomProp = {
+                type: ROOM_TYPE.END,
+                time: this._time
+            }
+            let roomInfo = {
+                customRoomProperties: JSON.stringify(roomProp)
+            }
+            this._room.updateRoomProperties(roomInfo);
         } else {
             this._isStartFrameSync = false;
-            this._roomAlone.customRoomProperties = JSON.stringify({ type: ROOM_TYPE.END, time: this._time });
+            let roomProp = {
+                type: ROOM_TYPE.END,
+                time: this._time
+            }
+            this._roomAlone.customRoomProperties = JSON.stringify(roomProp);
             Eventer.emit(GobeEvents.ON_GAME_END);
         }
     }
 
-    /** 数据统计 */
-    private statistics() {
-        let params = {
-            "appType": "hwsdk",
-            "reportType": "Start",
-            "sdkName": "hwgobe",
-            "appId": Global.APP_ID,
-            "time": Date.now(),
-            "version": "1.0.0_13.6.2",
-        }
-        fetch("https://k.cocos.org/", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(params)
-        }).then((response: Response) => {
-            return response.text()
-        }).then((value) => {
-            LogEX.log(value);
-        })
+    /** 离开游戏 */
+    public leaveGame() {
+
     }
+
+    /** 房间监听信息 */
+    private enabledEventRoom() {
+        this._isStartGame = false;
+        this._isOtherStartGame = false;
+        this._room.onJoin(this.onJoining.bind(this));
+        this._room.onLeave(this.onLeaving.bind(this));
+        this._room.onConnect(this.onConnect.bind(this));
+        this._room.onDisconnect(this.onDisconnect.bind(this));  // 断连监听 
+        // 更新自定义属性
+        this._room.onUpdateCustomStatus(this.onUpdateCustomStatus.bind(this));  // 更新玩家自定义状态
+        this._room.onUpdateCustomProperties(this.onUpdateCustomProperties.bind(this));  // 更新玩家自定义属性
+        this._room.onRoomPropertiesChange(this.onRoomPropertiesChange.bind(this));  // 更新房间自定义属性
+        // SDK 开始帧同步
+        this._room.onStartFrameSync(this.onStartFrameSync.bind(this));
+        this._room.onStopFrameSync(this.onStopFrameSync.bind(this));
+
+        this._room.onRecvFrame(this.onRecvFrame.bind(this));
+        this._room.onRecvFromServer(this.onRecvFromServer.bind(this));
+
+        this._room.onRequestFrameError(this.onRequestFrameError.bind(this));    // 补帧失败回调
+        this._room.onSendToServerFailed(this.onSendToServerFailed.bind(this));  // 发送消息失败回调
+    }
+
+    // ====================SDK广播====================
+    private onJoining(playerInfo: FramePlayerInfo) {
+        let playerId = playerInfo.playerId;
+        LogEX.info(`onJoin: ownerId: ${this._room.ownerId}", playerId: "${playerId}`);
+        if (this.isOwnPlayer(playerId) && this._room && this._room.customRoomProperties) {
+            // 同步玩家的房间信息
+            let roomProp = JSON.parse(this._room.customRoomProperties) as CustomRoomProp;
+            this._time = roomProp.time;
+            this._roomType = roomProp.type;
+        }
+        if (this.isRoomOwnerBy(playerId)) {
+            this._isRoomOwnIn = true;
+            Eventer.emit(GobeEvents.ON_OWNER_JOIN_ROOM, playerId);  // 房主加入房间
+        } else {
+            Eventer.emit(GobeEvents.ON_OTHER_JOIN_ROOM, playerId);  // 其他玩家加入房间
+        }
+    }
+
+    private onLeaving(playerInfo: FramePlayerInfo) {
+        let playerId = playerInfo.playerId;
+        LogEX.info("onLeave: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
+            this._room.removeAllListeners();
+        } else {
+            this.updateRoom();
+        }
+        if (this.isRoomOwnerBy(playerId)) {
+            this._isRoomOwnIn = false;  // 房主离开房间
+        }
+    }
+
+    private onConnect(playerInfo: FramePlayerInfo) {
+        let playerId = playerInfo.playerId;
+        LogEX.info("onConnect: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
+            this._isConnected = true;
+            LogEX.info("玩家在线了, playerId: ", playerId);
+        } else {
+            LogEX.info("其他玩家上线了, playerId: ", playerId);
+        }
+    }
+
+    private async onDisconnect(playerInfo: FramePlayerInfo) {
+        let playerId = playerInfo.playerId;
+        LogEX.info("onDisconnect: ", playerId);
+        if (this.isOwnPlayer(playerId)) {
+            this._isConnected = false;  // 当前玩家断线
+            if (this._room) {
+                // 没有超过重连时间，就进行重连操作
+                while (!this._isConnected) {
+                    await sleep(1000).then();   // 1秒重连一次，防止并发过大游戏直接卡死
+                    await this._room.reconnect();
+                }
+            }
+        } else {
+            if (this._roomType == ROOM_TYPE.READY) {
+                let roomProp = {
+                    type: ROOM_TYPE.END,
+                    time: 0,
+                }
+                let roomInfo = {
+                    customRoomProperties: JSON.stringify(roomProp),
+                }
+                this._room.updateRoomProperties(roomInfo);
+                Eventer.emit(GobeEvents.ON_GAME_END);   // 游戏结束
+            }
+        }
+        // 房主掉线
+        if (this.isRoomOwnerBy(playerId)) {
+            this._isRoomOwnIn = false;
+        }
+    }
+
+    // 修改自定义状态回调
+    onUpdateCustomStatus(playerInfo: UpdateCustomStatusResponse) {
+        throw new Error("Method not implemented.");
+    }
+
+    // 修改自定义属性回调
+    onUpdateCustomProperties(playerInfo: UpdateCustomPropertiesResponse) {
+        throw new Error("Method not implemented.");
+    }
+
+    // 修改房间属性回调
+    onRoomPropertiesChange(roomInfo: RoomInfo) {
+        LogEX.info("onRoomPropertiesChange: ", roomInfo.customRoomProperties);
+        let roomProp = JSON.parse(roomInfo.customRoomProperties) as CustomRoomProp;
+        this._time = roomProp.time;
+        this._roomType = roomProp.type;
+        switch (this._roomType) {
+            case ROOM_TYPE.READY:
+                // Eventer.emit(GobeEvents.ON_GAME_READY);  // 游戏准备
+                break;
+            case ROOM_TYPE.START:
+                Eventer.emit(GobeEvents.ON_GAME_START); // 游戏开始
+                break;
+            case ROOM_TYPE.END:
+                Eventer.emit(GobeEvents.ON_GAME_END);   // 游戏结束
+                break;
+            default: break;
+        }
+    }
+
+    private onStartFrameSync() {
+        LogEX.log("onStartFrameSync");
+        this._isStartFrameSync = true;
+    }
+
+    private onStopFrameSync() {
+        LogEX.log("onStopFrameSync");
+        this._isStartFrameSync = false;
+        this._recvMap = new Map();
+    }
+
+    onRecvFrame(msg: RecvFrameMessage | RecvFrameMessage[]) {
+        LogEX.info("onRecvFrame: ", msg);
+        if (msg instanceof Array) {
+            for (let i = 0; i < msg.length; i++) {
+                if (msg[i].frameInfo) {
+                    this._recvMap.set(msg[i].currentRoomFrameId, msg[i].frameInfo);
+                }
+            }
+            let last = msg.length - 1;
+            this._time = msg[last].time;
+            this._currFrame = msg[last].currentRoomFrameId;
+        } else {
+            if (msg.frameInfo) {
+                this._recvMap.set(msg.currentRoomFrameId, msg.frameInfo);
+            }
+            this._time = msg.time;
+            this._currFrame = msg.currentRoomFrameId;
+        }
+    }
+
+    private onRequestFrameError(onRequestFrameError: any) {
+        throw new Error("Method not implemented.");
+    }
+
+    private onSendToServerFailed(error: any) {
+        LogEX.error("onSendToServerFailed: ", error);
+    }
+
+    // 接收实时服务器消息
+    private onRecvFromServer(data: RecvFromServerInfo) {
+        if (data.msg) {
+            let parseMsg = JSON.parse(data.msg) as CustomServerMsg;
+            LogEX.info(`onRecvFromServer-->  gameStatus: ${parseMsg.status}`);
+            if (parseMsg.status == Global.START_GAME) {
+                if (this.isOwnPlayer(parseMsg.playerId)) {
+                    this._isStartGame = true;
+                } else {
+                    this._isOtherStartGame = true;
+                }
+                LogEX.info(`onRecvFromServer-->  ownStartGame: ${this._isStartGame}, otherStartGame: ${this._isOtherStartGame}`);
+                if (this.isRoomOwner()) {
+                    // 房主发送开始信息
+                    if (this._isStartGame && this._isOtherStartGame) {
+                        let serverMsg: CustomServerMsg = {
+                            status: Global.START_GAME_TIME,
+                            time: nowTime(),
+                            board: GameState.createBoard(),
+                        }
+                        this._room.sendToServer(JSON.stringify(serverMsg));
+                    }
+                }
+            } else if (parseMsg.status == Global.START_GAME_TIME) {
+                // 接受并处理牌面
+                if (parseMsg.board) {
+                    GameState.handleBoard(parseMsg.board);
+                }
+                // 开始帧同步
+                if (this.isRoomOwner()) {
+                    let roomProp: CustomRoomProp = {
+                        type: ROOM_TYPE.START,
+                        time: parseMsg.time,
+                        board: parseMsg.board,
+                        serverTimeDis: parseMsg.time - nowTime()
+                    }
+                    let roomInfo = {
+                        customRoomProperties: JSON.stringify(roomProp),
+                    }
+                    this._room.updateRoomProperties(roomInfo);
+                    this._room.startFrameSync();
+                }
+                this._serverTimeDis = parseMsg.time - nowTime();
+            }
+        }
+    }
+}
+
+export function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function nowTime() {
+    return new Date().getTime();
 }
 
 

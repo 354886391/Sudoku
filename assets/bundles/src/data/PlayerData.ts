@@ -2,7 +2,7 @@ import { Singleton } from "../../../script/framework/util/Singleton";
 import { StorageManager } from '../../../script/framework/storage/StorageManager';
 import { LOCAL_CACHE } from "./GameConst";
 import { PlayerInfo, HistoryInfo, SettingInfo } from "./GameDefine";
-import { nowTime } from "../network/NetworkManager";
+import { nowTime } from "../../../script/network/GobeManager";
 
 export class PlayerData extends Singleton<PlayerData>() {
 
