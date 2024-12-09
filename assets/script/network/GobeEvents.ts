@@ -6,8 +6,8 @@ export enum GobeEvents {
     ON_OTHER_JOIN_ROOM = "onOtherJoinRoom", // 其他玩家加入房间
     ON_OWNER_JOIN_ROOM = "onOwnerJoinRoom", // 房主加入房间
 
-    ON_GAME_READY = 'onGameReady',      //游戏准备开始
-    ON_GAME_READYGO = 'onGameGO',       //开始游戏
+    ON_GAME_READY = 'onGameReady',      //玩家准备
+    ON_GAME_READYGO = 'onGameGO',       //准备游戏
     ON_GAME_START = 'onGameStart',      //开始游戏
     ON_GAME_END = 'onGameEnd',          //结束游戏
 }

@@ -68,6 +68,12 @@ export class GameState {
 
     /** 处理牌面 */
     static handleBoard(board?: string) {
+        if (!this._sudoku) {
+            this._sudoku = new Sudoku();
+        }
+        if (!board || board == "") {
+            board = this._sudoku.generate("easy");
+        }
         this._board = board;
         this._solveBoard = this._sudoku.solve(this._board);
         this._candidatesBoard = this._sudoku.get_candidates(this._board);

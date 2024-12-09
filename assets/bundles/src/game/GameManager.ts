@@ -42,15 +42,13 @@ export class GameManager extends Component {
     }
 
     protected onEnable(): void {
-        Eventer.on(GobeEvents.ON_GAME_READY, this.onGameReady, this);
-        Eventer.on(GameEvents.ON_SHOW_READYGO, this.onGameReadyGo, this);
+        Eventer.on(GameEvents.ON_SHOW_READYGO, this.onShowReadyGo, this);
         Eventer.on(GobeEvents.ON_GAME_START, this.onGameStart, this);
         Eventer.on(GobeEvents.ON_GAME_END, this.onGameEnd, this);
     }
 
     protected onDisable(): void {
-        Eventer.offHandler(GobeEvents.ON_GAME_READY, this.onGameReady);
-        Eventer.offHandler(GameEvents.ON_SHOW_READYGO, this.onGameReadyGo);
+        Eventer.offHandler(GameEvents.ON_SHOW_READYGO, this.onShowReadyGo);
         Eventer.offHandler(GobeEvents.ON_GAME_START, this.onGameStart);
         Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
@@ -69,25 +67,25 @@ export class GameManager extends Component {
 
     /** 设置房间信息 */
     private initRoomInfo() {
-        this.roomPlayers.forEach((value: PlayerInfo) => {
-            let pIndex = NetworkManager.instance.isRoomOwnerBy(value.playerId) ? 0 : 1;
-            let player = this.statePlayers[pIndex];
-            player.channel.openId = value.playerId;
-            player.channel.name = value.customPlayerProperties as string;
-            player.channel.state = value.customPlayerStatus as number;
-            player.channel.delayTime = 0;
+        this.roomPlayers.forEach((playerInfo: PlayerInfo) => {
+            let pIndex = NetworkManager.instance.isRoomOwnerBy(playerInfo.playerId) ? 0 : 1;
+            GameState.players[pIndex].channel.openId = playerInfo.playerId;
+            GameState.players[pIndex].channel.name = playerInfo.customPlayerProperties;
+            GameState.players[pIndex].channel.state = playerInfo.customPlayerStatus;
+            GameState.players[pIndex].channel.delayTime = 0;
         });
-        Eventer.emit(GobeEvents.ON_GAME_READY);
     }
 
+    // 准备
     onGameReady() {
         Log.d("onGameReady");
     }
 
-    onGameReadyGo() {
+    // 倒数321
+    onShowReadyGo() {
         Log.d("onGameReadyGo");
-        // this.checkIsReCovery();
         this.initRoomInfo();
+        UIManager.instance.close(ReadyPanel);
         UIManager.instance.open(ReadyGoPanel, () => {
             NetworkManager.instance.startGame();
             UIManager.instance.close(ReadyGoPanel);

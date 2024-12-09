@@ -422,11 +422,9 @@ export class NetworkManager extends Singleton<NetworkManager>() {
     public startGame() {
         if (this.isNetwork) {
             let serverMsg: CustomServerMsg = {
-                status: "startGame",
+                status: Global.START_GAME,
                 playerId: this._playerId,
-                gameBoard: GameState.createBoard(),
             }
-            LogEX.warn("startGame-->  先同步游戏信息: ");
             this._room.sendToServer(JSON.stringify(serverMsg));   // todo: 
         } else {
             this._time = nowTime();
@@ -645,29 +643,34 @@ export class NetworkManager extends Singleton<NetworkManager>() {
                 }
                 LogEX.info(`onRecvFromServer-->  ownStartGame: ${this._isStartGame}, otherStartGame: ${this._isOtherStartGame}`);
                 if (this.isRoomOwner()) {
+                    // 房主发送开始信息
                     if (this._isStartGame && this._isOtherStartGame) {
-                        let serverMsg = {
-                            msg: Global.START_GAME_TIME,
-                            time: nowTime()
+                        let serverMsg: CustomServerMsg = {
+                            status: Global.START_GAME_TIME,
+                            time: nowTime(),
+                            board: GameState.createBoard(),
                         }
                         this._room.sendToServer(JSON.stringify(serverMsg));
                     }
                 }
-                if (parseMsg.gameBoard) {
-                    GameState.handleBoard(parseMsg.gameBoard);
-                }
             } else if (parseMsg.status == Global.START_GAME_TIME) {
+                // 接受并处理牌面
+                if (parseMsg.board) {
+                    GameState.handleBoard(parseMsg.board);
+                }
+                // 开始帧同步
                 if (this.isRoomOwner()) {
-                    let roomProp = {
+                    let roomProp : CustomRoomProp = {
                         type: ROOM_TYPE.START,
                         time: parseMsg.time,
+                        board: parseMsg.board,
                         serverTimeDis: parseMsg.time - nowTime()
                     }
                     let roomInfo = {
                         customRoomProperties: JSON.stringify(roomProp),
                     }
-                    this._room.startFrameSync();
                     this._room.updateRoomProperties(roomInfo);
+                    this._room.startFrameSync();
                 }
                 this._serverTimeDis = parseMsg.time - nowTime();
             }

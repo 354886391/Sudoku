@@ -42,43 +42,33 @@ export class ReadyPanel extends UIView {
         this.callback = callback;
     }
 
-    protected start(): void {
+    protected onLoad(): void {
         this.vsAnim.node.active = false;
         this.readyAnim.node.active = false;
         this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
         Eventer.on(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom, this);
-        this.txtNum.string = "房间号：" + NetworkManager.instance.roomCode;
-        let count: number = this.playerHeadList.length;
-        for (let i = 0; i < count; i++) {
-            this.showReadyPlayer(i, false);
-        }
-
-        this.readyAnim.node.active = true;
-        this.readyAnim.play();
         this.readyAnim.once(Animation.EventType.FINISHED, () => {
             this.isShowVs = true;
             this.updateShowPlayer();
             this.checkStart();
         });
+        this.vsAnim.once(Animation.EventType.FINISHED, () => {
+            Eventer.emit(GameEvents.ON_SHOW_READYGO);
+        });
+    }
+
+    protected start(): void {
+        this.txtNum.string = "房间号：" + NetworkManager.instance.roomCode;
+        for (let i = 0; i < this.playerHeadList.length; i++) {
+            this.showReadyPlayer(i, i == 0);    // 默认房主已准备
+        }
+        this.readyAnim.node.active = true;
+        this.readyAnim.play();
     }
 
     onOtherJoinRoom(playerId: string) {
         this.updateShowPlayer(playerId);
         this.checkStart();
-    }
-
-    updateShowPlayer(playerId?: string) {
-        let roomPlayers = NetworkManager.instance.roomPlayers;
-        for (let i = 0; i < roomPlayers.length; i++) {
-            let player = roomPlayers[i];
-            if (playerId && playerId != "") {
-                if (player.playerId == playerId) {
-                    this.showReadyPlayer(i, true, player.customPlayerProperties);
-                }
-            } else {
-                this.showReadyPlayer(i, true, player.customPlayerProperties);
-            }
-        }
     }
 
     showReadyPlayer(index: number, isReady: boolean, playerName: string = "") {
@@ -87,8 +77,15 @@ export class ReadyPanel extends UIView {
         if (playerName != "") {
             find("name", this.playerHeadList[index]).getComponent(Label).string = playerName;
         }
-        if(playerName != ""){
-            find("avatar", this.playerHeadList[index]).getComponent(Sprite).spriteFrame = null;
+    }
+
+    updateShowPlayer(playerId?: string) {
+        let roomPlayers = NetworkManager.instance.roomPlayers;
+        for (let i = 0; i < roomPlayers.length; i++) {
+            let player = roomPlayers[i];
+            if (playerId && playerId == player.playerId) {
+                this.showReadyPlayer(i, true, player.customPlayerProperties);
+            }
         }
     }
 
@@ -98,10 +95,6 @@ export class ReadyPanel extends UIView {
         if (roomPlayers.length >= Global.MAX_PLAYER) {
             this.vsAnim.node.active = true;
             this.vsAnim.play();
-            this.vsAnim.once(Animation.EventType.FINISHED, () => {
-                UIManager.instance.close(ReadyPanel);
-                Eventer.emit(GameEvents.ON_SHOW_READYGO);
-            });
         }
     }
 

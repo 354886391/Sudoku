@@ -28,9 +28,9 @@ export enum WIFI_TYPE {
 }
 
 export interface CustomServerMsg {
-    status?: string,
     playerId?: string,
-    gameBoard?: string,
+    status?: string,
+    board?: string,
     time?: number,
 }
 
