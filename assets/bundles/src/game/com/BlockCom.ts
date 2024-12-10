@@ -4,6 +4,7 @@ import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
 import { BlockInfo, BLOCK_TYPE } from '../../data/GameDefine';
 import { GameEvents } from '../../data/GameEvent';
+import { RingLayout } from '../../tool/RingLayout';
 
 const { ccclass, property } = _decorator;
 
@@ -18,6 +19,9 @@ export class BlockCom extends Component {
     blockLbl: Label = null;
     @property(UIButton)
     blockBtn: UIButton = null;
+
+    @property(RingLayout)
+    candidate: RingLayout = null;
 
     nonetId: number = 0;    // 九宫格Id
     blockInfo: BlockInfo;   // 方格信息
@@ -45,10 +49,24 @@ export class BlockCom extends Component {
         this.blockLbl.string = `${value}`;
     }
 
+    public setCandidate(value: string): void {
+        let candidates = this.candidate.node.children;
+        let maxCount = Math.max(candidates.length, value.length);
+        for (let i = 0; i < maxCount; i++) {
+            if (i < value.length) {
+                const char = value.charAt(i);
+                this.candidate.addItem(char);
+            } else {
+                const char = candidates[i].name;
+                this.candidate.removeItem(char);
+            }
+        }
+    }
+
     public setBlockColor(str: string): void {
         this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
     }
-    
+
     public setResultColor(str: string): void {
         this.blockLbl.color = new Color().fromHEX(str);
     }
@@ -61,6 +79,7 @@ export class BlockCom extends Component {
         this.blockInfo.isSelect = false;
         this.setResultColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
+        this.setCandidate("");
     }
 
     //getter / setter

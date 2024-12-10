@@ -49,6 +49,7 @@ export class GamePanel extends UIView {
 
     initBoard() {
         this.boardView.init(GameState.gridBoard);
+        this.boardView.initCandidate(GameState.candidatesBoard);
     }
 
     onBlockClick(block: BlockCom) {

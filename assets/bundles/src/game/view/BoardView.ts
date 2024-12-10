@@ -27,6 +27,19 @@ export class BoardView extends Component {
         }
     }
 
+    public initCandidate(board: string[][]) {
+        for (let i = 0; i < this.blockList.length; i++) {
+            const candidate = board[Math.floor(i / 9)][i % 9];
+            if (candidate != BLANK && candidate.length > 1) {
+                this.blockList[i].setCandidate(candidate);
+            }
+        }
+    }
+
+    public setBlockCandidate(blockId: number, candidate: string){
+        this.getBlock(blockId).setCandidate(candidate);
+    }
+
     private setNonet(index: number, nonetId: number, board: string[][]) {
         this.nonetList[index].init(nonetId, board, this);
     }

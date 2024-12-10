@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, instantiate, Vec3, EventTouch, CCFloat } from 'cc';
+import { _decorator, Component, Node, instantiate, Vec3, EventTouch, CCFloat, Label } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -15,10 +15,6 @@ export class RingLayout extends Component {
 
     start() {
         this.createRingLayout();
-
-        for (let i = 0; i < 5; i++) {
-            this.addItem(null);
-        }
     }
 
     createRingLayout() {
@@ -33,16 +29,27 @@ export class RingLayout extends Component {
         this.updateRingLayout();
     }
 
-    addItem(event: EventTouch) {
+    addItem(char: string) {
         if (!this.itemNode) {
             console.error('Item prefab is not assigned.');
             return;
         }
-        const itemNode = instantiate(this.itemNode);
-        itemNode.active = true;
-        itemNode.parent = this.node;
-        this.items.push(itemNode);
+        const item = instantiate(this.itemNode);
+        item.active = true;
+        item.parent = this.node;
+        item.name = char;
+        item.getComponent(Label).string = char;
+        this.items.push(item);
         this.updateRingLayout();
+    }
+
+    removeItem(char: string) {
+        const index = this.items.findIndex(item => item.name === char);
+        if (index !== -1) {
+            this.items[index].destroy();
+            this.items.splice(index, 1);
+            this.updateRingLayout();
+        }
     }
 
     updateRingLayout() {

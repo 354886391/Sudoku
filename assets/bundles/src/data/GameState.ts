@@ -37,6 +37,10 @@ export class GameState {
         }
     }
 
+    static get candidatesBoard() {
+        return this._candidatesBoard;
+    }
+
     /** 设置初始信息 */
     public static init() {
         let initPlayers = () => {
