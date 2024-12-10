@@ -116,7 +116,7 @@ export class BoardView extends Component {
     public checkWin(): boolean {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            if (block.isValid == false) {
+            if (block.IsCorrect == false) {
                 return false;
             }
         }

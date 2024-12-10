@@ -96,7 +96,7 @@ export class BlockCom extends Component {
         this.blockInfo.isSelect = value;
     }
 
-    get isValid() {
+    get IsCorrect() {
         return this.blockInfo.type == BLOCK_TYPE.Right || this.blockInfo.type == BLOCK_TYPE.Lock;
     }
 

@@ -60,7 +60,7 @@ export class GamePanel extends UIView {
             board: this.boardView.curBoard,
             steps: undefined,
         }
-        LogEX.warn("onBlockClick-->  frameInfo: ", frameInfo);
+        LogEX.info("onBlockClick-->  frameInfo: ", frameInfo);
         GobeManager.instance.sendFrame(frameInfo);
     }
 
@@ -79,14 +79,14 @@ export class GamePanel extends UIView {
                     board: this.boardView.curBoard,
                     steps: undefined,
                 }
-                LogEX.warn("onOptionClick-->  frameInfo: ", frameInfo);
+                LogEX.info("onOptionClick-->  frameInfo: ", frameInfo);
                 GobeManager.instance.sendFrame(frameInfo);
             }
         }
     }
 
     onHandleFrame(playerId: string, frame: Frame) {
-        LogEX.warn("onBlockFrame-->  playerId: ", playerId, frame);
+        LogEX.info("onBlockFrame-->  playerId: ", playerId, frame);
         let blockId = frame.blockId;
         let optionId = frame.optionId;
         if (GobeManager.instance.isOwnPlayer(playerId)) {
