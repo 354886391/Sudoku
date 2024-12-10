@@ -115,10 +115,7 @@ export class GameManager extends Component {
         } else {
             winner = 1;
         }
-        if (GameState.isGaming) {
-            GameState.isGaming = false;
-            UIManager.instance.open(RewardPanel, winner);
-        }
+        UIManager.instance.open(RewardPanel, winner);
     }
 
     protected lateUpdate(dt: number): void {

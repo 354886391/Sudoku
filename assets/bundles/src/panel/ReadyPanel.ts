@@ -30,23 +30,23 @@ export class ReadyPanel extends UIView {
     playerHeadList: Node[] = [];
 
     isShowVs: boolean = false;
-    isFightOpen: boolean = false;
 
 
     callback: Function = null;
 
-    public init(isFight: boolean = false, callback: Function): void {
+    public init(): void {
         Log.w("ReadyPanel init");
-        this.isShowVs = false;
-        this.isFightOpen = isFight;
-        this.callback = callback;
+    }
+
+    public onOpen(...args: any[]): void {
+        Eventer.on(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom, this);
     }
 
     protected onLoad(): void {
+        this.isShowVs = false;
         this.vsAnim.node.active = false;
         this.readyAnim.node.active = false;
         this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
-        Eventer.on(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom, this);
         this.readyAnim.once(Animation.EventType.FINISHED, () => {
             this.isShowVs = true;
             this.updateShowPlayer();
@@ -105,6 +105,10 @@ export class ReadyPanel extends UIView {
         });
         this.callback && this.callback();
         UIManager.instance.close(ReadyPanel);
+    }
+
+    public onClose(): void {
+        Eventer.offHandler(GobeEvents.ON_OTHER_JOIN_ROOM, this.onOtherJoinRoom);
     }
 }
 

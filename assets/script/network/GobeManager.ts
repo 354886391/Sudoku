@@ -293,8 +293,8 @@ export class GobeManager extends Singleton<GobeManager>() {
         if (this._lastRoomId && this._client) {
             this._client.leaveRoom().then(client => {
                 this._client = client;
-                this._roomType = ROOM_TYPE.NONE;
-                this._room.removeAllListeners();
+                this._client.removeAllListeners();
+                this._room && this._room.removeAllListeners();
                 this._room = null;
                 callback && callback();
             }).catch((error) => {
@@ -432,14 +432,10 @@ export class GobeManager extends Singleton<GobeManager>() {
 
     /** 更新房间信息 */
     public updateRoom(callback?: Function) {
-        if (!this._room) return;
+        if (this._room == null) return;
         this._room.update().then(room => {
             LogEX.info("updateRoom-->  ", room);
             this._room = room;
-            this._player = room.player;
-            this._lastRoomId = room.roomId;
-            this.enabledEventRoom();
-
             callback && callback();
         }).catch(error => {
             LogEX.error("updateRoom-->  error", error);  // 获取玩家房间最新信息失败
@@ -484,19 +480,24 @@ export class GobeManager extends Singleton<GobeManager>() {
     /** 结束游戏 */
     public finishGame() {
         if (this.isNetwork) {
-            if (this._isStartFrameSync) {
-                LogEX.log("finishGame-->  stopFrameSync");
-                this._isStartFrameSync = false;
-                this._room.stopFrameSync();
+            if (this._room && this.isRoomOwner() || (!this._isRoomOwnIn && !this.isRoomOwner())) {
+                if (this._isStartFrameSync) {
+                    LogEX.log("finishGame-->  stopFrameSync");
+                    this._isStartFrameSync = false;
+                    this._room.stopFrameSync();
+                }
+                let roomProp = {
+                    type: ROOM_TYPE.END,
+                    time: this._time
+                }
+                let roomInfo = {
+                    customRoomProperties: JSON.stringify(roomProp)
+                }
+                this._room.updateRoomProperties(roomInfo);
+                if (!this._isRoomOwnIn) {
+                    Eventer.emit(GobeEvents.ON_GAME_END);
+                }
             }
-            let roomProp = {
-                type: ROOM_TYPE.END,
-                time: this._time
-            }
-            let roomInfo = {
-                customRoomProperties: JSON.stringify(roomProp)
-            }
-            this._room.updateRoomProperties(roomInfo);
         } else {
             this._isStartFrameSync = false;
             let roomProp = {
@@ -591,6 +592,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 }
             }
         } else {
+            this.updateRoom();
             if (this._roomType == ROOM_TYPE.READY) {
                 let roomProp = {
                     type: ROOM_TYPE.END,
@@ -637,6 +639,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 break;
             default: break;
         }
+        this.updateRoom();
     }
 
     private onStartFrameSync() {
