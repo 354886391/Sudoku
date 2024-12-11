@@ -24,8 +24,6 @@ const DIFFICULTY = {
 
 // Blank character and board representation
 const BLANK_CHAR = ' ';
-const BLANK_BOARD = "...................................................." +
-    ".............................";
 
 export class Sudoku {
 
