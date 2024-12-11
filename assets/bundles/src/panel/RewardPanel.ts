@@ -64,5 +64,4 @@ export class RewardPanel extends UIView {
     }
 
 }
-
 UIManager.instance.register(RewardPanel);

@@ -39,18 +39,9 @@ export class GameManager extends Component {
     protected onLoad(): void {
         GameManager._instance = this;
         this._gamePanel = this.getComponent(GamePanel);
-    }
-
-    protected onEnable(): void {
         Eventer.on(GameEvents.ON_SHOW_READYGO, this.onShowReadyGo, this);
         Eventer.on(GobeEvents.ON_GAME_START, this.onGameStart, this);
         Eventer.on(GobeEvents.ON_GAME_END, this.onGameEnd, this);
-    }
-
-    protected onDisable(): void {
-        Eventer.offHandler(GameEvents.ON_SHOW_READYGO, this.onShowReadyGo);
-        Eventer.offHandler(GobeEvents.ON_GAME_START, this.onGameStart);
-        Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
     protected start(): void {
@@ -192,6 +183,12 @@ export class GameManager extends Component {
         //         this.updateRecoveryState();
         //     });
         // }
+    }
+
+    protected onDestroy(): void {
+        Eventer.offHandler(GameEvents.ON_SHOW_READYGO, this.onShowReadyGo);
+        Eventer.offHandler(GobeEvents.ON_GAME_START, this.onGameStart);
+        Eventer.offHandler(GobeEvents.ON_GAME_END, this.onGameEnd);
     }
 
 }

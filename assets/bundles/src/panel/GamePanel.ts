@@ -127,5 +127,11 @@ export class GamePanel extends UIView {
             UIManager.instance.open(RewardPanel);
         }
     }
+
+    protected onDestroy(): void {
+        Eventer.offHandler(GameEvents.ON_BLOCK_CLICK, this.onBlockClick);
+        Eventer.offHandler(GameEvents.ON_OPTION_CLICK, this.onOptionClick);
+        Eventer.offHandler(GameEvents.ON_FRAME_REC, this.onHandleFrame);
+    }
 }
 UIManager.instance.register(GamePanel);

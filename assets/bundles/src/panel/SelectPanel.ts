@@ -23,7 +23,9 @@ export class SelectPanel extends UIView {
 
     public init(): void {
         Log.w("SelectPanel init");
-
+    }
+    
+    protected onLoad(): void {
         this.createRoomAIBtn.touchEndedFun = this.onCreateRoomAIClick.bind(this);   // 人机
         this.createRoomBtn.touchEndedFun = this.onCreateRoomClick.bind(this);       // 创建
         this.matchRoomBtn.touchEndedFun = this.onMatchRoomClick.bind(this);         // 匹配
