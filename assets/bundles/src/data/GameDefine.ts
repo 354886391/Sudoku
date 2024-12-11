@@ -7,8 +7,8 @@ export enum BLOCK_TYPE {
     Right,
     /** 错误 */
     Fault,
-    /** 候选 */
-    Candidate,
+    /** 其他 */
+    Other,
 }
 
 export interface Channel {

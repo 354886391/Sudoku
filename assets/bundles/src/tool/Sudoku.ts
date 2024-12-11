@@ -23,7 +23,7 @@ const DIFFICULTY = {
 };
 
 // Blank character and board representation
-const BLANK_CHAR = '.';
+const BLANK_CHAR = ' ';
 const BLANK_BOARD = "...................................................." +
     ".............................";
 
@@ -98,7 +98,7 @@ export class Sudoku {
         // Get a set of squares and all possible candidates for each square
         var blank_board = "";
         for (var i = 0; i < NR_SQUARES; ++i) {
-            blank_board += '.';
+            blank_board += BLANK_CHAR;
         }
         var candidates = this._get_candidates_map(blank_board);
 

@@ -34,7 +34,7 @@ export class NonetCom extends Component {
                     isSelect: false,
                 }
                 if (this.blockList[index]) {
-                    this.setBlock(index, nonetId, info);
+                    this.setBlock(index, info);
                 } else {
                     this.createBlock(nonetId, info, this.node);
                 }
@@ -43,8 +43,8 @@ export class NonetCom extends Component {
         }
     }
 
-    private setBlock(index: number, nonetId: number, info: BlockInfo): void {
-        this.blockList[index].setBlock(nonetId, info);
+    private setBlock(index: number, info: BlockInfo): void {
+        this.blockList[index].setBlock(info);
     }
 
     /** 创建格子 (所有id从1开始; 所有index从0开始) */

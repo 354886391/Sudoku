@@ -63,7 +63,7 @@ export class GameState {
     }
 
     /** 生成牌面 */
-    static createBoard(difficulty: string | number = "easy") {
+    static createBoard(difficulty: string | number = 31) {
         if (!this._sudoku) {
             this._sudoku = new Sudoku();
         }
@@ -76,7 +76,7 @@ export class GameState {
             this._sudoku = new Sudoku();
         }
         if (!board || board == "") {
-            board = this._sudoku.generate("easy");
+            board = this._sudoku.generate(31);
         }
         this._board = board;
         this._solveBoard = this._sudoku.solve(this._board);

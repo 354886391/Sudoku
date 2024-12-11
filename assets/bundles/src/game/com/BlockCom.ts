@@ -8,7 +8,7 @@ import { RingLayout } from '../../tool/RingLayout';
 
 const { ccclass, property } = _decorator;
 
-export const BLANK = '.';
+export const BLANK = ' ';
 
 @ccclass
 export class BlockCom extends Component {
@@ -37,38 +37,39 @@ export class BlockCom extends Component {
         this.node.name = `${this.nonetId}-${info.id}`;
     }
 
-    public setBlock(nonetId: number, info: BlockInfo): void {
-        this.nonetId = nonetId;
+    public setBlock(info: BlockInfo): void {
         this.blockInfo = info;
         this.setResult(info.type, info.result);
     }
-
+    
+    public setBlockColor(color: string): void {
+        this.blockBg.color = new Color().fromHEX(color);
+    }
+    
     public setResult(type: BLOCK_TYPE, value: string): void {
         this.blockInfo.type = type;
         this.blockInfo.result = value;
         this.blockLbl.string = `${value}`;
     }
 
-    public setCandidate(value: string): void {
-        let candidates = this.candidate.node.children;
-        let maxCount = Math.max(candidates.length, value.length);
+
+    public setResultColor(color: string): void {
+        this.blockLbl.color = new Color().fromHEX(color);
+    }
+
+    /** 设置提示词 */
+    public setCandidate(candidates: string): void {
+        let nodes = this.candidate.node.children;
+        let maxCount = Math.max(nodes.length, candidates.length);
         for (let i = 0; i < maxCount; i++) {
-            if (i < value.length) {
-                const char = value.charAt(i);
+            if (i < candidates.length) {
+                const char = candidates.charAt(i);
                 this.candidate.addItem(char);
             } else {
-                const char = candidates[i].name;
+                const char = nodes[i].name;
                 this.candidate.removeItem(char);
             }
         }
-    }
-
-    public setBlockColor(str: string): void {
-        this.blockBtn.getComponent(Sprite).color = new Color().fromHEX(str);
-    }
-
-    public setResultColor(str: string): void {
-        this.blockLbl.color = new Color().fromHEX(str);
     }
 
     public onClicked(): void {
@@ -103,10 +104,6 @@ export class BlockCom extends Component {
         return this.blockInfo.result;
     }
 
-    set result(value: string) {
-        this.blockInfo.result = value;
-    }
-
     get isSelect() {
         return this.blockInfo.isSelect;
     }
@@ -115,10 +112,10 @@ export class BlockCom extends Component {
         this.blockInfo.isSelect = value;
     }
 
+    /** 是否正确 */
     get IsCorrect() {
         return this.blockInfo.type == BLOCK_TYPE.Right || this.blockInfo.type == BLOCK_TYPE.Lock;
     }
-
 }
 
 

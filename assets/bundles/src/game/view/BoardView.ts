@@ -36,7 +36,7 @@ export class BoardView extends Component {
         }
     }
 
-    public setBlockCandidate(blockId: number, candidate: string){
+    public setBlockCandidate(blockId: number, candidate: string) {
         this.getBlock(blockId).setCandidate(candidate);
     }
 
@@ -69,9 +69,9 @@ export class BoardView extends Component {
             if (click == this.curClick && !isSelect) {
                 continue;
             }
-            this.grayCrossColor(click, block);
-            this.grayNonetColor(click, block);
-            this.setBlockResultColor(click.result, block);
+            this.grayCrossColor(block, click);
+            this.grayNonetColor(block, click);
+            this.setResultBlockColor(block, click.result);
         }
     }
 
@@ -80,13 +80,7 @@ export class BoardView extends Component {
         Log.d(`ClickView::onClickBlock, id: ${click.id} row:${click.row} col:${click.col}`);
         let isSelect = !click.isSelect;
         this.setClickBlockColor(click, isSelect);
-        if (isSelect) {
-            click.setResultColor(BlockColor.White);
-            click.setBlockColor(BlockColor.Blue);
-        } else {
-            click.setResultColor(BlockColor.Black);
-            click.setBlockColor(BlockColor.White);
-        }
+        this.setHighlightBlockColor(click, isSelect);
         // 记录状态
         click.isSelect = isSelect;
         this.curClick = click;
@@ -97,33 +91,36 @@ export class BoardView extends Component {
         console.log("ClickView::onSelectBlock", value);
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            this.setBlockResultColor(value, block);
+            this.setResultBlockColor(block, value);
         }
     }
 
     /** highlight与click相同value的格子 */
-    public setBlockResultColor(value: string, block: BlockCom): void {
-        if (value != BLANK && value == block.result) {
-            block.setResultColor(BlockColor.White);
-            block.setBlockColor(BlockColor.Blue);
-        }
+    public setResultBlockColor(block: BlockCom, value: string): void {
+        let isHighlight = value != BLANK && value == block.result
+        this.setHighlightBlockColor(block, isHighlight);
     }
 
     /** gray所在的十字格 */
-    private grayCrossColor(click: BlockCom, block: BlockCom): void {
-        if (click.row == block.row) {
+    private grayCrossColor(block: BlockCom, click: BlockCom): void {
+        if (block.row == click.row) {
             block.setBlockColor(BlockColor.Gray);
         }
-        if (click.col == block.col) {
+        if (block.col == click.col) {
             block.setBlockColor(BlockColor.Gray);
         }
     }
 
     /** gray选中所处的九宫格 */
-    private grayNonetColor(click: BlockCom, block: BlockCom): void {
-        if (click.nonetId == block.nonetId) {
+    private grayNonetColor(block: BlockCom, click: BlockCom): void {
+        if (block.nonetId == click.nonetId) {
             block.setBlockColor(BlockColor.Gray);
         }
+    }
+
+    private setHighlightBlockColor(block: BlockCom, isHighlight: boolean) {
+        block.setResultColor(isHighlight ? BlockColor.White : BlockColor.Black);
+        block.setBlockColor(isHighlight ? BlockColor.Blue : BlockColor.White);
     }
 
     public checkWin(): boolean {
@@ -149,19 +146,12 @@ export class BoardView extends Component {
     }
 
     public getBlock(blockId: number): BlockCom {
-        if (blockId < 1 || blockId > 81) {
-            return null;
-        }
-        else {
-            return this.blockList[blockId - 1];
-        }
+        return blockId >= 1 && blockId <= 81 ? this.blockList[blockId - 1] : null;
     }
 
     public setBlock(click: BlockCom, result: string) {
         let solve = GameState.gridSolveBoard[click.row][click.col];
-        if (click.type != BLOCK_TYPE.Lock) {
-            click.setResult(solve == result ? BLOCK_TYPE.Right : BLOCK_TYPE.Fault, result);
-        }
+        click.setResult(solve == result ? BLOCK_TYPE.Right : BLOCK_TYPE.Fault, result);
     }
 
     public get curBoard() {

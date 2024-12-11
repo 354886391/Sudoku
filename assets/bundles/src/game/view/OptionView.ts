@@ -54,7 +54,7 @@ export class OptionView extends Component {
     }
 
     public getOption(optionId: number): OptionCom {
-        return this.optionList[optionId - 1];
+        return optionId >= 1 && optionId <= 9 ? this.optionList[optionId - 1] : null;
     }
 
     public reset(): void {

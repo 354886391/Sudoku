@@ -7,7 +7,7 @@ import { DrawView } from '../game/view/DrawView';
 import { Eventer } from '../../../script/framework/tool/Eventer';
 import { GameEvents } from '../data/GameEvent';
 import { OptionCom } from '../game/com/OptionCom';
-import { BlockCom } from '../game/com/BlockCom';
+import { BLANK, BlockCom } from '../game/com/BlockCom';
 import { GameState } from '../data/GameState';
 import { UIButton } from '../../../script/framework/ui/group/UIButton';
 import { HintNotice } from './notice/HintNotice';
@@ -27,11 +27,15 @@ export class GamePanel extends UIView {
     boardView: BoardView = null;
     @property(OptionView)
     optionView: OptionView = null;
+
+    @property(UIButton)
+    candidateBtn: UIButton = null;
+    @property(UIButton)
+    clearBtn: UIButton = null;
     @property(UIButton)
     closeBtn: UIButton = null;
 
     onLoad() {
-        this.closeBtn.touchEndedFun = this.onCloseClick.bind(this);
         Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
         Eventer.on(GameEvents.ON_OPTION_CLICK, this.onOptionClick, this);
         Eventer.on(GameEvents.ON_FRAME_REC, this.onHandleFrame, this);
@@ -49,11 +53,10 @@ export class GamePanel extends UIView {
 
     initBoard() {
         this.boardView.init(GameState.gridBoard);
-        this.boardView.initCandidate(GameState.candidatesBoard);
+        // this.boardView.initCandidate(GameState.candidatesBoard);
     }
 
     onBlockClick(block: BlockCom) {
-        // this.boardView.highlightClickBlockColor(block);
         // 发送frame数据
         let frameInfo: Frame = {
             blockId: block.id,
@@ -69,10 +72,6 @@ export class GamePanel extends UIView {
         let block = this.boardView.curClick;
         if (block && block.type != BLOCK_TYPE.Lock) {
             if (option) {
-                // this.boardView.reset();
-                // this.boardView.setBlock(block, option.value);
-                // this.boardView.highlightBlockResultColor(option.value);
-                // block.isSelect = true;
                 // 发送frame数据
                 let frameInfo: Frame = {
                     blockId: block.id,
@@ -90,33 +89,63 @@ export class GamePanel extends UIView {
         LogEX.info("onBlockFrame-->  playerId: ", playerId, frame);
         let blockId = frame.blockId;
         let optionId = frame.optionId;
+        let isClear = blockId < 0;
+        blockId = Math.abs(blockId);
+        let block = this.boardView.getBlock(blockId);
+        if (block && isClear) {
+            this.boardView.reset();
+            this.boardView.setResultBlockColor(block, BLANK);
+            block.setResult(BLOCK_TYPE.Void, BLANK);
+            return;
+        }
         if (GobeManager.instance.isOwnPlayer(playerId)) {
-            let block: BlockCom = null;
-            if (blockId) {
-                block = this.boardView.getBlock(blockId);
+            if (block) {
                 this.boardView.highlightClickBlockColor(block);
-                if (optionId) {
-                    let option = this.optionView.getOption(optionId);
-                    if (block && block.type != BLOCK_TYPE.Lock) {
-                        if (option) {
-                            this.boardView.reset();
-                            this.boardView.setBlock(block, option.value);
-                            this.boardView.highlightBlockResultColor(option.value);
-                            block.isSelect = true;
-                        }
-                    }
+                let option = this.optionView.getOption(optionId);
+                if (option && block.type != BLOCK_TYPE.Lock) {
+                    this.boardView.reset();
+                    this.boardView.setBlock(block, option.value);
+                    this.boardView.highlightBlockResultColor(option.value);
+                    block.isSelect = true;
                 }
             }
         } else {
-            // 擦除 option 使用 -optionId表示
             if (blockId && optionId) {
                 let block = this.boardView.getBlock(blockId);
-                this.boardView.setBlockColor(block, BlockColor.Red);
+                if (block) {
+                    this.boardView.setBlockColor(block, BlockColor.Red);
+                }
             }
         }
     }
 
-    onCloseClick() {
+    onCandidateBtnClick() {
+        // let block = this.boardView.curClick;
+        // if (block) {
+        //     let candidate = this.getCandidate(block.id);
+        //     if (candidate) {
+        //         this.boardView.setBlockCandidate(block.id, candidate);
+        //     }
+        // }
+        this.boardView.initCandidate(GameState.candidatesBoard);
+    }
+
+    onClearBtnClick() {
+        let block = this.boardView.curClick;
+        if (block && block.type != BLOCK_TYPE.Lock) {
+            // 发送frame数据
+            let frameInfo: Frame = {
+                blockId: -block.id, // 使用-blockId作为标记，表示清除
+                optionId: undefined,
+                board: this.boardView.curBoard,
+                steps: undefined,
+            }
+            LogEX.info("onClearBtnClick-->  frameInfo: ", frameInfo);
+            GobeManager.instance.sendFrame(frameInfo);
+        }
+    }
+
+    onCloseBtnClick() {
         GobeManager.instance.finishGame();
         UIManager.instance.open(HintNotice, "游戏结束");
     }
@@ -126,6 +155,12 @@ export class GamePanel extends UIView {
         if (isWin) {
             UIManager.instance.open(RewardPanel);
         }
+    }
+
+    getCandidate(blockId: number) {
+        let col = Math.floor((blockId - 1) / 9);
+        let row = (blockId - 1) % 9;
+        return GameState.candidatesBoard[col][row];
     }
 
     protected onDestroy(): void {
