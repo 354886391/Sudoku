@@ -65,7 +65,7 @@ export class BoardView extends Component {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
             // 重置所有格
-            block.reset();
+            this.resetBlock(block, false);
             if (click == this.curClick && !isSelect) {
                 continue;
             }
@@ -80,7 +80,14 @@ export class BoardView extends Component {
         Log.d(`ClickView::onClickBlock, id: ${click.id} row:${click.row} col:${click.col}`);
         let isSelect = !click.isSelect;
         this.setClickBlockColor(click, isSelect);
-        this.setHighlightBlockColor(click, isSelect);
+        // this.setHighlightBlockColor(click, isSelect);
+        if (isSelect) {
+            click.setResultColor(BlockColor.White);
+            click.setBlockColor(BlockColor.Cyan);
+        } else {
+            click.setResultColor(BlockColor.Black);
+            click.setBlockColor(BlockColor.White);
+        }
         // 记录状态
         click.isSelect = isSelect;
         this.curClick = click;
@@ -98,7 +105,11 @@ export class BoardView extends Component {
     /** highlight与click相同value的格子 */
     public setResultBlockColor(block: BlockCom, value: string): void {
         let isHighlight = value != BLANK && value == block.result
-        this.setHighlightBlockColor(block, isHighlight);
+        // this.setHighlightBlockColor(block, isHighlight);
+        if (value != BLANK && value == block.result) {
+            block.setResultColor(BlockColor.White);
+            block.setBlockColor(BlockColor.Blue);
+        }
     }
 
     /** gray所在的十字格 */
@@ -120,7 +131,7 @@ export class BoardView extends Component {
 
     private setHighlightBlockColor(block: BlockCom, isHighlight: boolean) {
         block.setResultColor(isHighlight ? BlockColor.White : BlockColor.Black);
-        block.setBlockColor(isHighlight ? BlockColor.Blue : BlockColor.White);
+        block.setBlockColor(isHighlight ? BlockColor.Cyan : BlockColor.White);
     }
 
     public checkWin(): boolean {
@@ -137,12 +148,15 @@ export class BoardView extends Component {
     public reset(inOther: boolean = true) {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            if (inOther) {
-                block.reset();
-            } else if (block.type != BLOCK_TYPE.Other) {
-                // 不重置other
-                block.reset();
-            }
+            this.resetBlock(block, inOther);
+        }
+    }
+
+    public resetBlock(block: BlockCom, inOther: boolean = true) {
+        if (inOther) {
+            block.reset();
+        } else if (block.type != BLOCK_TYPE.Other) {
+            block.reset();// 不重置other
         }
     }
 
@@ -156,7 +170,12 @@ export class BoardView extends Component {
 
     public setBlock(click: BlockCom, result: string) {
         let solve = GameState.gridSolveBoard[click.row][click.col];
-        click.setResult(solve == result ? BLOCK_TYPE.Right : BLOCK_TYPE.Fault, result);
+        if(solve == result){
+            click.setResult(BLOCK_TYPE.Right, result);
+        }else{
+            click.setResult(BLOCK_TYPE.Fault, result);
+            click.setResultColor(BlockColor.Red);
+        }
     }
 
     public get curBoard() {

@@ -121,15 +121,16 @@ export class GamePanel extends UIView {
         }
     }
 
+    hasCandidate: boolean = false;
+
     onCandidateBtnClick() {
-        // let block = this.boardView.curClick;
-        // if (block) {
-        //     let candidate = this.getCandidate(block.id);
-        //     if (candidate) {
-        //         this.boardView.setBlockCandidate(block.id, candidate);
-        //     }
-        // }
-        this.boardView.initCandidate(GameState.candidatesBoard);
+        if(this.hasCandidate){
+            this.hasCandidate = false;
+            this.boardView.reset();
+        }else{
+            this.hasCandidate = true;
+            this.boardView.initCandidate(GameState.candidatesBoard);
+        }
     }
 
     onClearBtnClick() {

@@ -556,7 +556,7 @@
       "b": 255,
       "a": 255
     },
-    "_lineWidth": 1,
+    "_lineWidth": 2,
     "_strokeColor": {
       "__type__": "cc.Color",
       "r": 0,

@@ -1,10 +1,11 @@
 export enum BlockColor {
-    Red = "#FF6A6A",
-    Blue = "#3399FF",
-    Gold = "#FFD700",
-    Gray = "#E8E8E8",
-    White = "#FFFFFF",
-    Black = "#000000"
+    Red = "#FFCBD5",    // 255,203,213
+    Cyan = "#B2DFFE",   // 178,223,254
+    Blue = "#C4D7EA",   // 196,215,234
+    Gold = "#FFD700",   // 255,215,0
+    Gray = "#E3EBF3",   // 227,235,243
+    White = "#FFFFFF",  // 255,255,255
+    Black = "#000000"   // 0,0,0
 }
 
 //本地缓存key值

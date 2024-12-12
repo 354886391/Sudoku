@@ -48,7 +48,7 @@ export class OptionView extends Component {
         } else {
             click.hasSelect = true;
             click.setResultColor(BlockColor.Gold);
-            click.setBlockColor(BlockColor.Blue);
+            click.setBlockColor(BlockColor.Cyan);
             this.curClick = click;
         }
     }
