@@ -133,11 +133,16 @@ export class BoardView extends Component {
         return true;
     }
 
-    /** 重置所有格 */
-    public reset() {
+    /** 重置所有格 (包括) */
+    public reset(inOther: boolean = true) {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            block.reset();
+            if (inOther) {
+                block.reset();
+            } else if (block.type != BLOCK_TYPE.Other) {
+                // 不重置other
+                block.reset();
+            }
         }
     }
 

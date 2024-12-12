@@ -93,7 +93,7 @@ export class GamePanel extends UIView {
         blockId = Math.abs(blockId);
         let block = this.boardView.getBlock(blockId);
         if (block && isClear) {
-            this.boardView.reset();
+            this.boardView.reset(false);
             this.boardView.setResultBlockColor(block, BLANK);
             block.setResult(BLOCK_TYPE.Void, BLANK);
             return;
@@ -103,16 +103,18 @@ export class GamePanel extends UIView {
                 this.boardView.highlightClickBlockColor(block);
                 let option = this.optionView.getOption(optionId);
                 if (option && block.type != BLOCK_TYPE.Lock) {
-                    this.boardView.reset();
+                    this.boardView.reset(false);
                     this.boardView.setBlock(block, option.value);
                     this.boardView.highlightBlockResultColor(option.value);
                     block.isSelect = true;
                 }
             }
         } else {
+            // 其他玩家点击了block和option
             if (blockId && optionId) {
                 let block = this.boardView.getBlock(blockId);
                 if (block) {
+                    block.type = BLOCK_TYPE.Other;
                     this.boardView.setBlockColor(block, BlockColor.Red);
                 }
             }

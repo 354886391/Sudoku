@@ -41,11 +41,11 @@ export class BlockCom extends Component {
         this.blockInfo = info;
         this.setResult(info.type, info.result);
     }
-    
+
     public setBlockColor(color: string): void {
         this.blockBg.color = new Color().fromHEX(color);
     }
-    
+
     public setResult(type: BLOCK_TYPE, value: string): void {
         this.blockInfo.type = type;
         this.blockInfo.result = value;
@@ -90,6 +90,10 @@ export class BlockCom extends Component {
 
     get type() {
         return this.blockInfo.type;
+    }
+
+    set type(value: BLOCK_TYPE) {
+        this.blockInfo.type = value;
     }
 
     get row() {
