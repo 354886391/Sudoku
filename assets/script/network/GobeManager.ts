@@ -67,7 +67,7 @@ export class GobeManager extends Singleton<GobeManager>() {
     // 网络模式
     private _wifiType: WIFI_TYPE = WIFI_TYPE.WIFI;
     // 原生平台证书url
-    private _cacertNativeUrl: string = "";
+    private _certNativeUrl: string = "";
 
     private _isAi: boolean = false;
     private _isRoomOwnIn: boolean = false;      // 房主有没有加入房间
@@ -184,7 +184,7 @@ export class GobeManager extends Singleton<GobeManager>() {
                 LogEX.error("loadCert: 加载证书失败" + error);
                 return;
             }
-            this._cacertNativeUrl = asset.nativeUrl;
+            this._certNativeUrl = asset.nativeUrl;
             this.initGobe(token, callback);
         })
     }
@@ -192,22 +192,22 @@ export class GobeManager extends Singleton<GobeManager>() {
     /** 初始化GOBE */
     private initGobe(token: string, callback: (success: boolean) => void) {
         let clientConfig = {
-            appId: Global.APP_ID,                  // 应用ID
-            openId: this._openId,                        // 玩家ID，区别不同用户
-            clientId: Global.CLIENT_ID,            // 客户端ID
-            clientSecret: Global.CLIENT_SECRET,    // 客户端密钥
-            accessToken: token,                    // AGC接入凭证(推荐)
-            appVersion: '1.10.111',
+            appId: Global.APP_ID,                   // 应用ID
+            openId: this._openId,                   // 玩家ID，区别不同用户
+            clientId: Global.CLIENT_ID,             // 客户端ID
+            clientSecret: Global.CLIENT_SECRET,     // 客户端密钥
+            appVersion: Global.GAME_VERSION,        // 应用版本
+            accessToken: token,                     // AGC接入凭证(推荐)
         }
         // 初始化 client
         if (sys.Platform.ANDROID == sys.platform) {
-            if (this._cacertNativeUrl == "") {
+            if (this._certNativeUrl == "") {
                 this.loadCert(token, callback);
                 return;
             }
             clientConfig = Object.assign(clientConfig, {
-                platform: window.GOBE.PlatformType.ANDROID,
-                cerPath: this._cacertNativeUrl,
+                platform: window.GOBE.PlatformType.ANDROID, // 平台
+                cerPath: this._certNativeUrl,             // 证书路径
             })
         }
         this._client = new window.GOBE.Client(clientConfig);
