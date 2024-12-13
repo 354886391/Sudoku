@@ -1,8 +1,9 @@
 export enum BlockColor {
-    Red = "#FFCBD5",    // 255,203,213
-    Cyan = "#B2DFFE",   // 178,223,254
-    Blue = "#C4D7EA",   // 196,215,234
-    Gold = "#FFD700",   // 255,215,0
+    LightPink = "#FFCBD5",  // 255,203,213
+    LightCyan = "#B2DFFE",  // 178,223,254
+    SlateGray = "#C4D7EA",  // 196,215,234
+    LightGold = "#FFEBCD",  // 255,235,205
+    LightGreen = "#B2F5B5", // 178,245,181
     Gray = "#E3EBF3",   // 227,235,243
     White = "#FFFFFF",  // 255,255,255
     Black = "#000000"   // 0,0,0

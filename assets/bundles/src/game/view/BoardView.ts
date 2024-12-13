@@ -83,7 +83,7 @@ export class BoardView extends Component {
         // this.setHighlightBlockColor(click, isSelect);
         if (isSelect) {
             click.setResultColor(BlockColor.White);
-            click.setBlockColor(BlockColor.Cyan);
+            click.setBlockColor(BlockColor.LightCyan);
         } else {
             click.setResultColor(BlockColor.Black);
             click.setBlockColor(BlockColor.White);
@@ -108,7 +108,7 @@ export class BoardView extends Component {
         // this.setHighlightBlockColor(block, isHighlight);
         if (value != BLANK && value == block.result) {
             block.setResultColor(BlockColor.White);
-            block.setBlockColor(BlockColor.Blue);
+            block.setBlockColor(BlockColor.SlateGray);
         }
     }
 
@@ -131,7 +131,7 @@ export class BoardView extends Component {
 
     private setHighlightBlockColor(block: BlockCom, isHighlight: boolean) {
         block.setResultColor(isHighlight ? BlockColor.White : BlockColor.Black);
-        block.setBlockColor(isHighlight ? BlockColor.Cyan : BlockColor.White);
+        block.setBlockColor(isHighlight ? BlockColor.LightCyan : BlockColor.White);
     }
 
     public checkWin(): boolean {
@@ -174,7 +174,7 @@ export class BoardView extends Component {
             click.setResult(BLOCK_TYPE.Right, result);
         }else{
             click.setResult(BLOCK_TYPE.Fault, result);
-            click.setResultColor(BlockColor.Red);
+            click.setResultColor(BlockColor.LightPink);
         }
     }
 

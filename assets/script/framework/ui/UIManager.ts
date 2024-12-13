@@ -4,7 +4,6 @@ import { Eventer } from '../tool/Eventer';
 import { Singleton } from '../util/Singleton';
 import { UIAdapter } from './UIAdapter';
 import { ResourceManager } from '../resources/ResourceManager';
-import { Util } from '../util/Util';
 
 const { ccclass, property } = _decorator;
 
@@ -204,7 +203,7 @@ export class UIManager extends Singleton<UIManager>() {
             callback(uiView);
         };
         // 加载获取prefab资源
-        ResourceManager.instance.load(bundle, uiPath, Prefab, null, (data) => {
+        ResourceManager.load(bundle, uiPath, Prefab, null, (data) => {
             if (data) {
                 createNode(<Prefab>(data)); // 创建节点并初始化UIView
             }

@@ -87,6 +87,7 @@ export const RES_GAME: { [key: string]: RESOption } = {
     // tile: { bundle: Global.SUB_BUNDLE, path: "resources/prefab/tiles/tile", type: Prefab },
 
     names: { bundle: Global.SUB_BUNDLE, path: "data/names", type: JsonAsset },
+    lblPrefab: { bundle: Global.SUB_BUNDLE, path: "prefab/item/Candidate", type: Prefab },
 }
 
 

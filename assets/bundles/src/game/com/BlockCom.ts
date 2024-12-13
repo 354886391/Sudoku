@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Label, Sprite } from 'cc';
+import { _decorator, Color, Component, Label, Prefab, Sprite } from 'cc';
 import { Eventer } from '../../../../script/framework/tool/Eventer';
 import { UIButton } from '../../../../script/framework/ui/group/UIButton';
 import { BlockColor } from '../../data/GameConst';
@@ -21,7 +21,7 @@ export class BlockCom extends Component {
     blockBtn: UIButton = null;
 
     @property(RingLayout)
-    candidate: RingLayout = null;
+    ringLayout: RingLayout = null;
 
     nonetId: number = 0;    // 九宫格Id
     blockInfo: BlockInfo;   // 方格信息
@@ -58,16 +58,15 @@ export class BlockCom extends Component {
     }
 
     /** 设置提示词 */
-    public setCandidate(candidates: string): void {
-        let nodes = this.candidate.node.children;
-        let maxCount = Math.max(nodes.length, candidates.length);
+    public setCandidate(candidate: string): void {
+        let nodeList = this.ringLayout.nodeList;
+        let maxCount = Math.max(nodeList.length, candidate.length);
         for (let i = 0; i < maxCount; i++) {
-            if (i < candidates.length) {
-                const char = candidates.charAt(i);
-                this.candidate.addItem(char);
+            if (i < candidate.length) {
+                let char = candidate.charAt(i);
+                this.ringLayout.addItem(char);
             } else {
-                const char = nodes[i].name;
-                this.candidate.removeItem(char);
+                this.ringLayout.removeItem(i);
             }
         }
     }

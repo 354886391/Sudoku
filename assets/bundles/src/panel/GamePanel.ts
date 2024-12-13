@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, Prefab } from 'cc';
 import { UIView } from '../../../script/framework/ui/UIView';
 import { UIManager } from '../../../script/framework/ui/UIManager';
 import { OptionView } from '../game/view/OptionView';
@@ -15,11 +15,17 @@ import { BLOCK_TYPE, Frame } from '../data/GameDefine';
 import { RewardPanel } from './RewardPanel';
 import { BlockColor } from '../data/GameConst';
 import { GobeManager } from '../../../script/network/GobeManager';
+import { PoolManager } from 'db://assets/script/framework/manager/PoolManager';
+import { RES_GAME } from '../data/GameConfig';
+import { ResourceManager } from 'db://assets/script/framework/resources/ResourceManager';
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export class GamePanel extends UIView {
+
+    @property(Prefab)
+    lblPrefab:Prefab = null;
 
     @property(DrawView)
     drawView: DrawView = null;
@@ -30,12 +36,16 @@ export class GamePanel extends UIView {
 
     @property(UIButton)
     candidateBtn: UIButton = null;
+    @property(Node)
+    candidateLbl: Node = null;
     @property(UIButton)
     clearBtn: UIButton = null;
     @property(UIButton)
     closeBtn: UIButton = null;
 
     onLoad() {
+        let lblPrefab = ResourceManager.getBy<Prefab>(RES_GAME.lblPrefab);
+        PoolManager.instance.prePool(lblPrefab, 81);
         Eventer.on(GameEvents.ON_BLOCK_CLICK, this.onBlockClick, this);
         Eventer.on(GameEvents.ON_OPTION_CLICK, this.onOptionClick, this);
         Eventer.on(GameEvents.ON_FRAME_REC, this.onHandleFrame, this);
@@ -115,7 +125,7 @@ export class GamePanel extends UIView {
                 let block = this.boardView.getBlock(blockId);
                 if (block) {
                     block.type = BLOCK_TYPE.Other;
-                    this.boardView.setBlockColor(block, BlockColor.Red);
+                    this.boardView.setBlockColor(block, BlockColor.LightPink);
                 }
             }
         }

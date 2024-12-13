@@ -1019,7 +1019,7 @@ export class Util {
      * @param staticId 
      */
     public static async randomName(staticId: number) {
-        let names = ResourceManager.instance.getBy<JsonAsset>(RES_GAME.names);
+        let names = ResourceManager.getBy<JsonAsset>(RES_GAME.names);
         let boyNames = names.json.boyNames;
         let girlNames = names.json.girlNames;
         let firstNames = names.json.firstNames;

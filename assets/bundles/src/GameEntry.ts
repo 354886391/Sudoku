@@ -22,7 +22,7 @@ export class GameEntry extends Entry {
 
     onLoad(): void {
         PlayerData.instance.loadFromCache();
-        ResourceManager.instance.loadBy(RES_GAME, null, (err) => {
+        ResourceManager.loadBy(RES_GAME, null, (err) => {
             if (err) {
                 console.error(err);
                 return;

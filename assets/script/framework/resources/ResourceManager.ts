@@ -1,8 +1,6 @@
 import { __private, AnimationClip, Asset, AssetManager, AudioClip, Constructor, Font, ImageAsset, JsonAsset, Mesh, ParticleAsset, Prefab, sp, SpriteAtlas, SpriteFrame, TextAsset, Texture2D } from "cc";
 import { CacheManager, CacheData, CacheInfo } from "./CacheManager";
 import { BundleManager } from "./BundleManager";
-import { Singleton } from "../util/Singleton";
-
 
 export interface RESOption {
     bundle: string;
@@ -10,11 +8,11 @@ export interface RESOption {
     type: Constructor<any>;
 }
 
-export class ResourceManager extends Singleton<ResourceManager>() {
-    private logTag = `[AssetManager]: `;
-    private cacheMgr: CacheManager = new CacheManager();
+export class ResourceManager {
+    private static logTag = `[AssetManager]: `;
+    private static cacheMgr: CacheManager = new CacheManager();
 
-    private getBundle(bundle: string | AssetManager.Bundle): AssetManager.Bundle {
+    private static getBundle(bundle: string | AssetManager.Bundle): AssetManager.Bundle {
         return BundleManager.instance.getBundle(bundle);
     }
 
@@ -23,7 +21,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
      * @param path 资源路径
      * @param type 资源类型
     */
-    public get<T extends Asset>(name: string, path: string, type?: Constructor<T>): T {
+    public static get<T extends Asset>(name: string, path: string, type?: Constructor<T>): T {
         let cache = this.cacheMgr.get(name, path);
         if (cache && cache.loaded) {
             return cache.get<T>(type);
@@ -36,7 +34,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         return bundle.get<T>(path, type);
     }
 
-    public getBy<T extends Asset>(option: RESOption): T {
+    public static getBy<T extends Asset>(option: RESOption): T {
         let cache = this.cacheMgr.get(option.bundle, option.path);
         if (cache && cache.loaded) {
             return cache.get<T>(option.type);
@@ -56,7 +54,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
      * @param onProgress 加载进度
      * @param onComplete 加载完成
      */
-    public load<T extends Asset>(
+    public static load<T extends Asset>(
         name: string,
         path: string,
         type: Constructor<T>,
@@ -83,7 +81,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         }
     }
 
-    private onLoadComplete<T extends Asset>(cache: CacheInfo, onComplete: (data: T) => void, err: Error, data: T): void {
+    private static onLoadComplete<T extends Asset>(cache: CacheInfo, onComplete: (data: T) => void, err: Error, data: T): void {
         if (err) {
             console.warn(`${this.logTag}加载资源失败:${cache.path} 原因:${err.message ? err.message : "未知"}`);
             this.cacheMgr.remove(cache.bundle, cache.path);
@@ -96,7 +94,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         onComplete(data);
     }
 
-    public loadBy(
+    public static loadBy(
         options: { [key: string]: RESOption },
         onProgress: (finish: number, total: number) => void,
         onComplete: (err: Error | null) => void): void {
@@ -127,7 +125,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         onceCompleted(null);
     }
 
-    public loadDir(
+    public static loadDir(
         name: string,
         path: string,
         type: Constructor<Asset>,
@@ -156,7 +154,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         }
     }
 
-    onDirComplete(cache: CacheInfo, onComplete: (err: Error) => void, err: Error | null, data: Asset[]) {
+    static onDirComplete(cache: CacheInfo, onComplete: (err: Error) => void, err: Error | null, data: Asset[]) {
         cache.loaded = true;
         if (err) {
             console.warn(`${this.logTag}加载资源失败:${cache.path} 原因:${err.message ? err.message : "未知"}`);
@@ -174,7 +172,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         }
     }
 
-    public releaseAsset(data: CacheInfo) {
+    public static releaseAsset(data: CacheInfo) {
         let bundle = BundleManager.instance.getBundle(data.bundle);
         if (!bundle) {
             let err = new Error(`${this.logTag} ${name} 没有加载，请先加载`);
@@ -184,7 +182,7 @@ export class ResourceManager extends Singleton<ResourceManager>() {
         bundle.release(data.path);
     }
 
-    public retainAsset(info: CacheInfo) {
+    public static retainAsset(info: CacheInfo) {
 
     }
 
@@ -192,11 +190,11 @@ export class ResourceManager extends Singleton<ResourceManager>() {
      * @description 添加常驻资源
      * @param prefab
      */
-    public addPersistAsset(data: CacheInfo) {
+    public static addPersistAsset(data: CacheInfo) {
         data.retain = true;
     }
 
-    public getType<T extends Asset>(item: T) {
+    public static getType<T extends Asset>(item: T) {
         switch (true) {
             case item instanceof Prefab:
                 return Prefab;
@@ -226,7 +224,6 @@ export class ResourceManager extends Singleton<ResourceManager>() {
                 return Font;
             default:
                 return Asset;
-            // AnimationClip
         }
     }
 }

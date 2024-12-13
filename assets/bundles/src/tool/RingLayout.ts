@@ -1,70 +1,42 @@
-import { _decorator, Component, Node, instantiate, Vec3, EventTouch, CCFloat, Label } from 'cc';
+import { _decorator, Component, Node, Vec3, CCFloat, Label, Prefab } from 'cc';
+import { PoolManager } from 'db://assets/script/framework/manager/PoolManager';
+import { ResourceManager } from 'db://assets/script/framework/resources/ResourceManager';
+import { RES_GAME } from '../data/GameConfig';
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export class RingLayout extends Component {
 
-    @property(Node)
-    itemNode: Node = null;
-
     @property(CCFloat)
     radius: number = 150;
 
-    private items: Node[] = [];
-
-    start() {
-        this.createRingLayout();
-    }
-
-    createRingLayout() {
-        if (!this.itemNode) {
-            console.error('Item prefab is not assigned.');
-            return;
-        }
-
-        this.items.forEach(item => item.destroy());
-        this.items = [];
-
-        this.updateRingLayout();
-    }
+    nodeList: Node[] = [];
 
     addItem(char: string) {
-        if (!this.itemNode) {
-            console.error('Item prefab is not assigned.');
-            return;
-        }
-        const item = instantiate(this.itemNode);
-        item.active = true;
-        item.parent = this.node;
-        item.name = char;
-        item.getComponent(Label).string = char;
-        this.items.push(item);
+        let lblPrefab = ResourceManager.getBy<Prefab>(RES_GAME.lblPrefab);
+        let node = PoolManager.instance.getNode(lblPrefab, this.node);
+        node.getComponent(Label).string = char;
+        this.nodeList.push(node);
         this.updateRingLayout();
     }
 
-    removeItem(char: string) {
-        const index = this.items.findIndex(item => item.name === char);
-        if (index !== -1) {
-            this.items[index].destroy();
-            this.items.splice(index, 1);
+    removeItem(index: number) {
+        if (index >= 0 && index < this.nodeList.length) {
+            PoolManager.instance.putNode(this.nodeList[index]);
+            this.nodeList.splice(index, 1);
             this.updateRingLayout();
         }
     }
 
     updateRingLayout() {
-        if (!this.itemNode) {
-            console.error('Item prefab is not assigned.');
-            return;
-        }
         const center = new Vec3(this.node.position.x, this.node.position.y, 0);
-        for (let i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.nodeList.length; i++) {
             // 调整起始角度为90度（π/2弧度）
-            const angle = (i / this.items.length) * Math.PI * 2 - Math.PI / 2;
+            const angle = (i / this.nodeList.length) * Math.PI * 2 - Math.PI / 2;
             const x = center.x + this.radius * Math.cos(angle);
             const y = center.y + this.radius * Math.sin(angle);
-
-            this.items[i].setPosition(new Vec3(x, y, 0));
+            this.nodeList[i].setPosition(new Vec3(x, y, 0));
         }
     }
 }
