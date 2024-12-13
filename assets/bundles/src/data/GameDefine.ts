@@ -1,6 +1,6 @@
 export enum BLOCK_TYPE {
     /** 空白 */
-    Void = 0,
+    BLANK = 0,
     /** 锁定 */
     Lock,
     /** 正确 */
@@ -40,7 +40,7 @@ export interface BlockInfo {
     id: number;
     row: number;
     col: number;
-    type: BLOCK_TYPE;
+    status: BLOCK_TYPE;
     result: string;
     isSelect: boolean;
 }

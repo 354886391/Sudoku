@@ -605,10 +605,6 @@
     "__prefab": {
       "__id__": 24
     },
-    "radius": 30,
-    "itemNode": {
-      "__id__": 25
-    },
     "radius": 40,
     "_id": ""
   },

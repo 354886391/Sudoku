@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Layout, Node, Prefab } from 'cc';
+import { _decorator, Component, instantiate, Node, Prefab } from 'cc';
 import { BlockColor } from '../../data/GameConst';
 import { BLANK, BlockCom } from '../com/BlockCom';
 import { NonetCom } from '../com/NonetCom';
@@ -19,8 +19,9 @@ export class BoardView extends Component {
     public init(board: string[][]) {
         for (let i = 0; i < 9; i++) {
             let nonetId = i + 1;
-            if (this.nonetList[i]) {
-                this.setNonet(i, nonetId, board);
+            let nonet = this.nonetList[i];
+            if (nonet) {
+                nonet.setNonet(nonetId, board);
             } else {
                 this.createNonet(nonetId, board, this.node);
             }
@@ -31,31 +32,21 @@ export class BoardView extends Component {
         for (let i = 0; i < this.blockList.length; i++) {
             const candidate = board[Math.floor(i / 9)][i % 9];
             if (candidate != BLANK && candidate.length > 1) {
-                this.blockList[i].setCandidate(candidate);
+                let block = this.blockList[i];
+                if (block) {
+                    block.setCandidate(candidate);
+                }
             }
         }
-    }
-
-    public setBlockCandidate(blockId: number, candidate: string) {
-        this.getBlock(blockId).setCandidate(candidate);
-    }
-
-    private setNonet(index: number, nonetId: number, board: string[][]) {
-        this.nonetList[index].init(nonetId, board, this);
     }
 
     /** 创建九宫格*/
     private createNonet(nonetId: number, board: string[][], parent: Node) {
         let node = instantiate(this.nonetPrefab);
-        node.parent = parent;
         let nonet = node.getComponent(NonetCom);
+        node.parent = parent;
         nonet.init(nonetId, board, this);
         this.nonetList.push(nonet);
-    }
-
-    /** 设置格子颜色 */
-    public setBlockColor(block: BlockCom, blockColor: BlockColor): void {
-        block.setBlockColor(blockColor);
     }
 
     /** gray cross and nonet.
@@ -64,14 +55,17 @@ export class BoardView extends Component {
     public setClickBlockColor(click: BlockCom, isSelect: boolean) {
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
-            // 重置所有格
-            this.resetBlock(block, false);
-            if (click == this.curClick && !isSelect) {
-                continue;
+            if (block) {
+                block.isSelect = false;
+                this.resetBlockColor(block);    // 重置格子颜色
+                if (click == this.curClick && !isSelect) {
+                    // 再次点击时
+                    continue;
+                }
+                this.grayCrossColor(block, click);
+                this.grayNonetColor(block, click);
+                this.highlightSameColor(block, click);
             }
-            this.grayCrossColor(block, click);
-            this.grayNonetColor(block, click);
-            this.setResultBlockColor(block, click.result);
         }
     }
 
@@ -80,22 +74,19 @@ export class BoardView extends Component {
         Log.d(`ClickView::onClickBlock, id: ${click.id} row:${click.row} col:${click.col}`);
         let isSelect = !click.isSelect;
         this.setClickBlockColor(click, isSelect);
-        // this.setHighlightBlockColor(click, isSelect);
-        if (isSelect) {
-            click.setResultColor(BlockColor.White);
-            click.setBlockColor(BlockColor.LightCyan);
-        } else {
-            click.setResultColor(BlockColor.Black);
-            click.setBlockColor(BlockColor.White);
-        }
-        // 记录状态
-        click.isSelect = isSelect;
+        // if (isSelect) {
+        //     click.setResultColor(BlockColor.White);
+        //     click.setBlockColor(BlockColor.LightCyan);
+        // } else {
+        //     click.setResultColor(BlockColor.Black);
+        //     click.setBlockColor(BlockColor.White);
+        // }
+        click.isSelect = isSelect;  // 记录点击状态
         this.curClick = click;
     }
 
     /** highlight与click相同value的[所有]格子 */
     public highlightBlockResultColor(value: string) {
-        console.log("ClickView::onSelectBlock", value);
         for (let i = 1; i <= 81; i++) {
             let block = this.getBlock(i);
             this.setResultBlockColor(block, value);
@@ -104,8 +95,6 @@ export class BoardView extends Component {
 
     /** highlight与click相同value的格子 */
     public setResultBlockColor(block: BlockCom, value: string): void {
-        let isHighlight = value != BLANK && value == block.result
-        // this.setHighlightBlockColor(block, isHighlight);
         if (value != BLANK && value == block.result) {
             block.setResultColor(BlockColor.White);
             block.setBlockColor(BlockColor.SlateGray);
@@ -129,9 +118,22 @@ export class BoardView extends Component {
         }
     }
 
-    private setHighlightBlockColor(block: BlockCom, isHighlight: boolean) {
-        block.setResultColor(isHighlight ? BlockColor.White : BlockColor.Black);
-        block.setBlockColor(isHighlight ? BlockColor.LightCyan : BlockColor.White);
+    /** highlight与click相同value的格子 */
+    public highlightSameColor(block: BlockCom, click: BlockCom) {
+        if (click.result == BLANK) {
+            click.setResultColor(BlockColor.White);
+            click.setBlockColor(BlockColor.LightCyan);
+            return;
+        }
+        if (click.result == block.result) {
+            if (click == block) {
+                block.setResultColor(BlockColor.White);
+                block.setBlockColor(BlockColor.LightCyan);
+            } else {
+                block.setResultColor(BlockColor.White);
+                block.setBlockColor(BlockColor.SlateGray);
+            }
+        }
     }
 
     public checkWin(): boolean {
@@ -152,11 +154,21 @@ export class BoardView extends Component {
         }
     }
 
+    public resetBlockColor(block: BlockCom) {
+        if (block.type != BLOCK_TYPE.Other &&
+            block.type != BLOCK_TYPE.Right &&
+            block.type != BLOCK_TYPE.Fault) {
+            block.setBlockColor(BlockColor.White);
+            block.setResultColor(BlockColor.Black);
+        }
+    }
+
+    /** 重置格子 */
     public resetBlock(block: BlockCom, inOther: boolean = true) {
         if (inOther) {
-            block.reset();
+            block.resetBlock();
         } else if (block.type != BLOCK_TYPE.Other) {
-            block.reset();// 不重置other
+            block.resetBlock(); // 不重置other
         }
     }
 
@@ -169,12 +181,23 @@ export class BoardView extends Component {
     }
 
     public setBlock(click: BlockCom, result: string) {
-        let solve = GameState.gridSolveBoard[click.row][click.col];
-        if(solve == result){
+        if(result == BLANK){
+            click.setResult(BLOCK_TYPE.BLANK, result);
+            click.setResultColor(BlockColor.Black);
+            click.setBlockColor(BlockColor.White);
+            return;
+        }
+        let row = click.row;
+        let col = click.col;
+        let solve = GameState.gridSolveBoard[row][col];
+        if (solve == result) {
             click.setResult(BLOCK_TYPE.Right, result);
-        }else{
+            click.setResultColor(BlockColor.LightGreen);
+            click.setBlockColor(BlockColor.White);
+        } else {
             click.setResult(BLOCK_TYPE.Fault, result);
             click.setResultColor(BlockColor.LightPink);
+            click.setBlockColor(BlockColor.White);
         }
     }
 

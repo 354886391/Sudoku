@@ -105,7 +105,8 @@ export class GamePanel extends UIView {
         if (block && isClear) {
             this.boardView.reset(false);
             this.boardView.setResultBlockColor(block, BLANK);
-            block.setResult(BLOCK_TYPE.Void, BLANK);
+            block.setResult(BLOCK_TYPE.BLANK, BLANK);
+            this.boardView.setBlock(block, BLANK);
             return;
         }
         if (GobeManager.instance.isOwnPlayer(playerId)) {
@@ -114,8 +115,8 @@ export class GamePanel extends UIView {
                 let option = this.optionView.getOption(optionId);
                 if (option && block.type != BLOCK_TYPE.Lock) {
                     this.boardView.reset(false);
-                    this.boardView.setBlock(block, option.value);
                     this.boardView.highlightBlockResultColor(option.value);
+                    this.boardView.setBlock(block, option.value);
                     block.isSelect = true;
                 }
             }
@@ -125,7 +126,7 @@ export class GamePanel extends UIView {
                 let block = this.boardView.getBlock(blockId);
                 if (block) {
                     block.type = BLOCK_TYPE.Other;
-                    this.boardView.setBlockColor(block, BlockColor.LightPink);
+                    block.setBlockColor(BlockColor.LightPink);
                 }
             }
         }

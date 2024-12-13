@@ -26,60 +26,64 @@ export class BlockCom extends Component {
     nonetId: number = 0;    // 九宫格Id
     blockInfo: BlockInfo;   // 方格信息
 
-    protected onLoad(): void {
+    protected onLoad() {
         this.blockBtn.touchBeganFun = this.onClicked.bind(this);
     }
 
-    public init(nonetId: number, info: BlockInfo): void {
+    public init(nonetId: number, info: BlockInfo) {
         this.nonetId = nonetId;
         this.blockInfo = info;
-        this.setResult(info.type, info.result);
+        this.setResult(info.status, info.result);
         this.node.name = `${this.nonetId}-${info.id}`;
     }
 
-    public setBlock(info: BlockInfo): void {
-        this.blockInfo = info;
-        this.setResult(info.type, info.result);
-    }
-
-    public setBlockColor(color: string): void {
-        this.blockBg.color = new Color().fromHEX(color);
-    }
-
-    public setResult(type: BLOCK_TYPE, value: string): void {
-        this.blockInfo.type = type;
+    public setResult(type: BLOCK_TYPE, value: string) {
+        this.blockInfo.status = type;
         this.blockInfo.result = value;
         this.blockLbl.string = `${value}`;
     }
 
-
-    public setResultColor(color: string): void {
-        this.blockLbl.color = new Color().fromHEX(color);
-    }
-
     /** 设置提示词 */
-    public setCandidate(candidate: string): void {
+    public setCandidate(candidate: string) {
         let nodeList = this.ringLayout.nodeList;
         let maxCount = Math.max(nodeList.length, candidate.length);
-        for (let i = 0; i < maxCount; i++) {
-            if (i < candidate.length) {
-                let char = candidate.charAt(i);
-                this.ringLayout.addItem(char);
-            } else {
+        for (let i = maxCount - 1; i >= 0; i--) {
+            if (i >= candidate.length) {
                 this.ringLayout.removeItem(i);
+            } else {
+                this.ringLayout.addItem(candidate.charAt(i));
             }
         }
     }
 
-    public onClicked(): void {
+    public setBlockColor(color: string) {
+        this.blockBg.color = new Color().fromHEX(color);
+    }
+
+    public setResultColor(color: string) {
+        this.blockLbl.color = new Color().fromHEX(color);
+    }
+
+    public onClicked() {
         Eventer.emit(GameEvents.ON_BLOCK_CLICK, this);
     }
 
-    public reset(): void {
+    public resetBlock() {
         this.blockInfo.isSelect = false;
+        this.setCandidate("");
+        this.resetColor();
+    }
+
+    public resetBlockBy(status: number, result: string) {
+        this.blockInfo.isSelect = false;
+        this.setResult(status, result);
+        this.setCandidate("");
+        this.resetColor();
+    }
+
+    public resetColor() {
         this.setResultColor(BlockColor.Black);
         this.setBlockColor(BlockColor.White);
-        this.setCandidate("");
     }
 
     //getter / setter
@@ -88,11 +92,11 @@ export class BlockCom extends Component {
     }
 
     get type() {
-        return this.blockInfo.type;
+        return this.blockInfo.status;
     }
 
     set type(value: BLOCK_TYPE) {
-        this.blockInfo.type = value;
+        this.blockInfo.status = value;
     }
 
     get row() {
@@ -117,7 +121,7 @@ export class BlockCom extends Component {
 
     /** 是否正确 */
     get IsCorrect() {
-        return this.blockInfo.type == BLOCK_TYPE.Right || this.blockInfo.type == BLOCK_TYPE.Lock;
+        return this.blockInfo.status == BLOCK_TYPE.Right || this.blockInfo.status == BLOCK_TYPE.Lock;
     }
 }
 
