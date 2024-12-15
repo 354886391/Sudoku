@@ -23,7 +23,7 @@ export class NonetCom extends Component {
         for (let row = rowIndex; row < rowIndex + 3; row++) {
             for (let col = colIndex; col < colIndex + 3; col++) {
                 let result = board[row][col];
-                let status = result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.Lock;
+                let status = result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.LOCK;
                 let info: BlockInfo = {
                     id: row * 9 + col + 1,
                     row: row,
@@ -46,7 +46,7 @@ export class NonetCom extends Component {
         for (let row = rowIndex; row < rowIndex + 3; row++) {
             for (let col = colIndex; col < colIndex + 3; col++) {
                 let result = board[row][col];
-                let status = result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.Lock;
+                let status = result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.LOCK;
                 let block = this.blockList[index];
                 if (block) {
                     block.resetBlockBy(status, result);
@@ -67,7 +67,7 @@ export class NonetCom extends Component {
     }
 
     getBlockType(result: string) {
-        return result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.Lock;
+        return result == BLANK ? BLOCK_TYPE.BLANK : BLOCK_TYPE.LOCK;
     }
 }
 

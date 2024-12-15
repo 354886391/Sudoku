@@ -18,14 +18,12 @@ import { GobeManager } from '../../../script/network/GobeManager';
 import { PoolManager } from 'db://assets/script/framework/manager/PoolManager';
 import { RES_GAME } from '../data/GameConfig';
 import { ResourceManager } from 'db://assets/script/framework/resources/ResourceManager';
+import { TimerView } from '../game/view/TimerView';
 
 const { ccclass, property } = _decorator;
 
 @ccclass
 export class GamePanel extends UIView {
-
-    @property(Prefab)
-    lblPrefab:Prefab = null;
 
     @property(DrawView)
     drawView: DrawView = null;
@@ -33,11 +31,11 @@ export class GamePanel extends UIView {
     boardView: BoardView = null;
     @property(OptionView)
     optionView: OptionView = null;
+    @property(TimerView)
+    timerView: TimerView = null;
 
     @property(UIButton)
     candidateBtn: UIButton = null;
-    @property(Node)
-    candidateLbl: Node = null;
     @property(UIButton)
     clearBtn: UIButton = null;
     @property(UIButton)
@@ -80,7 +78,7 @@ export class GamePanel extends UIView {
 
     onOptionClick(option: OptionCom) {
         let block = this.boardView.curClick;
-        if (block && block.type != BLOCK_TYPE.Lock) {
+        if (block && block.type != BLOCK_TYPE.LOCK) {
             if (option) {
                 // 发送frame数据
                 let frameInfo: Frame = {
@@ -94,59 +92,10 @@ export class GamePanel extends UIView {
             }
         }
     }
-
-    onHandleFrame(playerId: string, frame: Frame) {
-        LogEX.info("onBlockFrame-->  playerId: ", playerId, frame);
-        let blockId = frame.blockId;
-        let optionId = frame.optionId;
-        let isClear = blockId < 0;
-        blockId = Math.abs(blockId);
-        let block = this.boardView.getBlock(blockId);
-        if (block && isClear) {
-            this.boardView.reset(false);
-            this.boardView.setResultBlockColor(block, BLANK);
-            block.setResult(BLOCK_TYPE.BLANK, BLANK);
-            this.boardView.setBlock(block, BLANK);
-            return;
-        }
-        if (GobeManager.instance.isOwnPlayer(playerId)) {
-            if (block) {
-                this.boardView.highlightClickBlockColor(block);
-                let option = this.optionView.getOption(optionId);
-                if (option && block.type != BLOCK_TYPE.Lock) {
-                    this.boardView.reset(false);
-                    this.boardView.highlightBlockResultColor(option.value);
-                    this.boardView.setBlock(block, option.value);
-                    block.isSelect = true;
-                }
-            }
-        } else {
-            // 其他玩家点击了block和option
-            if (blockId && optionId) {
-                let block = this.boardView.getBlock(blockId);
-                if (block) {
-                    block.type = BLOCK_TYPE.Other;
-                    block.setBlockColor(BlockColor.LightPink);
-                }
-            }
-        }
-    }
-
-    hasCandidate: boolean = false;
-
-    onCandidateBtnClick() {
-        if(this.hasCandidate){
-            this.hasCandidate = false;
-            this.boardView.reset();
-        }else{
-            this.hasCandidate = true;
-            this.boardView.initCandidate(GameState.candidatesBoard);
-        }
-    }
-
+    
     onClearBtnClick() {
         let block = this.boardView.curClick;
-        if (block && block.type != BLOCK_TYPE.Lock) {
+        if (block && block.type != BLOCK_TYPE.LOCK) {
             // 发送frame数据
             let frameInfo: Frame = {
                 blockId: -block.id, // 使用-blockId作为标记，表示清除
@@ -159,7 +108,54 @@ export class GamePanel extends UIView {
         }
     }
 
+    onHandleFrame(playerId: string, frame: Frame) {
+        LogEX.info("onBlockFrame-->  playerId: ", playerId, frame);
+        let blockId = frame.blockId;
+        let optionId = frame.optionId;
+        let isClear = blockId < 0;
+        blockId = Math.abs(blockId);
+        let block = this.boardView.getBlock(blockId);
+        if (block && isClear) {
+            this.boardView.setBlock(block, BLANK);
+            this.boardView.resetAllBlocks(false);
+            return;
+        }
+        if (GobeManager.instance.isOwnPlayer(playerId)) {
+            if (block) {
+                this.boardView.onClickBlockBGColor(block);
+                let option = this.optionView.getOption(optionId);
+                if (option && block.type != BLOCK_TYPE.LOCK) {
+                    block.isSelect = true;
+                    this.boardView.setBlock(block, option.value);
+                    this.boardView.setClickBlockBGColor(block, true);
+                }
+            }
+        } else {
+            // 其他玩家点击了block和option
+            if (blockId && optionId) {
+                let block = this.boardView.getBlock(blockId);
+                if (block) {
+                    block.type = BLOCK_TYPE.OTHER;
+                    block.setBlockBGColor(BlockColor.LightPink);
+                }
+            }
+        }
+    }
+
+    hasCandidate: boolean = false;
+
+    onCandidateBtnClick() {
+        if (this.hasCandidate) {
+            this.hasCandidate = false;
+            this.boardView.clearAllCandidates();
+        } else {
+            this.hasCandidate = true;
+            this.boardView.initCandidate(GameState.candidatesBoard);
+        }
+    }
+
     onCloseBtnClick() {
+        GameState.isGaming = false;
         GobeManager.instance.finishGame();
         UIManager.instance.open(HintNotice, "游戏结束");
     }

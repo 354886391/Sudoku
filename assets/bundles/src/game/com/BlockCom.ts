@@ -56,34 +56,34 @@ export class BlockCom extends Component {
         }
     }
 
-    public setBlockColor(color: string) {
-        this.blockBg.color = new Color().fromHEX(color);
-    }
-
     public setResultColor(color: string) {
         this.blockLbl.color = new Color().fromHEX(color);
     }
 
-    public onClicked() {
-        Eventer.emit(GameEvents.ON_BLOCK_CLICK, this);
+    public setBlockBGColor(color: string) {
+        this.blockBg.color = new Color().fromHEX(color);
     }
 
     public resetBlock() {
         this.blockInfo.isSelect = false;
         this.setCandidate("");
-        this.resetColor();
+        this.resetBlockColor();
     }
 
     public resetBlockBy(status: number, result: string) {
         this.blockInfo.isSelect = false;
         this.setResult(status, result);
         this.setCandidate("");
-        this.resetColor();
+        this.resetBlockColor();
     }
 
-    public resetColor() {
+    public resetBlockColor() {
         this.setResultColor(BlockColor.Black);
-        this.setBlockColor(BlockColor.White);
+        this.setBlockBGColor(BlockColor.White);
+    }
+
+    public onClicked() {
+        Eventer.emit(GameEvents.ON_BLOCK_CLICK, this);
     }
 
     //getter / setter
@@ -121,7 +121,7 @@ export class BlockCom extends Component {
 
     /** 是否正确 */
     get IsCorrect() {
-        return this.blockInfo.status == BLOCK_TYPE.Right || this.blockInfo.status == BLOCK_TYPE.Lock;
+        return this.blockInfo.status == BLOCK_TYPE.RIGHT || this.blockInfo.status == BLOCK_TYPE.LOCK;
     }
 }
 

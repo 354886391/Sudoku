@@ -2,13 +2,13 @@ export enum BLOCK_TYPE {
     /** 空白 */
     BLANK = 0,
     /** 锁定 */
-    Lock,
+    LOCK,
     /** 正确 */
-    Right,
+    RIGHT,
     /** 错误 */
-    Fault,
+    FAULT,
     /** 其他 */
-    Other,
+    OTHER,
 }
 
 export interface Channel {

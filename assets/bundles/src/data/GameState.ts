@@ -4,18 +4,18 @@ import { Channel, Player } from "./GameDefine";
 
 export class GameState {
 
-    public static players: Player[];        // 玩家信息
     public static isGaming: boolean;
-    // board
-    private static _sudoku: Sudoku;
-    private static _board: string;
-    private static _solveBoard: string;
-    private static _candidatesBoard: string[][];
+    public static players: Player[];        // 玩家信息
     // frame
     public static frameId: number;          // 逻辑帧标示符
     public static frameTime: number;        // 当前帧的时间
     public static startTime: number;        // 游戏开始时间
     public static remainTime: number;       // 剩余时间
+    // board
+    private static _sudoku: Sudoku;
+    private static _board: string;
+    private static _solveBoard: string;
+    private static _candidatesBoard: string[][];
 
     static get board() {
         return this._board;
@@ -57,9 +57,11 @@ export class GameState {
             return players;
         }
         GameState.isGaming = false;
-        GameState.frameId = 0;
         GameState.players = initPlayers();
+        GameState.frameId = 0;
         GameState.frameTime = Date.now();
+        GameState.startTime = 0;
+        GameState.remainTime = Global.GAME_TIME;
     }
 
     /** 生成牌面 */
